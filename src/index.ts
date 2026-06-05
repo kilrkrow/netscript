@@ -13,4 +13,5 @@ export { THEMES, resolveTheme, clean, blueprint } from "./themes.ts";
 export { layoutModel } from "./layout.ts";
 export { buildRoutes } from "./router.ts";
 export { renderModel } from "./render.ts";
+export { parseNet } from "./parser.ts";
 export { threeRack } from "./examples.ts";

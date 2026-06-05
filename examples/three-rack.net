@@ -1,0 +1,58 @@
+---
+title: 3-Rack Leaf-Spine
+theme: blueprint
+---
+
+# Core fabric (managed gear carries one management address; no CIDRs at L1)
+wan   cloud    "Internet"   tier wan
+edge  firewall "Edge / FW"  tier edge mgmt 10.10.0.1
+core1 switch   "core-1"     tier core mgmt 10.10.0.2
+core2 switch   "core-2"     tier core mgmt 10.10.0.3
+
+rack A "Compute" {
+  a-tor switch  "tor-a"   tier tor mgmt 10.10.10.2
+  a-s1  server  "esxi-a1"          # hosts: no address (L3 is the logical layer)
+  a-s2  server  "esxi-a2"
+  a-s3  server  "esxi-a3"
+  a-s4  server  "esxi-a4"
+}
+
+rack B "Mixed" {
+  b-tor switch  "tor-b"   tier tor mgmt 10.10.20.2
+  b-s1  server  "k8s-b1"
+  b-s2  server  "k8s-b2"
+  b-s3  server  "k8s-b3"
+  b-st  storage "ceph-b1"
+}
+
+rack C "Storage" {
+  c-tor switch  "tor-c"   tier tor mgmt 10.10.30.2
+  c-st1 storage "san-c1"
+  c-st2 storage "san-c2"
+  c-s1  server  "bkp-c1"
+  c-s2  server  "bkp-c2"
+}
+
+# Links:  a -> b : speed [lag]      (-- = peer; class inferred from tiers)
+edge  -> wan   : WAN
+edge  -> core1 : 10G
+edge  -> core2 : 10G
+core1 -- core2 : 100G
+a-tor -> core1 : 25G
+a-tor -> core2 : 25G
+b-tor -> core1 : 25G
+b-tor -> core2 : 25G
+c-tor -> core1 : 25G
+c-tor -> core2 : 25G
+a-tor -> a-s1 : 10G lag
+a-tor -> a-s2 : 10G
+a-tor -> a-s3 : 10G
+a-tor -> a-s4 : 10G
+b-tor -> b-s1 : 10G
+b-tor -> b-s2 : 10G
+b-tor -> b-s3 : 10G
+b-tor -> b-st : 10G lag
+c-tor -> c-st1 : 10G lag
+c-tor -> c-st2 : 10G
+c-tor -> c-s1 : 10G
+c-tor -> c-s2 : 10G

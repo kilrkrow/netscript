@@ -52,12 +52,16 @@ export function layoutModel(m: NetModel): Layout {
     return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
   };
   const zones: Zone[] = [];
-  if (cores.length) { const b = bbox(cores); zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: "CORE" }); }
+  // Only draw a CORE container when there's a core *pair* to group; a lone
+  // core switch doesn't need a box around it.
+  if (cores.length >= 2) { const b = bbox(cores); zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: "CORE" }); }
   for (const r of m.racks) {
     const ds = m.devices.filter((d) => d.rack === r.id);
     if (!ds.length) continue;
     const b = bbox(ds);
-    zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: `${r.label} · ${r.role}`.toUpperCase() });
+    // Zone label is whatever the author wrote (the rack "role" string) — so a
+    // container can read "WLAN · Haven" or "Wired", not a forced "RACK X".
+    zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: r.role.toUpperCase() });
   }
 
   const maxY = Math.max(...m.devices.map((d) => d.y! + d.h! / 2));

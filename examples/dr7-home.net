@@ -4,10 +4,9 @@ theme: blueprint
 ---
 
 # Best-guess transcription from the DR7 client snapshot.
-# Wired vs Wi-Fi inferred from the Connection / WiFi columns:
-#   - wired clients sit under the switch (acc)
-#   - wireless clients sit under the Haven AP (ap1)
-# Names/IPs are approximate from the screenshot — edit freely in the live editor.
+# Wired clients are cabled to the switch. Wireless clients carry NO wires —
+# they sit in a WLAN container (the Haven SSID on the UDR7 radios).
+# Names/IPs are approximate from the screenshot — edit freely in the editor.
 
 wan  cloud    "Internet"            tier wan
 dr7  firewall "Dream Router 7"      tier edge mgmt 192.168.1.1
@@ -25,8 +24,8 @@ rack LAN "Wired" {
   nas    storage "NAS"
 }
 
-rack WIFI "Haven" {
-  ap1    ap      "UDR7 Radios"       tier tor
+# WLAN container — no wires; these associate over the air to the Haven SSID.
+rack WIFI "WLAN · Haven" {
   echo1  desktop "Echo Dot"
   echo2  desktop "Echo Plus"
   hue    desktop "Philips Hue"
@@ -37,23 +36,10 @@ rack WIFI "Haven" {
   wyze   desktop "WYZE Cam"
 }
 
-# uplinks
+# wired cabling only
 acc -> sw1 : 10G
-ap1 -> sw1 : 10G
-
-# wired access
 veng   -> acc : 1G
 srv    -> acc : 10G
 shield -> acc : 1G
 bro    -> acc : 1G
 nas    -> acc : 10G
-
-# wireless (Haven)
-echo1  -> ap1 : 1G
-echo2  -> ap1 : 1G
-hue    -> ap1 : 1G
-hedwig -> ap1 : 1G
-pixel  -> ap1 : 1G
-fold   -> ap1 : 1G
-nuki   -> ap1 : 1G
-wyze   -> ap1 : 1G

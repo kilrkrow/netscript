@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetScript — Live Editor</title>
+<style>
+  :root { --bg:#0f1623; --panel:#141d2e; --line:#243049; --ink:#e7edf7; --sub:#8a96ad; --accent:#5ea9ff; --ok:#34d399; --err:#f87171; }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; }
+  body { background:var(--bg); color:var(--ink); font:14px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display:flex; flex-direction:column; }
+  header { display:flex; align-items:center; gap:18px; padding:10px 16px; border-bottom:1px solid var(--line); background:var(--panel); flex:0 0 auto; }
+  .brand { font-weight:700; letter-spacing:.3px; }
+  .brand b { color:var(--accent); }
+  .brand .sub { color:#7c8aa3; font-weight:500; margin-left:8px; font-size:12.5px; }
+  .spacer { flex:1; }
+  header label { font-size:12.5px; color:#9fb0c9; display:inline-flex; align-items:center; gap:6px; }
+  select, button { font:inherit; font-size:13px; background:#0f1726; color:var(--ink); border:1px solid var(--line); border-radius:7px; padding:6px 10px; cursor:pointer; }
+  button:hover, select:hover { border-color:#36507e; }
+  a.repo { color:#7c8aa3; text-decoration:none; font-size:12.5px; }
+  a.repo:hover { color:var(--accent); }
+  main { flex:1; display:grid; grid-template-columns: minmax(320px, 38%) 1fr; min-height:0; }
+  .edit { position:relative; border-right:1px solid var(--line); display:flex; flex-direction:column; min-width:0; }
+  textarea { flex:1; resize:none; border:0; outline:0; background:#0c1320; color:#dbe7fb; padding:16px 16px 40px; font:13.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size:2; white-space:pre; overflow:auto; }
+  .status { position:absolute; left:0; right:0; bottom:0; padding:7px 14px; font:12.5px ui-monospace, Menlo, monospace; border-top:1px solid var(--line); background:var(--panel); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .status.ok { color:var(--ok); } .status.err { color:var(--err); }
+  .preview { overflow:auto; background:#0a0f19; display:flex; align-items:flex-start; justify-content:center; }
+  .preview .wrap { padding:22px; width:100%; }
+  .preview svg { width:100%; height:auto; display:block; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.35); }
+  .ac { position:fixed; z-index:50; background:#0f1726; border:1px solid #2b3c5e; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,.45); padding:4px; display:none; max-height:220px; overflow:auto; min-width:140px; }
+  .ac div { padding:5px 10px; border-radius:5px; font:13px ui-monospace, Menlo, monospace; color:#cfe0ff; cursor:pointer; }
+  .ac div.sel { background:#1e3358; color:#fff; }
+  .ac .hint { color:#6b7c98; font-size:11px; }
+</style>
+</head>
+<body>
+<header>
+  <span class="brand"><b>Net</b>Script<span class="sub">live editor</span></span>
+  <span class="spacer"></span>
+  <label>Sample <select id="samples"></select></label>
+  <label>Theme
+    <select id="theme"><option value="clean">clean</option><option value="blueprint">blueprint</option></select>
+  </label>
+  <button id="export">Export SVG</button>
+  <button id="share">Copy link</button>
+  <a class="repo" href="https://github.com/kilrkrow/netscript" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+</header>
+<main>
+  <section class="edit">
+    <textarea id="src" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+    <div id="status" class="status">ready</div>
+  </section>
+  <section class="preview"><div class="wrap" id="out"></div></section>
+</main>
+<div id="ac" class="ac"></div>
+
+<script src="netscript.js"></script>
+<script>
+(function () {
+  "use strict";
+  var NS = window.NetScript;
+  var ta = document.getElementById("src");
+  var out = document.getElementById("out");
+  var status = document.getElementById("status");
+  var themeSel = document.getElementById("theme");
+  var sampleSel = document.getElementById("samples");
+  var acEl = document.getElementById("ac");
+
+  // ---- prebuilt samples -----------------------------------------------------
+  var SAMPLES = {
+    "three-rack": "" +
+"---\ntitle: 3-Rack Leaf-Spine\ntheme: blueprint\n---\n\n" +
+"# Core fabric (managed gear shows one mgmt address; no CIDRs at L1)\n" +
+"wan   cloud    \"Internet\"   tier wan\n" +
+"edge  firewall \"Edge / FW\"  tier edge mgmt 10.10.0.1\n" +
+"core1 switch   \"core-1\"     tier core mgmt 10.10.0.2\n" +
+"core2 switch   \"core-2\"     tier core mgmt 10.10.0.3\n\n" +
+"rack A \"Compute\" {\n  a-tor switch  \"tor-a\"   tier tor mgmt 10.10.10.2\n  a-s1  server  \"esxi-a1\"\n  a-s2  server  \"esxi-a2\"\n  a-s3  server  \"esxi-a3\"\n  a-s4  server  \"esxi-a4\"\n}\n\n" +
+"rack B \"Mixed\" {\n  b-tor switch  \"tor-b\"   tier tor mgmt 10.10.20.2\n  b-s1  server  \"k8s-b1\"\n  b-s2  server  \"k8s-b2\"\n  b-s3  server  \"k8s-b3\"\n  b-st  storage \"ceph-b1\"\n}\n\n" +
+"rack C \"Storage\" {\n  c-tor switch  \"tor-c\"   tier tor mgmt 10.10.30.2\n  c-st1 storage \"san-c1\"\n  c-st2 storage \"san-c2\"\n  c-s1  server  \"bkp-c1\"\n  c-s2  server  \"bkp-c2\"\n}\n\n" +
+"# Links:  a -> b : speed [lag]   (-- = peer; class inferred from tiers)\n" +
+"edge  -> wan   : WAN\nedge  -> core1 : 10G\nedge  -> core2 : 10G\ncore1 -- core2 : 100G\n" +
+"a-tor -> core1 : 25G\na-tor -> core2 : 25G\nb-tor -> core1 : 25G\nb-tor -> core2 : 25G\nc-tor -> core1 : 25G\nc-tor -> core2 : 25G\n" +
+"a-tor -> a-s1 : 10G lag\na-tor -> a-s2 : 10G\na-tor -> a-s3 : 10G\na-tor -> a-s4 : 10G\n" +
+"b-tor -> b-s1 : 10G\nb-tor -> b-s2 : 10G\nb-tor -> b-s3 : 10G\nb-tor -> b-st : 10G lag\n" +
+"c-tor -> c-st1 : 10G lag\nc-tor -> c-st2 : 10G\nc-tor -> c-s1 : 10G\nc-tor -> c-s2 : 10G\n",
+
+    "small-lab": "" +
+"---\ntitle: Small Lab\ntheme: clean\n---\n\n" +
+"wan   cloud    \"Internet\"  tier wan\nedge  firewall \"Gateway\"   tier edge mgmt 10.0.0.1\ncore  switch   \"core-sw\"   tier core mgmt 10.0.0.2\n\n" +
+"rack A \"Lab\" {\n  tor  switch  \"access-sw\" tier tor mgmt 10.0.10.2\n  nas  storage \"TrueNAS\"\n  srv  server  \"Proxmox\"\n  ws   server  \"Workstation\"\n}\n\n" +
+"edge -> wan  : WAN\nedge -> core : 10G\ncore -> tor  : 10G\ntor  -> nas  : 10G lag\ntor  -> srv  : 10G\ntor  -> ws   : 1G\n",
+
+    "starter": "" +
+"---\ntitle: My Network\ntheme: clean\n---\n\n" +
+"wan  cloud    \"Internet\" tier wan\nedge firewall \"Router\"   tier edge mgmt 10.0.0.1\ncore switch   \"Switch\"   tier core mgmt 10.0.0.2\n\n" +
+"rack A \"LAN\" {\n  sw  switch  \"access\" tier tor mgmt 10.0.10.2\n  pc  desktop \"Desktop\"\n  nas storage \"NAS\"\n}\n\n" +
+"edge -> wan  : WAN\nedge -> core : 1G\ncore -> sw   : 1G\nsw   -> pc   : 1G\nsw   -> nas  : 1G lag\n"
+  };
+  Object.keys(SAMPLES).forEach(function (k) {
+    var o = document.createElement("option"); o.value = k; o.textContent = k; sampleSel.appendChild(o);
+  });
+
+  // ---- live render ----------------------------------------------------------
+  var lastGood = "";
+  function frontmatterTheme(text) {
+    var m = text.match(/^---[\s\S]*?\btheme\s*:\s*(\w+)/);
+    return m ? m[1] : null;
+  }
+  function render() {
+    var text = ta.value;
+    try {
+      var model = NS.parseNet(text);
+      var svg = NS.renderModel(model, themeSel.value);
+      out.innerHTML = svg; lastGood = svg;
+      status.className = "status ok";
+      status.textContent = "✓ " + model.devices.length + " nodes · " + model.links.length + " links";
+    } catch (e) {
+      status.className = "status err";
+      status.textContent = "✗ " + (e && e.message ? e.message : String(e));
+    }
+  }
+  var t = null;
+  function schedule() { clearTimeout(t); t = setTimeout(render, 180); }
+
+  // ---- autocomplete ---------------------------------------------------------
+  var KINDS = ["cloud","router","firewall","switch","server","storage","ap","desktop"];
+  var TIERS = ["wan","edge","core","tor","host"];
+  var SPEEDS = ["WAN","1G","10G","25G","40G","100G"];
+  var acItems = [], acSel = 0, acStart = 0;
+
+  function deviceIds(text) {
+    var ids = [], re = /^(?:cloud|router|firewall|switch|server|storage|ap|desktop)$/;
+    text.split("\n").forEach(function (raw) {
+      var s = raw.replace(/#.*/, "").trim();
+      if (!s || s === "}" || s.indexOf("rack ") === 0) return;
+      var m = s.match(/^(\S+)\s+(\S+)\s+"/);
+      if (m && re.test(m[2].toLowerCase())) ids.push(m[1]);
+    });
+    return ids.filter(function (v, i, a) { return a.indexOf(v) === i; });
+  }
+  function contextSuggest() {
+    var pos = ta.selectionStart;
+    var text = ta.value;
+    var ls = text.lastIndexOf("\n", pos - 1) + 1;
+    var line = text.slice(ls, pos);
+    var word = (line.match(/(\S*)$/) || [""])[0];
+    var before = line.slice(0, line.length - word.length);
+    var toks = before.trim().length ? before.trim().split(/\s+/) : [];
+    var last = toks[toks.length - 1] || "";
+    var hasArrow = /(->|--)/.test(line);
+    var pool;
+    if (last === "tier") pool = TIERS;
+    else if (last === "mgmt") pool = [];
+    else if (hasArrow) {
+      if (/:/.test(before)) pool = SPEEDS.concat(["lag"]);
+      else if (last === "->" || last === "--" || toks.length === 0) pool = deviceIds(text);
+      else pool = [];
+    } else {
+      var quoteClosed = (before.match(/"/g) || []).length >= 2;
+      if (quoteClosed) {
+        pool = [];
+        if (!/\btier\b/.test(before)) pool.push("tier");
+        if (!/\bmgmt\b/.test(before)) pool.push("mgmt");
+      } else if (toks.length === 1) pool = KINDS;
+      else if (toks.length === 0) pool = deviceIds(text).concat(["rack"]);
+      else pool = [];
+    }
+    var w = word.toLowerCase();
+    return { items: (pool || []).filter(function (x) { return x.toLowerCase().indexOf(w) === 0 && x.toLowerCase() !== w; }).slice(0, 8), word: word };
+  }
+  function caretXY() {
+    var div = document.createElement("div"), s = getComputedStyle(ta);
+    ["fontFamily","fontSize","fontWeight","lineHeight","letterSpacing","paddingTop","paddingLeft","paddingRight","paddingBottom","borderTopWidth","borderLeftWidth"].forEach(function (p) { div.style[p] = s[p]; });
+    div.style.position = "absolute"; div.style.visibility = "hidden"; div.style.whiteSpace = "pre-wrap"; div.style.wordWrap = "break-word"; div.style.width = ta.clientWidth + "px";
+    var r = ta.getBoundingClientRect();
+    div.textContent = ta.value.slice(0, ta.selectionStart);
+    var span = document.createElement("span"); span.textContent = "​"; div.appendChild(span);
+    document.body.appendChild(div);
+    var lh = parseFloat(s.lineHeight) || parseFloat(s.fontSize) * 1.6;
+    var x = r.left + (span.offsetLeft - ta.scrollLeft);
+    var y = r.top + (span.offsetTop - ta.scrollTop) + lh;
+    document.body.removeChild(div);
+    return { x: x, y: y };
+  }
+  function showAC() {
+    try {
+      var c = contextSuggest();
+      acItems = c.items; acStart = ta.selectionStart - c.word.length;
+      if (!acItems.length) { hideAC(); return; }
+      acSel = 0;
+      acEl.innerHTML = acItems.map(function (it, i) { return '<div class="' + (i === 0 ? "sel" : "") + '">' + it + "</div>"; }).join("");
+      Array.prototype.forEach.call(acEl.children, function (ch, i) {
+        ch.addEventListener("mousedown", function (e) { e.preventDefault(); acSel = i; accept(); });
+      });
+      var p = caretXY();
+      acEl.style.left = Math.min(p.x, window.innerWidth - 180) + "px";
+      acEl.style.top = (p.y + 2) + "px";
+      acEl.style.display = "block";
+    } catch (e) { hideAC(); }
+  }
+  function hideAC() { acEl.style.display = "none"; acItems = []; }
+  function moveAC(d) {
+    if (!acItems.length) return;
+    acSel = (acSel + d + acItems.length) % acItems.length;
+    Array.prototype.forEach.call(acEl.children, function (ch, i) { ch.className = i === acSel ? "sel" : ""; });
+  }
+  function accept() {
+    if (!acItems.length) return;
+    var pick = acItems[acSel];
+    var v = ta.value, end = ta.selectionStart;
+    ta.value = v.slice(0, acStart) + pick + " " + v.slice(end);
+    var np = acStart + pick.length + 1;
+    ta.selectionStart = ta.selectionEnd = np;
+    hideAC(); schedule();
+  }
+
+  ta.addEventListener("keydown", function (e) {
+    if (acEl.style.display === "block" && acItems.length) {
+      if (e.key === "ArrowDown") { e.preventDefault(); moveAC(1); return; }
+      if (e.key === "ArrowUp")   { e.preventDefault(); moveAC(-1); return; }
+      if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); accept(); return; }
+      if (e.key === "Escape") { e.preventDefault(); hideAC(); return; }
+    }
+    if (e.key === "Tab") { // soft-indent
+      e.preventDefault();
+      var s = ta.selectionStart, en = ta.selectionEnd;
+      ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(en);
+      ta.selectionStart = ta.selectionEnd = s + 2;
+    }
+  });
+  ta.addEventListener("input", function () { schedule(); showAC(); });
+  ta.addEventListener("click", hideAC);
+  ta.addEventListener("blur", function () { setTimeout(hideAC, 120); });
+
+  // ---- toolbar --------------------------------------------------------------
+  themeSel.addEventListener("change", render);
+  sampleSel.addEventListener("change", function () { loadText(SAMPLES[sampleSel.value]); });
+  document.getElementById("export").addEventListener("click", function () {
+    var blob = new Blob([lastGood || out.innerHTML], { type: "image/svg+xml" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = (ta.value.match(/title\s*:\s*(.+)/) || [, "netscript"])[1].trim().replace(/\s+/g, "-").toLowerCase() + ".svg";
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+  document.getElementById("share").addEventListener("click", function () {
+    location.hash = "n=" + btoa(unescape(encodeURIComponent(ta.value)));
+    if (navigator.clipboard) navigator.clipboard.writeText(location.href);
+    var s = document.getElementById("share"); var o = s.textContent; s.textContent = "Copied!"; setTimeout(function () { s.textContent = o; }, 1200);
+  });
+
+  function loadText(text) {
+    ta.value = text;
+    var th = frontmatterTheme(text); if (th) themeSel.value = th;
+    hideAC(); render();
+  }
+
+  // ---- boot -----------------------------------------------------------------
+  var h = location.hash;
+  if (h.indexOf("#n=") === 0) {
+    try { loadText(decodeURIComponent(escape(atob(h.slice(3))))); }
+    catch (e) { loadText(SAMPLES["three-rack"]); }
+  } else {
+    sampleSel.value = "three-rack";
+    loadText(SAMPLES["three-rack"]);
+  }
+})();
+</script>
+</body>
+</html>

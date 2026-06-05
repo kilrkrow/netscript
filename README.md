@@ -43,6 +43,25 @@ import { renderModel, threeRack } from "@kilrkrow/netscript";
 const svg = renderModel(threeRack, "blueprint");
 ```
 
+## Live editor
+
+A self-contained browser editor lives in [`editor/`](editor/) — type `.net` on the left, watch the diagram render live on the right. No backend, no build step required to run it.
+
+- **Caret-aware autocomplete** — device kinds, tiers, link speeds, and existing device IDs, from the typed grammar + a live symbol table.
+- **Inline diagnostics** — line-numbered parser errors in the status bar.
+- **Prebuilt samples** — *three-rack leaf-spine*, *small lab*, *starter* — in the picker.
+- **Theme switch** (clean / blueprint), **Export SVG**, and **Copy link** (the diagram is encoded in the URL `#fragment` — shareable with zero backend).
+
+Run it:
+
+```bash
+npm run build:editor          # regenerate editor/netscript.js (Node 24 only — no deps)
+# then serve the folder (ES-module-free bundle, so file:// works too):
+python3 -m http.server -d editor 8080   # → http://localhost:8080
+```
+
+Host it for free on **GitHub Pages** (Settings → Pages → deploy from `main`) — the editor is then at `…/netscript/editor/`. No Cloudflare Worker needed; a Worker only enters the picture later for the server-side LLM generation path.
+
 ## The model
 
 A `NetModel` is layout-free — you describe *what connects to what*, and NetScript places and routes it:
@@ -93,12 +112,14 @@ More (dark NOC, monochrome, icon-rich) are straightforward to add — a theme is
 ## Roadmap
 
 - [x] Physical-layer model · layout · rebuilt router · `clean` + `blueprint` themes · CLI → SVG
-- [ ] `.net` text DSL + parser (hand-authoring)
+- [x] `.net` text DSL + parser (hand-authoring)
+- [x] Static **live editor** — autocomplete, inline diagnostics, samples, export, share-by-URL
 - [ ] More themes (dark NOC, monochrome, icon-rich) + rack-elevation view
+- [ ] LLM `compile_net` (model JSON in → `.net` + SVG out) for the generation path
 - [ ] Logical layer: VLANs, subnets, bond semantics (L2/L3 overlays on the same model)
 - [ ] **Importers / discovery** — populate the model from real gear: UniFi → Proxmox → Portainer (the diagram that stays current)
 - [ ] SysML v2 export/import as an edge adapter (model interchange, not text parsing)
-- [ ] REST `/render`, MCP server, and a browser editor (harness, mirrored from FlowScript)
+- [ ] REST `/render` + MCP server (harness, mirrored from FlowScript)
 
 ## Design notes
 

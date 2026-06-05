@@ -1,0 +1,59 @@
+---
+title: Home Lab — DR7 (current)
+theme: blueprint
+---
+
+# Best-guess transcription from the DR7 client snapshot.
+# Wired vs Wi-Fi inferred from the Connection / WiFi columns:
+#   - wired clients sit under the switch (acc)
+#   - wireless clients sit under the Haven AP (ap1)
+# Names/IPs are approximate from the screenshot — edit freely in the live editor.
+
+wan  cloud    "Internet"            tier wan
+dr7  firewall "Dream Router 7"      tier edge mgmt 192.168.1.1
+sw1  switch   "USW Pro Max 16-Port" tier core mgmt 192.168.1.2
+
+dr7 -> wan : WAN
+dr7 -> sw1 : 10G
+
+rack LAN "Wired" {
+  acc    switch  "USW access"        tier tor mgmt 192.168.1.3
+  veng   desktop "VENGEANCE (PC)"
+  srv    server  "Provision Server"
+  shield desktop "NVIDIA Shield"
+  bro    desktop "Brother Printer"
+  nas    storage "NAS"
+}
+
+rack WIFI "Haven" {
+  ap1    ap      "UDR7 Radios"       tier tor
+  echo1  desktop "Echo Dot"
+  echo2  desktop "Echo Plus"
+  hue    desktop "Philips Hue"
+  hedwig desktop "HEDWIG (TP-Link)"
+  pixel  desktop "Pixel 9 Pro"
+  fold   desktop "Z Fold"
+  nuki   desktop "Nuki Lock"
+  wyze   desktop "WYZE Cam"
+}
+
+# uplinks
+acc -> sw1 : 10G
+ap1 -> sw1 : 10G
+
+# wired access
+veng   -> acc : 1G
+srv    -> acc : 10G
+shield -> acc : 1G
+bro    -> acc : 1G
+nas    -> acc : 10G
+
+# wireless (Haven)
+echo1  -> ap1 : 1G
+echo2  -> ap1 : 1G
+hue    -> ap1 : 1G
+hedwig -> ap1 : 1G
+pixel  -> ap1 : 1G
+fold   -> ap1 : 1G
+nuki   -> ap1 : 1G
+wyze   -> ap1 : 1G

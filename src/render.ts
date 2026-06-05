@@ -63,10 +63,11 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
     const filt = S.shadow ? ' filter="url(#sh)"' : "";
     out.push(`<rect x="${(cx - w / 2).toFixed(1)}" y="${(cy - h / 2).toFixed(1)}" width="${w}" height="${h}" rx="${S.radius}" fill="${S.cardFill}" stroke="${S.cardStroke}" stroke-width="${S.cardStrokeW}"${filt}/>`);
     const gx = cx - w / 2 + 19;
-    out.push(GLYPH[d.kind](gx, cy - (S.showIp ? 6 : 0), 15, S.chipStroke ?? kc, "none", 1.4));
-    const ty = S.showIp ? cy - 4 : cy + 1;
+    const hasMgmt = S.showMgmt && !!d.mgmt;   // only managed gear carries one
+    out.push(GLYPH[d.kind](gx, cy - (hasMgmt ? 6 : 0), 15, S.chipStroke ?? kc, "none", 1.4));
+    const ty = hasMgmt ? cy - 4 : cy + 1;
     out.push(`<text x="${(gx + 15).toFixed(1)}" y="${ty.toFixed(1)}" font-size="11.5" fill="${S.text}" font-weight="600" dominant-baseline="middle">${esc(d.label)}</text>`);
-    if (S.showIp && d.ip) out.push(`<text x="${(gx + 15).toFixed(1)}" y="${(cy + 10).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(d.ip)}</text>`);
+    if (hasMgmt) out.push(`<text x="${(gx + 15).toFixed(1)}" y="${(cy + 10).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(d.mgmt!)}</text>`);
   }
 
   // legend (speeds actually present)

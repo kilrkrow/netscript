@@ -54,10 +54,10 @@ const model: NetModel = {
   title: "Home Lab",
   racks: [{ id: "A", label: "Rack A", role: "Compute" }],
   devices: [
-    { id: "edge",  kind: "firewall", label: "Edge / FW", tier: "edge", ip: "10.0.0.1" },
-    { id: "core1", kind: "switch",   label: "core-1",    tier: "core", ip: "10.0.0.2" },
-    { id: "a-tor", kind: "switch",   label: "tor-a",     tier: "tor",  rack: "A" },
-    { id: "a-s1",  kind: "server",   label: "esxi-a1",   tier: "host", rack: "A" },
+    { id: "edge",  kind: "firewall", label: "Edge / FW", tier: "edge", mgmt: "10.10.0.1" },
+    { id: "core1", kind: "switch",   label: "core-1",    tier: "core", mgmt: "10.10.0.2" },
+    { id: "a-tor", kind: "switch",   label: "tor-a",     tier: "tor",  rack: "A", mgmt: "10.10.10.2" },
+    { id: "a-s1",  kind: "server",   label: "esxi-a1",   tier: "host", rack: "A" }, // host: no address
   ],
   links: [
     { a: "edge",  b: "core1", speed: "10G" },
@@ -67,7 +67,7 @@ const model: NetModel = {
 };
 ```
 
-`tier` (`wan` · `edge` · `core` · `tor` · `host`) drives layout and lets the router infer each link's class (uplink, peer, intra-rack, …). `bond: true` draws a link as an offset parallel pair with a `LAG` tag.
+`tier` (`wan` · `edge` · `core` · `tor` · `host`) drives layout and lets the router infer each link's class (uplink, peer, intra-rack, …). `bond: true` draws a link as an offset parallel pair with a `LAG` tag. `mgmt` is an optional **management address** on managed gear only — hosts carry none, and there are no CIDRs at the physical layer (addressing is logical — see below).
 
 ## How it works
 
@@ -86,7 +86,7 @@ This is the load-bearing idea: **the model is the source of truth; every renderi
 | Theme | Use |
 |-------|-----|
 | `clean` | White, Visio-like — the neutral documentation default. |
-| `blueprint` | Schematic blue, per-device IPs, title block — high-density "as-built". |
+| `blueprint` | Schematic blue, management addresses, title block — high-density "as-built". |
 
 More (dark NOC, monochrome, icon-rich) are straightforward to add — a theme is just a token set.
 
@@ -103,6 +103,7 @@ More (dark NOC, monochrome, icon-rich) are straightforward to add — a theme is
 ## Design notes
 
 - **v0.1 is physical only.** Logical (VLAN/subnet/bond meaning) is a layer over the same model, not a rewrite.
+- **Addressing is logical, not physical.** Managed gear may carry a single *management* address; hosts carry none; subnets/CIDRs describe segments/VLANs, not devices. All real addressing is the logical layer (v2). The physical view is devices, ports, cabling, and speeds.
 - **Importers are adapters at the edges.** A UniFi/Proxmox/SysML adapter maps into the `NetModel`; the core never learns those formats. The model can drift from reality, so auto-population (discovery) is what ultimately keeps a diagram honest.
 - **SysML v2 is a future interchange target**, consumed/produced via its JSON/abstract-syntax (the standard API), never by parsing the textual notation.
 

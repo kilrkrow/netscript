@@ -52,6 +52,7 @@ export interface NetModel {
   devices: Device[];
   links: Link[];
   racks: Rack[];
+  theme?: string;           // optional default theme from `.net` frontmatter
 }
 
 export type Pt = { x: number; y: number };

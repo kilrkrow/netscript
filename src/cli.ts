@@ -2,33 +2,44 @@
 /**
  * NetScript CLI (v0.1).
  *
- *   netscript --example three-rack --theme blueprint -o diagram.svg
+ *   netscript <file.net> [--theme blueprint] [-o out.svg]
+ *   netscript --example three-rack --theme clean -o out.svg
  *
- * v0.1 renders the bundled example model. The `.net` text DSL parser is the
- * next milestone; once it lands, a positional <file.net> argument will load a
- * model from disk.
+ * Pass a `.net` file to render an authored diagram, or `--example` for a
+ * bundled model. Theme precedence: --theme flag > frontmatter `theme:` > clean.
  */
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { renderModel } from "./render.ts";
+import { parseNet } from "./parser.ts";
 import { threeRack } from "./examples.ts";
+import type { NetModel } from "./model.ts";
 
-const argv = process.argv;
+const argv = process.argv.slice(2);
 const arg = (flag: string, def?: string): string | undefined => {
   const i = argv.indexOf(flag);
   return i >= 0 && i + 1 < argv.length ? argv[i + 1] : def;
 };
 
-const theme = arg("--theme", "clean")!;
+const file = argv.find((a) => a.endsWith(".net"));
+const example = arg("--example");
 const outFile = arg("-o", arg("--out", "netscript.svg"))!;
-const example = arg("--example", "three-rack")!;
 
-const models: Record<string, typeof threeRack> = { "three-rack": threeRack };
-const model = models[example];
-if (!model) {
-  console.error(`netscript: unknown example "${example}" (have: ${Object.keys(models).join(", ")})`);
-  process.exit(1);
+let model: NetModel;
+let source: string;
+if (file) {
+  model = parseNet(readFileSync(file, "utf8"));
+  source = file;
+} else {
+  const models: Record<string, NetModel> = { "three-rack": threeRack };
+  const key = example ?? "three-rack";
+  if (!models[key]) {
+    console.error(`netscript: unknown example "${key}" (have: ${Object.keys(models).join(", ")})`);
+    process.exit(1);
+  }
+  model = models[key];
+  source = `example:${key}`;
 }
 
-const svg = renderModel(model, theme);
-writeFileSync(outFile, svg);
-console.error(`netscript: rendered ${example} [${theme}] → ${outFile} · ${model.devices.length} nodes / ${model.links.length} links`);
+const theme = arg("--theme") ?? model.theme ?? "clean";
+writeFileSync(outFile, renderModel(model, theme));
+console.error(`netscript: rendered ${source} [${theme}] → ${outFile} · ${model.devices.length} nodes / ${model.links.length} links`);

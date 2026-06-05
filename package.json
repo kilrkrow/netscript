@@ -9,6 +9,7 @@
   "files": ["dist", "src", "README.md", "LICENSE"],
   "scripts": {
     "build": "esbuild src/index.ts src/cli.ts --bundle --platform=node --format=esm --outdir=dist --packages=external",
+    "build:editor": "node scripts/build-editor.mjs",
     "typecheck": "tsc --noEmit",
     "render:examples": "node src/cli.ts --example three-rack --theme blueprint -o examples/three-rack-blueprint.svg && node src/cli.ts --example three-rack --theme clean -o examples/three-rack-clean.svg",
     "dev": "node src/cli.ts"

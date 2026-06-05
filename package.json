@@ -1,0 +1,23 @@
+{
+  "name": "@kilrkrow/netscript",
+  "version": "0.1.0",
+  "description": "A diagram-as-code DSL and renderer for physical network & infrastructure topology — clean, Visio-grade SVG from a declarative model.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": { "netscript": "dist/cli.js" },
+  "files": ["dist", "src", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "esbuild src/index.ts src/cli.ts --bundle --platform=node --format=esm --outdir=dist --packages=external",
+    "typecheck": "tsc --noEmit",
+    "render:examples": "node src/cli.ts --example three-rack --theme blueprint -o examples/three-rack-blueprint.svg && node src/cli.ts --example three-rack --theme clean -o examples/three-rack-clean.svg",
+    "dev": "node src/cli.ts"
+  },
+  "keywords": ["network-diagram", "topology", "svg", "dsl", "diagram-as-code", "infrastructure", "homelab", "leaf-spine", "netbox"],
+  "license": "MIT",
+  "author": "kilrkrow",
+  "devDependencies": {
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.0"
+  }
+}

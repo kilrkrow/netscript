@@ -19,6 +19,24 @@ export type Tier = "wan" | "edge" | "core" | "tor" | "host";
 
 export type Speed = "WAN" | "1G" | "10G" | "25G" | "40G" | "100G" | "LAG";
 
+/**
+ * A first-class PHYSICAL PORT on a device. Ports are a physical-layer concept:
+ * a jack on the chassis with a name (wan0 / eth1 / g1) and, optionally, a
+ * speed and media. Labeling them is physical documentation — closing the gap
+ * left by today's device→device links, which skip the port callouts.
+ *
+ * `addr` is the one place the physical and logical layers touch on a port: an
+ * L3 address configured directly on the interface (the untagged / native case,
+ * or a routed port). VLAN/SVI addressing lives on the logical layer instead.
+ */
+export interface Port {
+  id: string;               // unique WITHIN the owning device
+  name: string;             // display label, e.g. "wan0", "eth1", "g1/0/1"
+  speed?: Speed;            // optional per-port speed (overrides link speed in callout)
+  media?: string;           // optional, e.g. "SFP+", "RJ45", "QSFP28"
+  addr?: string;            // optional L3 address on the interface (logical touch-point)
+}
+
 export interface Device {
   id: string;
   kind: Kind;
@@ -31,6 +49,8 @@ export interface Device {
    * VLANs) is a logical-layer concern and lands in v2. Hosts omit this.
    */
   mgmt?: string;
+  /** Optional first-class physical ports (completes the physical layer). */
+  ports?: Port[];
   rack?: string;            // rack id (for tor/host devices)
   /** assigned by layout */
   x?: number; y?: number; w?: number; h?: number;
@@ -41,11 +61,40 @@ export interface Link {
   b: string;                // device id (the upper / spine end)
   speed: Speed;
   bond?: boolean;           // dual-homed / LAG — drawn as an offset pair
+  /**
+   * Optional PORT attachment. When given, the cable terminates on a specific
+   * named port of each device and the renderer draws a port callout there.
+   * Omitting them keeps the v0.1 device→device behaviour (fully back-compat).
+   */
+  aPort?: string;           // port id on device `a`
+  bPort?: string;           // port id on device `b`
   /** assigned by router */
   klass?: "wan" | "e2c" | "peer" | "uplink" | "intra";
 }
 
 export interface Rack { id: string; label: string; role: string; }
+
+/**
+ * LOGICAL-layer additions (additive; absent on pure physical models).
+ *
+ * A VLAN is an L2 segment that may carry an L3 subnet (CIDR). Its members
+ * reference physical ports by `{ device, port }` and record tagged/untagged
+ * (trunk vs. access). A Bond/LAG is a LOGICAL INTERFACE built from physical
+ * member ports on one device — the bridge between the two layers.
+ */
+export interface VlanMember { device: string; port: string; tagged?: boolean; }
+export interface Vlan {
+  id: number;               // 802.1Q VLAN id
+  name: string;
+  subnet?: string;          // optional CIDR, e.g. "10.20.0.0/24"
+  members: VlanMember[];
+}
+export interface Bond {
+  id: string;               // logical interface name, e.g. "lag1", "bond0"
+  device: string;           // owning device id
+  memberPorts: string[];    // physical port ids on `device`
+  mode?: string;            // optional, e.g. "lacp", "active-backup"
+}
 
 export interface NetModel {
   title: string;
@@ -53,6 +102,9 @@ export interface NetModel {
   links: Link[];
   racks: Rack[];
   theme?: string;           // optional default theme from `.net` frontmatter
+  /** logical-layer overlays (additive; physical models omit these) */
+  vlans?: Vlan[];
+  bonds?: Bond[];
 }
 
 export type Pt = { x: number; y: number };

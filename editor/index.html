@@ -26,9 +26,10 @@
   textarea { flex:1; resize:none; border:0; outline:0; background:#0c1320; color:#dbe7fb; padding:16px 16px 40px; font:13.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size:2; white-space:pre; overflow:auto; }
   .status { position:absolute; left:0; right:0; bottom:0; padding:7px 14px; font:12.5px ui-monospace, Menlo, monospace; border-top:1px solid var(--line); background:var(--panel); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .status.ok { color:var(--ok); } .status.err { color:var(--err); }
-  .preview { position:relative; overflow:auto; background:#0a0f19; display:flex; align-items:flex-start; justify-content:center; }
-  .preview .wrap { padding:22px; width:100%; }
-  .preview svg { width:100%; height:auto; display:block; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.35); }
+  .preview { position:relative; overflow:hidden; background:#0a0f19; cursor:grab; }
+  .preview.grabbing { cursor:grabbing; }
+  #out { position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform; }
+  #out svg { display:block; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.35); }
   .zoom { position:absolute; top:10px; right:14px; z-index:20; display:flex; gap:4px; align-items:center; background:rgba(15,23,38,.88); border:1px solid var(--line); border-radius:9px; padding:4px 6px; }
   .zoom button { padding:2px 10px; font-size:15px; line-height:1; }
   .zoom #zfit { font-size:12px; }
@@ -128,7 +129,7 @@
       var model = NS.parseNet(text);
       var svg = NS.renderModel(model, themeSel.value);
       out.innerHTML = svg; lastGood = svg;
-      applyZoom();
+      sizeSvg();
       status.className = "status ok";
       status.textContent = "✓ " + model.devices.length + " nodes · " + model.links.length + " links";
     } catch (e) {
@@ -265,21 +266,25 @@
     var s = document.getElementById("share"); var o = s.textContent; s.textContent = "Copied!"; setTimeout(function () { s.textContent = o; }, 1200);
   });
 
-  // ---- zoom -----------------------------------------------------------------
-  var zoom = 1;
-  function applyZoom() {
-    var svg = out.querySelector("svg");
-    if (svg) svg.style.width = (zoom * 100).toFixed(0) + "%";
-    var zl = document.getElementById("zlbl"); if (zl) zl.textContent = Math.round(zoom * 100) + "%";
-  }
-  function setZoom(z) { zoom = Math.max(0.25, Math.min(4, z)); applyZoom(); }
-  document.getElementById("zin").addEventListener("click", function () { setZoom(zoom * 1.25); });
-  document.getElementById("zout").addEventListener("click", function () { setZoom(zoom / 1.25); });
-  document.getElementById("zfit").addEventListener("click", function () { setZoom(1); });
+  // ---- infinite canvas: pan + zoom-to-cursor -------------------------------
+  var z = 1, panX = 0, panY = 0;
   var preview = document.querySelector(".preview");
-  preview.addEventListener("wheel", function (e) {
-    if (e.ctrlKey || e.metaKey) { e.preventDefault(); setZoom(zoom * (e.deltaY < 0 ? 1.1 : 0.9)); }
-  }, { passive: false });
+  var zlbl = document.getElementById("zlbl");
+  function clampZ(v) { return Math.max(0.05, Math.min(4, v)); }
+  function applyView() { out.style.transform = "translate(" + panX + "px," + panY + "px) scale(" + z + ")"; if (zlbl) zlbl.textContent = Math.round(z * 100) + "%"; }
+  function svgSize() { var s = out.querySelector("svg"); if (!s) return null; var vb = (s.getAttribute("viewBox") || "").split(/\s+/).map(Number); return vb.length === 4 ? { w: vb[2], h: vb[3] } : null; }
+  function sizeSvg() { var s = out.querySelector("svg"); var sz = svgSize(); if (s && sz) { s.style.width = sz.w + "px"; s.style.height = sz.h + "px"; } applyView(); }
+  function fit() { var sz = svgSize(); if (!sz || !preview.clientWidth) return; var pad = 48; z = clampZ(Math.min((preview.clientWidth - pad) / sz.w, (preview.clientHeight - pad) / sz.h)); panX = (preview.clientWidth - sz.w * z) / 2; panY = (preview.clientHeight - sz.h * z) / 2; applyView(); }
+  function zoomAt(cx, cy, f) { var nz = clampZ(z * f); panX = cx - (cx - panX) * (nz / z); panY = cy - (cy - panY) * (nz / z); z = nz; applyView(); }
+  document.getElementById("zin").addEventListener("click", function () { zoomAt(preview.clientWidth / 2, preview.clientHeight / 2, 1.25); });
+  document.getElementById("zout").addEventListener("click", function () { zoomAt(preview.clientWidth / 2, preview.clientHeight / 2, 0.8); });
+  document.getElementById("zfit").addEventListener("click", fit);
+  preview.addEventListener("wheel", function (e) { e.preventDefault(); var r = preview.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.1 : 0.9); }, { passive: false });
+  // drag to pan
+  var pan = false, sx = 0, sy = 0, spx = 0, spy = 0;
+  preview.addEventListener("mousedown", function (e) { if (e.target.closest && e.target.closest(".zoom")) return; pan = true; preview.classList.add("grabbing"); sx = e.clientX; sy = e.clientY; spx = panX; spy = panY; e.preventDefault(); });
+  window.addEventListener("mousemove", function (e) { if (!pan) return; panX = spx + (e.clientX - sx); panY = spy + (e.clientY - sy); applyView(); });
+  window.addEventListener("mouseup", function () { pan = false; preview.classList.remove("grabbing"); });
 
   // ---- draggable divider ----------------------------------------------------
   (function () {
@@ -296,7 +301,7 @@
   function loadText(text) {
     ta.value = text;
     var th = frontmatterTheme(text); if (th) themeSel.value = th;
-    hideAC(); render();
+    hideAC(); render(); fit();   // fit a freshly loaded diagram to the canvas
   }
 
   // ---- boot -----------------------------------------------------------------

@@ -1,4 +1,4 @@
-/** Bundled example model — the three-rack leaf-spine stress test. */
+/** Bundled example models — physical stress test + a logical/hybrid sample. */
 import type { NetModel } from "./model.ts";
 
 // Physical layer only: managed gear (FW / switches) carries a single management
@@ -57,5 +57,86 @@ export const threeRack: NetModel = {
     { a: "c-tor", b: "c-st2", speed: "10G" },
     { a: "c-tor", b: "c-s1", speed: "10G" },
     { a: "c-tor", b: "c-s2", speed: "10G" },
+  ],
+};
+
+/**
+ * Logical-layer sample — exercises first-class PORTS, port↔port cabling, two
+ * VLANs (with subnets), and a LAG bond on the server. Renders meaningfully in
+ * BOTH physical (ports + cabling) and logical/hybrid (VLAN colours, subnet
+ * badges, bond collapsed to one logical link, interface addresses).
+ *
+ *   core1 ──(g1↔te1, te2)── tor1 ──(g1↔eth0 + g2↔eth1 = lag1)── srv1
+ *   edge  ──(wan0/lan0)──── core1
+ *
+ * VLAN 10 (mgmt 10.0.10.0/24): tor1 access + srv1 native.
+ * VLAN 20 (data 10.0.20.0/24): trunked core1↔tor1, tagged on the server bond.
+ */
+export const homelabLogical: NetModel = {
+  title: "Homelab — Logical",
+  racks: [{ id: "A", label: "Rack A", role: "Compute" }],
+  devices: [
+    { id: "wan",  kind: "cloud",    label: "Internet",  tier: "wan" },
+    {
+      id: "edge", kind: "firewall", label: "edge-fw", tier: "edge", mgmt: "10.0.0.1",
+      ports: [
+        { id: "wan0", name: "wan0", speed: "WAN", media: "RJ45", addr: "dhcp" },
+        { id: "lan0", name: "lan0", speed: "10G", media: "SFP+", addr: "10.0.0.1/24" },
+      ],
+    },
+    {
+      id: "core1", kind: "switch", label: "core-sw", tier: "core", mgmt: "10.0.0.2",
+      ports: [
+        { id: "te1", name: "te1", speed: "10G", media: "SFP+" },
+        { id: "te2", name: "te2", speed: "10G", media: "SFP+" },
+        { id: "te3", name: "te3", speed: "10G", media: "SFP+" },
+      ],
+    },
+    {
+      id: "tor1", kind: "switch", label: "tor-sw", tier: "tor", rack: "A", mgmt: "10.0.10.2",
+      ports: [
+        { id: "g1", name: "g1", speed: "10G" },
+        { id: "g2", name: "g2", speed: "10G" },
+        { id: "g3", name: "g3", speed: "1G", addr: "10.0.10.2/24" },
+      ],
+    },
+    {
+      id: "srv1", kind: "server", label: "host-01", tier: "host", rack: "A",
+      ports: [
+        { id: "eth0", name: "eth0", speed: "10G", media: "SFP+" },
+        { id: "eth1", name: "eth1", speed: "10G", media: "SFP+" },
+        // bond0 carries the host's addresses (interface-level L3)
+      ],
+    },
+  ],
+  links: [
+    { a: "edge", b: "wan",   speed: "WAN", aPort: "wan0" },
+    { a: "edge", b: "core1", speed: "10G", aPort: "lan0", bPort: "te1" },
+    // core↔tor trunk (carries the data VLAN)
+    { a: "tor1", b: "core1", speed: "10G", aPort: "g1", bPort: "te2" },
+    // server dual-homed bond: two physical members, one LAG
+    { a: "tor1", b: "srv1", speed: "10G", bond: true, aPort: "g1", bPort: "eth0" },
+    { a: "tor1", b: "srv1", speed: "10G", bond: true, aPort: "g2", bPort: "eth1" },
+  ],
+  vlans: [
+    {
+      id: 10, name: "mgmt", subnet: "10.0.10.0/24",
+      members: [
+        { device: "tor1", port: "g3", tagged: false },
+        { device: "srv1", port: "eth0", tagged: false },
+      ],
+    },
+    {
+      id: 20, name: "data", subnet: "10.0.20.0/24",
+      members: [
+        { device: "core1", port: "te2", tagged: true },
+        { device: "tor1", port: "g1", tagged: true },
+        { device: "srv1", port: "eth0", tagged: true },
+        { device: "srv1", port: "eth1", tagged: true },
+      ],
+    },
+  ],
+  bonds: [
+    { id: "lag1", device: "srv1", memberPorts: ["eth0", "eth1"], mode: "lacp" },
   ],
 };

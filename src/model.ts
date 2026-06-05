@@ -24,7 +24,13 @@ export interface Device {
   kind: Kind;
   label: string;
   tier: Tier;
-  ip?: string;
+  /**
+   * Optional MANAGEMENT address — a single host IP for managed gear
+   * (firewall / switch / router / AP). This is deliberately NOT a CIDR and
+   * NOT a per-NIC service address: full L3 addressing (interfaces, subnets,
+   * VLANs) is a logical-layer concern and lands in v2. Hosts omit this.
+   */
+  mgmt?: string;
   rack?: string;            // rack id (for tor/host devices)
   /** assigned by layout */
   x?: number; y?: number; w?: number; h?: number;

@@ -16,7 +16,7 @@ export interface Theme {
   chipStroke: string | null;   // null => use per-kind accent
   text: string;
   sub: string;
-  showIp: boolean;
+  showMgmt: boolean;           // render management address on managed gear
   // links
   link: string;
   linkW: number;
@@ -41,7 +41,7 @@ const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 export const clean: Theme = {
   name: "clean", font: SANS, mono: MONO, bg: "#ffffff", grid: null,
   cardFill: "#ffffff", cardStroke: "#d7dbe2", cardStrokeW: 1.2, radius: 8, shadow: true,
-  chipStroke: null, text: "#1f2430", sub: "#6b7280", showIp: false,
+  chipStroke: null, text: "#1f2430", sub: "#6b7280", showMgmt: false,
   link: "#7c8696", linkW: 1.5, jumps: true, endDots: true,
   speedColor: { WAN: "#64748b", "1G": "#94a3b8", "10G": "#3b82f6", "25G": "#ef6c2f", "40G": "#d97706", "100G": "#db2777", LAG: "#7c3aed" },
   pill: true, pillFill: "#ffffff", pillStroke: "#e5e7eb", speedText: "#475569",
@@ -51,7 +51,7 @@ export const clean: Theme = {
 export const blueprint: Theme = {
   name: "blueprint", font: MONO, mono: MONO, bg: "#0c356a", grid: "#1c4a8a",
   cardFill: "none", cardStroke: "#bcd6ff", cardStrokeW: 1.2, radius: 4, shadow: false,
-  chipStroke: "#bcd6ff", text: "#eaf2ff", sub: "#9dc0f0", showIp: true,
+  chipStroke: "#bcd6ff", text: "#eaf2ff", sub: "#9dc0f0", showMgmt: true,
   link: "#cfe0ff", linkW: 1.3, jumps: true, endDots: true,
   speedColor: { WAN: "#cfe0ff", "1G": "#9dc0f0", "10G": "#7fd1ff", "25G": "#ffd27f", "40G": "#ffc04d", "100G": "#ff9ed6", LAG: "#a7f3d0" },
   pill: false, pillFill: "none", pillStroke: "none", speedText: "#dbe9ff",

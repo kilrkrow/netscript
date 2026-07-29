@@ -45,8 +45,9 @@ export interface TubeDrop {
   /** Pure vertical (or tiny fan) from object to tube. */
   path: Pt[];
   /**
-   * Interface attachment point: where the drop meets the device.
-   * The callout spur roots here — that point *is* the interface.
+   * Attachment point where the drop meets the device.
+   * When a port is known this *is* the interface; when not (scan-style),
+   * it is still the object edge the callout documents.
    */
   spurRoot: Pt;
   spurRight: boolean;
@@ -283,15 +284,17 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
         `<circle cx="${a.x.toFixed(1)}" cy="${a.y.toFixed(1)}" r="2.8" fill="${S.bg}" stroke="${col}" stroke-width="1.6"/>`,
       );
 
-      if (!d.portLabel && !d.addr) continue;
+      // Callout text: port and/or addr — either alone is fine (scan import often
+      // has only an IP). Skip the flag only when neither is known.
+      const lines = [d.portLabel, d.addr].filter(Boolean) as string[];
+      if (!lines.length) continue;
 
       // Visio callout (samples 1 & 2):
-      //   leader from INTERFACE POINT → vertical FLAG BAR
-      //   text stacked beside the bar (port, then addr)
+      //   leader from attachment point → vertical FLAG BAR
+      //   text stacked beside the bar (port and/or addr)
       // The terminator is a short vertical tick "|", not a square bracket "[".
-      const root = d.spurRoot; // interface point on the device
+      const root = d.spurRoot;
       const dir = d.spurRight ? 1 : -1;
-      const lines = [d.portLabel, d.addr].filter(Boolean) as string[];
       const barX = root.x + dir * ARM_DX;
       // Leader meets the flag bar at its vertical centre (sample2 diagonal).
       // ARM_DX/DY keep the flag clear of the device card.

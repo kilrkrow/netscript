@@ -153,20 +153,23 @@ An optional **segment** is drawn as a thick horizontal tube labelled with the su
 
 ```
 segment home "Home LAN" subnet 192.168.86.0/24 {
-  member pc.eth0  addr .10
-  member nas.eth0 addr .20
+  member pc.eth0  addr .10          # port + address when known
+  member nas      addr 192.168.86.20  # address only (scan-style — no invented eth0)
 }
 ```
 
 ![Home LAN ethernet tubes](examples/ethernet-tube.svg)
 
-Tubes appear in **logical/hybrid** themes (and whenever explicit `segment` blocks are present). If you only declare VLANs with a `subnet`, tubes are **derived** automatically. VLAN members may also take `addr`:
+**Interfaces are optional.** A member is `device` plus optional `.port` and optional `addr`. Callouts show whatever you know (port, IP, or both). That keeps Angry IP / host-list imports honest.
+
+Tubes appear in **logical/hybrid** themes (and whenever explicit `segment` blocks are present). If you only declare VLANs with a `subnet`, tubes are **derived** automatically:
 
 ```
-member srv1.eth0 tagged addr 10.0.20.5
+member srv1.eth0 tagged addr 10.0.20.5   # full as-built
+member pc addr 192.168.86.10             # scan import
 ```
 
-See [`examples/ethernet-tube.net`](examples/ethernet-tube.net) and [`docs/use-cases.md`](docs/use-cases.md).
+See [`examples/ethernet-tube.net`](examples/ethernet-tube.net), [`examples/scan-lan.net`](examples/scan-lan.net), and [`docs/use-cases.md`](docs/use-cases.md).
 
 ## How it works
 

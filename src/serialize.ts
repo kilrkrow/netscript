@@ -74,7 +74,8 @@ export function serializeNet(m: NetModel): string {
       const head = `vlan ${v.id} ${q(v.name)}` + (v.subnet ? ` subnet ${v.subnet}` : "");
       out.push(`${head} {`);
       for (const mem of v.members) {
-        const bits = [`  member ${mem.device}.${mem.port}`];
+        const ep = mem.port ? `${mem.device}.${mem.port}` : mem.device;
+        const bits = [`  member ${ep}`];
         if (mem.tagged) bits.push("tagged");
         if (mem.addr) bits.push(`addr ${mem.addr}`);
         out.push(bits.join(" "));

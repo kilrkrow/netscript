@@ -86,7 +86,8 @@ export interface Rack { id: string; label: string; role: string; }
  */
 export interface VlanMember {
   device: string;
-  port: string;
+  /** Optional interface on the device. Omit when unknown (e.g. Angry IP). */
+  port?: string;
   tagged?: boolean;
   /** Optional host address on this segment (e.g. ".1" or "10.0.20.5"). */
   addr?: string;
@@ -105,8 +106,10 @@ export interface Vlan {
  */
 export interface SegmentMember {
   device: string;
-  port?: string;            // physical port id on the device
-  addr?: string;            // host address on the segment
+  /** Optional interface name/id. Omit when unknown. */
+  port?: string;
+  /** Optional host address on the segment (".10" or full IP). */
+  addr?: string;
 }
 export interface Segment {
   id: string;

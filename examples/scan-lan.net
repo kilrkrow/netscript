@@ -1,0 +1,24 @@
+---
+title: Scan import — interfaces optional
+theme: clean-hybrid
+---
+
+# Angry-IP-style membership: host + address only, no invented eth0.
+# Valid shapes:
+#   member pc addr 192.168.86.10
+#   member nas addr .20
+#   member ap.eth0 addr .2          # port still allowed when known
+
+pc   desktop "laptop-anne"
+nas  storage "nas-01"
+cam  camera  "driveway"
+ap   ap      "ap-living"
+printer desktop "brother-hl"
+
+segment lan "LAN" subnet 192.168.86.0/24 {
+  member pc      addr 192.168.86.10
+  member nas     addr 192.168.86.20
+  member cam     addr 192.168.86.40
+  member ap      addr 192.168.86.2
+  member printer addr 192.168.86.50
+}

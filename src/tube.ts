@@ -1,47 +1,48 @@
 /**
- * NetScript Ethernet tubes — Visio-style L2 buses (see operator sample).
+ * NetScript Ethernet tubes — Visio-style L2 buses.
  *
- * Geometry matches classic Visio as-builts:
+ * Critical design rule (from operator Visio samples):
  *
- *        [ object ]
- *             |
- *             +----[  eth3     ← callout spur INTERSECTS the drop
- *                    .1           (not at the tube, not a free-floating label)
- *             |
- *        ════●════════════════  192.168.86.0/24
+ *   The callout spur ROOTS ON the object→tube drop AT THE OBJECT
+ *   (where the line leaves the device), then a short arm carries
+ *   port + address. It is NOT a free label at the tube, and NOT a
+ *   mid-span T halfway down a long drop.
  *
- * Rules:
- *  1. Tube sits in a clear band under topology (infinite paper — grow canvas).
- *  2. Drop is a simple ortho path object → tube (no side-riser detours).
- *  3. Callout is a short spur off the drop near the object, with a bracket
- *     holding port + address — the spur's root is ON the drop line.
- *  4. Unique attachment columns so multi-host buses don't stack.
+ *        [ DR7 ]
+ *            |\
+ *            | \  eth3
+ *            |  [ .1
+ *            |
+ *       ═════●════════  192.168.86.0/24
+ *
+ * Drops are pure verticals from the object to the bus (no doglegs through
+ * the rack). Paper grows under topology so the bus never competes for space.
  */
 import type { NetModel, Pt } from "./model.ts";
 import { escapeXml as esc } from "./model.ts";
 import type { Theme } from "./themes.ts";
 import { resolveSegments, portOf } from "./logical.ts";
 
-const TUBE_H = 18;
-const BAND_GAP = 72;          // air under lowest card before tube band
-const TUBE_PITCH = 100;       // vertical budget per additional tube
-const SIDE_PAD = 48;
-const COL_GAP = 96;           // min centre-to-centre on the bus
-const CALLOUT_ALONG = 0.28;   // fraction down the first vertical where spur roots
-const CALLOUT_MIN = 16;       // never closer than this to the object
-const CALLOUT_ARM = 28;       // horizontal length of the spur
-const BRACKET = 10;           // half-height of “[”
+const TUBE_H = 20;
+const BAND_GAP = 80;
+const TUBE_PITCH = 96;
+const SIDE_PAD = 52;
+const COL_GAP = 100;
+/** Spur roots this far below the device bottom — right under the object. */
+const SPUR_BELOW_OBJECT = 14;
+/** Diagonal arm reach (dx, dy) from spur root to bracket. */
+const ARM_DX = 36;
+const ARM_DY = 22;
 
 export interface TubeDrop {
   device: string;
   port?: string;
   portLabel?: string;
   addr?: string;
-  /** Ortho path from object to tube. */
+  /** Pure vertical (or tiny fan) from object to tube. */
   path: Pt[];
-  /** Where the callout spur roots — ON the drop (Visio intersection). */
+  /** ON the drop, just under the object — where the callout intersects. */
   spurRoot: Pt;
-  /** Spur opens left or right into free air. */
   spurRight: boolean;
 }
 
@@ -75,37 +76,18 @@ function topologyBounds(m: NetModel): { minX: number; maxX: number; maxY: number
   return { minX, maxX, maxY };
 }
 
-function simplifyOrtho(pts: Pt[]): Pt[] {
-  if (pts.length < 2) return pts;
-  const out: Pt[] = [pts[0]!];
-  for (let i = 1; i < pts.length; i++) {
-    const p = pts[i]!, L = out[out.length - 1]!;
-    if (Math.hypot(p.x - L.x, p.y - L.y) < 1) continue;
-    if (out.length >= 2) {
-      const A = out[out.length - 2]!;
-      const abH = Math.abs(A.y - L.y) < 0.5, abV = Math.abs(A.x - L.x) < 0.5;
-      const bcH = Math.abs(L.y - p.y) < 0.5, bcV = Math.abs(L.x - p.x) < 0.5;
-      if ((abH && bcH) || (abV && bcV)) { out[out.length - 1] = p; continue; }
-    }
-    out.push(p);
-  }
-  return out;
-}
-
-/** Point a fraction of the way along the first vertical run of a path. */
-function spurOnDrop(path: Pt[], along = CALLOUT_ALONG): Pt {
-  // Prefer the first vertical segment (object leaving downward).
-  for (let i = 0; i < path.length - 1; i++) {
-    const a = path[i]!, b = path[i + 1]!;
-    if (Math.abs(a.x - b.x) < 0.5 && Math.abs(b.y - a.y) > 4) {
-      const len = b.y - a.y;
-      const t = Math.max(CALLOUT_MIN / Math.abs(len), Math.min(0.45, along));
-      return { x: a.x, y: a.y + len * t };
-    }
-  }
-  // Fallback: midpoint of whole path.
-  const a = path[0]!, b = path[path.length - 1]!;
-  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+/**
+ * Which members get a visible drop?
+ * Hosts always. Edge/firewall gateways always. Core/ToR fabric only when the
+ * segment has no hosts — otherwise long drops spear the rack (anti-Visio).
+ */
+function shouldDrop(m: NetModel, deviceId: string, segmentHasHost: boolean): boolean {
+  const d = m.devices.find((x) => x.id === deviceId);
+  if (!d) return false;
+  if (d.tier === "host") return true;
+  if (d.tier === "edge" || d.kind === "firewall" || d.kind === "router") return true;
+  if (!segmentHasHost) return true; // isolated segment of switches only
+  return false;
 }
 
 export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesResult {
@@ -113,98 +95,82 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
   const byId = new Map(m.devices.map((d) => [d.id, d]));
   const bounds = topologyBounds(m);
   const tubes: TubeLayout[] = [];
-  let padL = 40, padR = 80; // room for callout text on either side
+  let padL = 48, padR = 100;
   let bandY = bounds.maxY + BAND_GAP;
 
   segs.forEach((seg, si) => {
     type PM = {
       device: string; port?: string; portLabel?: string; addr?: string;
-      dx: number; yBottom: number; left: number; right: number;
+      dx: number; yBottom: number;
     };
-    const placed: PM[] = [];
+    const raw: PM[] = [];
     for (const mem of seg.members) {
       const d = byId.get(mem.device);
       if (d?.x == null || d.y == null || d.w == null || d.h == null) continue;
       const portObj = portOf(m, mem.device, mem.port);
-      placed.push({
+      raw.push({
         device: mem.device,
         port: mem.port,
         portLabel: portObj?.name ?? mem.port,
         addr: mem.addr,
         dx: d.x,
         yBottom: d.y + d.h / 2,
-        left: d.x - d.w / 2,
-        right: d.x + d.w / 2,
       });
     }
+    const hasHost = raw.some((p) => byId.get(p.device)?.tier === "host");
+    const placed = raw.filter((p) => shouldDrop(m, p.device, hasHost));
     if (!placed.length) return;
 
-    // Left-to-right on the bus; keep multi-port hosts ordered.
     placed.sort((a, b) => a.dx - b.dx || a.yBottom - b.yBottom || (a.port ?? "").localeCompare(b.port ?? ""));
 
+    // One column per drop; prefer the device's own x so the drop is a pure vertical.
+    // When two devices share an x (stacked tiers we still drop), fan slightly.
+    const colX: number[] = [];
+    const xUsed: { x: number; n: number }[] = [];
+    for (const p of placed) {
+      let x = p.dx;
+      const hit = xUsed.find((u) => Math.abs(u.x - p.dx) < 8);
+      if (hit) {
+        hit.n++;
+        x = p.dx + (hit.n % 2 === 0 ? -1 : 1) * Math.ceil(hit.n / 2) * 16;
+      } else {
+        xUsed.push({ x: p.dx, n: 0 });
+      }
+      // Enforce min gap from previous column
+      if (colX.length) {
+        const prev = colX[colX.length - 1]!;
+        if (x - prev < COL_GAP * 0.55) x = prev + COL_GAP * 0.55;
+      }
+      colX.push(x);
+    }
+
     const n = placed.length;
-    // Unique columns — never stack, even when devices share an x.
-    const colSpan = Math.max(
-      Math.max(...placed.map((p) => p.right)) - Math.min(...placed.map((p) => p.left)),
-      (n - 1) * COL_GAP,
-      COL_GAP,
-    );
-    const mid = (Math.min(...placed.map((p) => p.left)) + Math.max(...placed.map((p) => p.right))) / 2;
-    const col0 = mid - colSpan / 2;
-    const attachX = (i: number) =>
-      n === 1 ? placed[0]!.dx : col0 + (i * colSpan) / Math.max(1, n - 1);
-
-    // Class label above the tube; drops land on the top of the bus.
-    const labelH = 22;
-    const tubeTop = bandY + labelH;
+    const tubeTop = bandY + 8;
     const y = tubeTop + TUBE_H / 2;
-    const xs = placed.map((_, i) => attachX(i));
-    const x1 = Math.min(...xs) - SIDE_PAD;
-    const x2 = Math.max(...xs) + SIDE_PAD;
+    const x1 = Math.min(...colX) - SIDE_PAD;
+    const x2 = Math.max(...colX) + SIDE_PAD;
 
-    // Fan multi-port exits on the same device so first verticals don't coincide.
-    const exitCount = new Map<string, number>();
-    const drops: TubeDrop[] = [];
-
-    placed.forEach((p, i) => {
-      const ax = attachX(i);
-      const k = p.device;
-      const nth = exitCount.get(k) ?? 0;
-      exitCount.set(k, nth + 1);
-      // Slight fan under multi-port devices (Visio still reads as one host).
-      const exitX = p.dx + (nth - 0.5 * ((exitCount.get(k) ?? 1) - 1)) * 12;
-      // Use running count after increment for fan — recompute below.
-      void exitX;
-    });
-
-    // Second pass with final multi-port counts for symmetric fan.
+    // Multi-port fan under the same device
     const totals = new Map<string, number>();
     for (const p of placed) totals.set(p.device, (totals.get(p.device) ?? 0) + 1);
     const seen = new Map<string, number>();
 
+    const drops: TubeDrop[] = [];
     placed.forEach((p, i) => {
-      const ax = attachX(i);
       const nth = seen.get(p.device) ?? 0;
       seen.set(p.device, nth + 1);
       const total = totals.get(p.device) ?? 1;
-      const fan = (nth - (total - 1) / 2) * 14;
-      const leaveX = p.dx + fan;
-
-      // Sample-faithful path: leave object, optional dogleg to column, down to tube.
-      // Prefer pure vertical when leaveX ≈ ax (single host above its column).
-      const path = simplifyOrtho(
-        Math.abs(leaveX - ax) < 2
-          ? [{ x: leaveX, y: p.yBottom }, { x: leaveX, y: tubeTop }]
-          : [
-              { x: leaveX, y: p.yBottom },
-              { x: leaveX, y: p.yBottom + 20 },
-              { x: ax, y: p.yBottom + 20 },
-              { x: ax, y: tubeTop },
-            ],
-      );
-
-      // Spur opens away from the rack centre so text sits in open air.
-      const spurRight = leaveX <= mid;
+      const fan = total > 1 ? (nth - (total - 1) / 2) * 14 : 0;
+      // Pure vertical at column x (column already near device.x)
+      const x = colX[i]! + fan;
+      const path: Pt[] = [
+        { x, y: p.yBottom },
+        { x, y: tubeTop },
+      ];
+      // Spur roots ON the drop, just under the object — the Visio intersection.
+      const spurRoot: Pt = { x, y: p.yBottom + SPUR_BELOW_OBJECT };
+      // Open away from the densest side of the diagram.
+      const spurRight = x <= (bounds.minX + bounds.maxX) / 2;
 
       drops.push({
         device: p.device,
@@ -212,7 +178,7 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
         portLabel: p.portLabel,
         addr: p.addr,
         path,
-        spurRoot: spurOnDrop(path),
+        spurRoot,
         spurRight,
       });
     });
@@ -227,62 +193,58 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
       x2,
       drops,
     });
-    bandY = y + TUBE_H / 2 + TUBE_PITCH * 0.55;
+    bandY = y + TUBE_H / 2 + TUBE_PITCH * 0.5;
+    void n; void si;
   });
 
-  // Callout arms need margin past the outermost drop.
   if (tubes.length) {
-    const minX = Math.min(...tubes.flatMap((t) => t.drops.map((d) => d.spurRoot.x - (d.spurRight ? 0 : CALLOUT_ARM + 60))));
-    const maxX = Math.max(...tubes.flatMap((t) => t.drops.map((d) => d.spurRoot.x + (d.spurRight ? CALLOUT_ARM + 60 : 0))));
-    padL = Math.max(padL, bounds.minX - minX + 16);
-    padR = Math.max(padR, maxX - bounds.maxX + 16);
+    for (const t of tubes) {
+      for (const d of t.drops) {
+        const armEnd = d.spurRoot.x + (d.spurRight ? ARM_DX : -ARM_DX);
+        padL = Math.max(padL, bounds.minX - Math.min(d.spurRoot.x, armEnd) + 70);
+        padR = Math.max(padR, Math.max(d.spurRoot.x, armEnd) - bounds.maxX + 70);
+      }
+    }
   }
 
   const bottom = tubes.length
-    ? Math.max(...tubes.map((t) => t.y + TUBE_H / 2 + 36))
+    ? Math.max(...tubes.map((t) => t.y + TUBE_H / 2 + 40))
     : 0;
   return { tubes, bottom, padL, padR };
 }
 
 export const hasTubes = (m: NetModel): boolean => resolveSegments(m).length > 0;
 
-function pathD(pts: Pt[], r = 5): string {
-  if (pts.length < 2) return "";
-  let d = `M ${pts[0]!.x.toFixed(1)},${pts[0]!.y.toFixed(1)}`;
-  for (let i = 1; i < pts.length - 1; i++) {
-    const p = pts[i]!, prev = pts[i - 1]!, next = pts[i + 1]!;
-    const inD = { x: Math.sign(p.x - prev.x), y: Math.sign(p.y - prev.y) };
-    const outD = { x: Math.sign(next.x - p.x), y: Math.sign(next.y - p.y) };
-    const rr = Math.min(r, Math.hypot(p.x - prev.x, p.y - prev.y) / 2, Math.hypot(next.x - p.x, next.y - p.y) / 2);
-    d += ` L ${(p.x - inD.x * rr).toFixed(1)},${(p.y - inD.y * rr).toFixed(1)}`;
-    d += ` Q ${p.x.toFixed(1)},${p.y.toFixed(1)} ${(p.x + outD.x * rr).toFixed(1)},${(p.y + outD.y * rr).toFixed(1)}`;
+/**
+ * Ports that already have a segment callout — L1 chips for these should be
+ * suppressed so we don't double-label (Visio shows eth3/.1 once, on the drop).
+ */
+export function segmentAnnotatedPorts(m: NetModel): Set<string> {
+  const out = new Set<string>();
+  for (const s of resolveSegments(m)) {
+    for (const mem of s.members) {
+      if (mem.port) out.add(`${mem.device}.${mem.port}`);
+    }
   }
-  const last = pts[pts.length - 1]!;
-  return d + ` L ${last.x.toFixed(1)},${last.y.toFixed(1)}`;
+  return out;
 }
 
-/**
- * Cylinder-ish tube (Visio “ethernet” bus): capsule body + end caps.
- */
 function drawTubeBody(t: TubeLayout, col: string, S: Theme): string[] {
   const out: string[] = [];
   const half = TUBE_H / 2;
   const y = t.y;
-  // Soft fill + outline
   out.push(
     `<rect x="${t.x1.toFixed(1)}" y="${(y - half).toFixed(1)}" width="${(t.x2 - t.x1).toFixed(1)}" ` +
-    `height="${TUBE_H}" rx="${half}" fill="${col}" fill-opacity="0.10" stroke="${col}" stroke-width="1.8"/>`,
+    `height="${TUBE_H}" rx="${half}" fill="${S.bg}" stroke="${col}" stroke-width="1.9"/>`,
   );
-  // End “circles” (orthographic cylinder caps)
   out.push(
-    `<ellipse cx="${t.x1.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(half * 0.55).toFixed(1)}" ry="${half.toFixed(1)}" ` +
+    `<ellipse cx="${t.x1.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(half * 0.5).toFixed(1)}" ry="${half.toFixed(1)}" ` +
     `fill="${S.bg}" stroke="${col}" stroke-width="1.6"/>`,
   );
   out.push(
-    `<ellipse cx="${t.x2.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(half * 0.55).toFixed(1)}" ry="${half.toFixed(1)}" ` +
+    `<ellipse cx="${t.x2.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(half * 0.5).toFixed(1)}" ry="${half.toFixed(1)}" ` +
     `fill="none" stroke="${col}" stroke-width="1.6"/>`,
   );
-  // Class label ON the tube (sample puts CIDR in the cylinder)
   const classLbl = t.subnet ?? t.name;
   out.push(
     `<text x="${((t.x1 + t.x2) / 2).toFixed(1)}" y="${(y + 4).toFixed(1)}" font-size="11.5" text-anchor="middle" ` +
@@ -305,51 +267,49 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
     out.push(...drawTubeBody(t, col, S));
 
     for (const d of t.drops) {
-      // Drop: object → tube
+      const a = d.path[0]!, b = d.path[d.path.length - 1]!;
+      // Pure vertical drop object → tube
       out.push(
-        `<path d="${pathD(d.path)}" fill="none" stroke="${col}" stroke-width="1.6" ` +
-        `stroke-linecap="round" stroke-linejoin="round"/>`,
+        `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" ` +
+        `stroke="${col}" stroke-width="1.7" stroke-linecap="round"/>`,
       );
-      const start = d.path[0]!, end = d.path[d.path.length - 1]!;
-      out.push(`<circle cx="${start.x.toFixed(1)}" cy="${start.y.toFixed(1)}" r="2.2" fill="${col}"/>`);
-      out.push(`<circle cx="${end.x.toFixed(1)}" cy="${end.y.toFixed(1)}" r="2.4" fill="${col}"/>`);
+      out.push(`<circle cx="${a.x.toFixed(1)}" cy="${a.y.toFixed(1)}" r="2.2" fill="${col}"/>`);
+      out.push(`<circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="2.5" fill="${col}"/>`);
 
       if (!d.portLabel && !d.addr) continue;
 
-      // Callout spur: roots ON the drop (the Visio intersection), short arm to a bracket.
+      // Visio callout: diagonal arm from spur root (ON the drop, under object)
+      // to a bracket with port + addr. Sample2 geometry.
       const root = d.spurRoot;
       const dir = d.spurRight ? 1 : -1;
-      const tipX = root.x + dir * CALLOUT_ARM;
+      const endX = root.x + dir * ARM_DX;
+      const endY = root.y + ARM_DY;
       out.push(
-        `<line x1="${root.x.toFixed(1)}" y1="${root.y.toFixed(1)}" x2="${tipX.toFixed(1)}" y2="${root.y.toFixed(1)}" ` +
-        `stroke="${col}" stroke-width="1.25" stroke-linecap="round"/>`,
+        `<line x1="${root.x.toFixed(1)}" y1="${root.y.toFixed(1)}" ` +
+        `x2="${endX.toFixed(1)}" y2="${endY.toFixed(1)}" ` +
+        `stroke="${col}" stroke-width="1.35" stroke-linecap="round"/>`,
       );
-      // Junction tick on the drop (makes the intersection obvious)
+      // Small corner bracket at the label (Visio-style flag)
+      const bx = endX;
+      const by = endY;
+      const tip = dir * 4;
       out.push(
-        `<circle cx="${root.x.toFixed(1)}" cy="${root.y.toFixed(1)}" r="2" fill="${S.bg}" stroke="${col}" stroke-width="1.3"/>`,
+        `<path d="M ${bx.toFixed(1)},${(by - 9).toFixed(1)} L ${bx.toFixed(1)},${(by + 9).toFixed(1)} ` +
+        `M ${bx.toFixed(1)},${(by + 9).toFixed(1)} L ${(bx + tip).toFixed(1)},${(by + 9).toFixed(1)}" ` +
+        `fill="none" stroke="${col}" stroke-width="1.5" stroke-linecap="square"/>`,
       );
-      // Bracket “[” / “]”
-      const bx = tipX;
-      const tip = dir * 3.5;
-      out.push(
-        `<path d="M ${bx.toFixed(1)},${(root.y - BRACKET).toFixed(1)} L ${(bx + tip).toFixed(1)},${(root.y - BRACKET).toFixed(1)} ` +
-        `M ${bx.toFixed(1)},${(root.y - BRACKET).toFixed(1)} L ${bx.toFixed(1)},${(root.y + BRACKET).toFixed(1)} ` +
-        `M ${bx.toFixed(1)},${(root.y + BRACKET).toFixed(1)} L ${(bx + tip).toFixed(1)},${(root.y + BRACKET).toFixed(1)}" ` +
-        `fill="none" stroke="${col}" stroke-width="1.45" stroke-linecap="square"/>`,
-      );
-      const tx = tipX + dir * 7;
+      const tx = endX + dir * 8;
       const anchor = d.spurRight ? "start" : "end";
       const halo = `paint-order="stroke" stroke="${S.bg}" stroke-width="3.2" stroke-linejoin="round"`;
-      // Sample stacks port then address inside the flag.
       if (d.portLabel) {
         out.push(
-          `<text x="${tx.toFixed(1)}" y="${(root.y - 2).toFixed(1)}" font-size="10" text-anchor="${anchor}" ` +
-          `fill="${S.text}" font-weight="700" font-family="${S.mono}" ${halo}>${esc(d.portLabel)}</text>`,
+          `<text x="${tx.toFixed(1)}" y="${(by - 1).toFixed(1)}" font-size="10.5" text-anchor="${anchor}" ` +
+          `fill="${col}" font-weight="700" font-family="${S.mono}" ${halo}>${esc(d.portLabel)}</text>`,
         );
       }
       if (d.addr) {
         out.push(
-          `<text x="${tx.toFixed(1)}" y="${(root.y + 11).toFixed(1)}" font-size="10" text-anchor="${anchor}" ` +
+          `<text x="${tx.toFixed(1)}" y="${(by + 12).toFixed(1)}" font-size="10.5" text-anchor="${anchor}" ` +
           `fill="${col}" font-weight="600" font-family="${S.mono}" ${halo}>${esc(d.addr)}</text>`,
         );
       }

@@ -9,7 +9,7 @@ import { buildRoutes, segments, offsetPts, pathD } from "./router.ts";
 import {
   vlanColorIndex, vlansOnLink, bondKey, portOf, bondForPort,
 } from "./logical.ts";
-import { layoutTubes, drawTubesSvg, expandHeightForTubes, hasTubes } from "./tube.ts";
+import { layoutTubes, drawTubesSvg, expandHeightForTubes, hasTubes, segmentAnnotatedPorts } from "./tube.ts";
 
 const SPEED_ORDER: Speed[] = ["1G", "10G", "25G", "40G", "100G", "LAG"];
 
@@ -122,11 +122,12 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
 
   // ---- port callouts (PHYSICAL documentation; on whenever portCallouts) ----
   // A small chip with the port name sits just outside the device where the
-  // cable lands. In logical/hybrid it also carries the interface address (if
-  // any) and a bond tag. Skipped in pure-logical (cabling is hidden there).
+  // cable lands. Skipped in pure-logical (cabling is hidden there).
+  // Visio rule: if this port already has a segment/tube callout (eth3 / .1 on
+  // the object→bus drop), do NOT also chip it on the L1 cable — one fact, one mark.
   if (S.portCallouts && mode !== "logical") {
+    const segPorts = tubePack.tubes.length ? segmentAnnotatedPorts(m) : new Set<string>();
     const calloutChip = (anchor: Pt, dir: Pt, name: string, accent: string, sub?: string) => {
-      // push the chip ~13px back from the device along the incoming cable
       const cx = anchor.x - dir.x * 14, cy = anchor.y - dir.y * 14;
       const tw = Math.max(18, 6.2 * name.length + 8);
       out.push(`<rect x="${(cx - tw / 2).toFixed(1)}" y="${(cy - 7).toFixed(1)}" width="${tw.toFixed(1)}" height="13" rx="3" fill="${S.bg}" stroke="${accent}" stroke-width="1"/>`);
@@ -139,7 +140,8 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
         const devId = which === "a" ? l.a : l.b;
         const portId = which === "a" ? l.aPort : l.bPort;
         const p = portOf(m, devId, portId);
-        if (!p) continue;                  // no named port → no callout (back-compat)
+        if (!p) continue;
+        if (portId && segPorts.has(`${devId}.${portId}`)) continue;
         const anchor = which === "a" ? pts[0] : pts[pts.length - 1];
         const dir = endDir(pts, which);
         const bond = logical ? bondForPort(m, devId, portId) : undefined;

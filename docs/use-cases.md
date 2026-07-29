@@ -62,9 +62,9 @@ segment home "Home LAN" subnet 192.168.86.0/24 {
 
 Also: `member <device>.<port> [tagged] [addr <addr>]` on VLANs. When no `segment` blocks exist, hybrid/logical views derive tubes from VLANs that declare a `subnet`.
 
-### Convention chosen (Visio sample)
+### Convention chosen (Visio samples)
 
-Callout is a **spur off the drop**: the spur root sits *on* the line from the
-object to the ethernet tube (near the object), then a short arm ends in a
-bracket with port + address (`eth3` / `.1`). Not a free label at the tube, and
-not a side-riser detour.
+Critical rule: the callout **intersects the object→tube drop at the object**
+(where the line leaves the device). A short diagonal arm then carries
+`eth3` / `.1`. Not mid-span, not at the bus, not a second L1 port chip on the
+same port. Drops are pure verticals; paper grows under the topology.

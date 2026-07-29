@@ -27,8 +27,13 @@ const BAND_GAP = 80;
 const TUBE_PITCH = 96;
 const SIDE_PAD = 52;
 const COL_GAP = 100;
-/** Leader reaches this far sideways from the interface to the flag bar. */
-const ARM_DX = 40;
+/**
+ * Leader reaches this far sideways from the interface to the flag bar.
+ * Keep clear of the device card — too small and eth3/.1 collides with the object.
+ */
+const ARM_DX = 72;
+/** How far below the interface the flag bar is centred (opens the diagonal). */
+const ARM_DY = 28;
 /** Flag bar half-height (text sits beside this vertical tick — not a "[" ). */
 const FLAG_HALF = 11;
 
@@ -289,7 +294,8 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
       const lines = [d.portLabel, d.addr].filter(Boolean) as string[];
       const barX = root.x + dir * ARM_DX;
       // Leader meets the flag bar at its vertical centre (sample2 diagonal).
-      const barMidY = root.y + 10;
+      // ARM_DX/DY keep the flag clear of the device card.
+      const barMidY = root.y + ARM_DY;
       out.push(
         `<line x1="${root.x.toFixed(1)}" y1="${root.y.toFixed(1)}" ` +
         `x2="${barX.toFixed(1)}" y2="${barMidY.toFixed(1)}" ` +

@@ -120,9 +120,10 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
   `use case · proto/port` along the line, so there is deliberately no port chip
   at the landing point. Flat states it on the row instead, for the same reason.
 - **Ethernet tubes** (`segment` DSL, `src/tube.ts`) — Visio rules:
-  1. Callout spur roots ON the object→tube drop **at the object** (where the
-     line leaves the device), not mid-span and not at the bus.
-  2. Short diagonal arm to port + addr (sample2 geometry).
+  1. Callout documents an **interface**. Spur root = exact point where the
+     object↔ethernet drop **touches the device** (that junction *is* the
+     interface) — not offset below the box, not mid-span, not at the bus.
+  2. Short diagonal arm from that point to port + addr.
   3. Pure vertical drops; no doglegs through the rack. Hosts + edge gateways
      drop; core/ToR fabric members do not (unless the segment has no hosts).
   4. Ports already on a segment callout are **not** also L1 port chips.

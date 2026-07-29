@@ -3,20 +3,19 @@
  *
  * Critical design rule (from operator Visio samples):
  *
- *   The callout spur ROOTS ON the object→tube drop AT THE OBJECT
- *   (where the line leaves the device), then a short arm carries
- *   port + address. It is NOT a free label at the tube, and NOT a
- *   mid-span T halfway down a long drop.
+ *   The callout documents an INTERFACE on a device. The spur root is the
+ *   exact attachment point where the object↔ethernet drop meets the device
+ *   (the interface itself) — not offset below the box, not mid-span, not at
+ *   the tube. A short arm from that point carries port + address.
  *
  *        [ DR7 ]
- *            |\
- *            | \  eth3
- *            |  [ .1
+ *            *\______ eth3     ← spur root = interface point on DR7
+ *            |        .1         (where the drop touches the object)
  *            |
  *       ═════●════════  192.168.86.0/24
  *
- * Drops are pure verticals from the object to the bus (no doglegs through
- * the rack). Paper grows under topology so the bus never competes for space.
+ * Drops are pure verticals from that interface point to the bus. Paper grows
+ * under topology so the bus never competes for space.
  */
 import type { NetModel, Pt } from "./model.ts";
 import { escapeXml as esc } from "./model.ts";
@@ -28,9 +27,7 @@ const BAND_GAP = 80;
 const TUBE_PITCH = 96;
 const SIDE_PAD = 52;
 const COL_GAP = 100;
-/** Spur roots this far below the device bottom — right under the object. */
-const SPUR_BELOW_OBJECT = 14;
-/** Diagonal arm reach (dx, dy) from spur root to bracket. */
+/** Diagonal arm reach (dx, dy) from the interface point to the bracket. */
 const ARM_DX = 36;
 const ARM_DY = 22;
 
@@ -41,7 +38,10 @@ export interface TubeDrop {
   addr?: string;
   /** Pure vertical (or tiny fan) from object to tube. */
   path: Pt[];
-  /** ON the drop, just under the object — where the callout intersects. */
+  /**
+   * Interface attachment point: where the drop meets the device.
+   * The callout spur roots here — that point *is* the interface.
+   */
   spurRoot: Pt;
   spurRight: boolean;
 }
@@ -161,15 +161,12 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
       seen.set(p.device, nth + 1);
       const total = totals.get(p.device) ?? 1;
       const fan = total > 1 ? (nth - (total - 1) / 2) * 14 : 0;
-      // Pure vertical at column x (column already near device.x)
+      // Pure vertical at column x (column already near device.x).
+      // Path start = interface point on the device (where drop meets object).
       const x = colX[i]! + fan;
-      const path: Pt[] = [
-        { x, y: p.yBottom },
-        { x, y: tubeTop },
-      ];
-      // Spur roots ON the drop, just under the object — the Visio intersection.
-      const spurRoot: Pt = { x, y: p.yBottom + SPUR_BELOW_OBJECT };
-      // Open away from the densest side of the diagram.
+      const iface: Pt = { x, y: p.yBottom };
+      const path: Pt[] = [iface, { x, y: tubeTop }];
+      // Spur roots at the interface itself — that is what we're documenting.
       const spurRight = x <= (bounds.minX + bounds.maxX) / 2;
 
       drops.push({
@@ -178,7 +175,7 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
         portLabel: p.portLabel,
         addr: p.addr,
         path,
-        spurRoot,
+        spurRoot: iface,
         spurRight,
       });
     });
@@ -268,19 +265,22 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
 
     for (const d of t.drops) {
       const a = d.path[0]!, b = d.path[d.path.length - 1]!;
-      // Pure vertical drop object → tube
+      // Pure vertical drop: interface point on device → tube
       out.push(
         `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" ` +
         `stroke="${col}" stroke-width="1.7" stroke-linecap="round"/>`,
       );
-      out.push(`<circle cx="${a.x.toFixed(1)}" cy="${a.y.toFixed(1)}" r="2.2" fill="${col}"/>`);
+      // Tube end
       out.push(`<circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="2.5" fill="${col}"/>`);
+      // Interface point on the device (drop + spur share this exact point)
+      out.push(
+        `<circle cx="${a.x.toFixed(1)}" cy="${a.y.toFixed(1)}" r="2.8" fill="${S.bg}" stroke="${col}" stroke-width="1.6"/>`,
+      );
 
       if (!d.portLabel && !d.addr) continue;
 
-      // Visio callout: diagonal arm from spur root (ON the drop, under object)
-      // to a bracket with port + addr. Sample2 geometry.
-      const root = d.spurRoot;
+      // Callout arm leaves the INTERFACE POINT — that junction *is* the port.
+      const root = d.spurRoot; // === path start / device attachment
       const dir = d.spurRight ? 1 : -1;
       const endX = root.x + dir * ARM_DX;
       const endY = root.y + ARM_DY;
@@ -289,7 +289,7 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
         `x2="${endX.toFixed(1)}" y2="${endY.toFixed(1)}" ` +
         `stroke="${col}" stroke-width="1.35" stroke-linecap="round"/>`,
       );
-      // Small corner bracket at the label (Visio-style flag)
+      // Corner bracket at the label (Visio-style flag)
       const bx = endX;
       const by = endY;
       const tip = dir * 4;

@@ -119,10 +119,11 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
 - **Don't repeat a fact the line already carries.** Iso labels state
   `use case · proto/port` along the line, so there is deliberately no port chip
   at the landing point. Flat states it on the row instead, for the same reason.
-- **Ethernet tubes** (`segment` DSL, `src/tube.ts`): drawn under cards in
-  logical/hybrid (or when explicit segments exist). Callouts sit on the
-  *device side* of the drop. Prefer `addr .10` on members; derive from
-  VLAN+subnet when no segments are authored.
+- **Ethernet tubes** (`segment` DSL, `src/tube.ts`): dedicated band *below*
+  topology (infinite paper — grow the canvas, never spear cards). Drops take
+  side risers outside the rack, land on unique bus columns. Port/IP callouts
+  sit in the clear shelf above the tube at the attachment — not under device
+  cards where they collide with port chips.
 - Geometry here does not show up in types OR in a glance at the SVG. When
   changing layout, verify: no card overlap, rows contained, flows terminating
   on their row/socket, and no route crossing a card it doesn't belong to.

@@ -50,8 +50,14 @@ export function buildRoutes(m: NetModel): Pt[][] {
   const id = new Map(m.devices.map((d) => [d.id, d]));
   const D = (x: string) => id.get(x)!;
   const cores = m.devices.filter((d) => d.tier === "core").sort((p, q) => p.x! - q.x!);
-  const core = cores[0], tor = m.devices.find((d) => d.tier === "tor")!, edge = m.devices.find((d) => d.tier === "edge")!;
-  const coreBottom = core.y! + core.h! / 2, torBottom = tor.y! + tor.h! / 2, edgeBottom = edge.y! + edge.h! / 2;
+  // A tier may be absent entirely (a flow-only model, a rackless lab, a lone
+  // switch). These are only lane BASELINES, and a missing tier also means the
+  // link classes that use it can't occur — so fall back to 0 rather than
+  // dereferencing a device that isn't there.
+  const bottomOf = (d?: Device) => (d ? d.y! + d.h! / 2 : 0);
+  const coreBottom = bottomOf(cores[0]);
+  const torBottom = bottomOf(m.devices.find((d) => d.tier === "tor"));
+  const edgeBottom = bottomOf(m.devices.find((d) => d.tier === "edge"));
   const rackOrder = m.racks.map((r) => r.id);
 
   const e2c = m.links.filter((l) => l.klass === "e2c");

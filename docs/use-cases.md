@@ -64,7 +64,8 @@ Also: `member <device>.<port> [tagged] [addr <addr>]` on VLANs. When no `segment
 
 ### Convention chosen (Visio samples)
 
-Critical rule: the callout **intersects the object→tube drop at the object**
-(where the line leaves the device). A short diagonal arm then carries
-`eth3` / `.1`. Not mid-span, not at the bus, not a second L1 port chip on the
-same port. Drops are pure verticals; paper grows under the topology.
+Critical rule: the callout documents an **interface on a device**. The spur
+root is the exact attachment point where the ethernet drop **connects to the
+object** (e.g. bottom of DR7) — that point *is* the interface. A short diagonal
+arm carries `eth3` / `.1`. Not offset below the box, not mid-span, not at the
+bus, not a second L1 chip. Drops are pure verticals; paper grows under topology.

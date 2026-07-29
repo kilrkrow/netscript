@@ -1,0 +1,61 @@
+---
+title: App Platform — Service Flows
+theme: clean
+---
+
+# A multi-service host: app-01 exposes nine listeners, so it renders as a
+# CONTAINER with one row per service rather than nine separate machines.
+# One host = one firewall destination; the services are the ports open on it.
+
+ops desktop "Ops Workstation"
+
+edge server "edge-proxy" {
+  service https "HTTPS (public)" tcp/443
+}
+
+app server "app-01" {
+  service http     "App HTTP"           tcp/8080 exe app-server
+  service grpc     "gRPC API"           tcp/50051
+  service admin    "Admin Console"      tcp/8443
+  service metrics  "Prometheus Metrics" tcp/9090
+  service health   "Health Probe"       tcp/8081
+  service debug    "Debug / pprof"      tcp/6060
+  service ws       "WebSocket Events"   tcp/8082
+  service sched    "Scheduler RPC"      tcp/7070
+  service audit    "Audit Sink"         tcp/7071
+}
+
+db storage "postgres-01" {
+  service pg "PostgreSQL" tcp/5432
+}
+
+cache server "redis-01" {
+  service redis "Redis" tcp/6379
+}
+
+queue server "rabbit-01" {
+  service amqp "AMQP" tcp/5672
+}
+
+idp server "idp-01" {
+  service oidc "OIDC / OAuth2" tcp/443
+}
+
+# ---- inbound to the app tier ----
+flow edge -> app.http
+flow ops  -> app.admin
+flow ops  -> app.metrics
+flow ops  -> app.debug
+flow edge -> app.ws
+flow edge -> app.grpc
+flow ops  -> edge.https
+
+# ---- the app tier's own outbound dependencies ----
+flow app -> db.pg
+flow app -> cache.redis
+flow app -> queue.amqp
+flow app -> idp.oidc
+
+# ---- availability checks (no listening port) ----
+flow ops -> app : icmp "Ping"
+flow ops -> db  : icmp "Ping"

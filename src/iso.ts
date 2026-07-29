@@ -24,7 +24,7 @@ import { resolveTheme } from "./themes.ts";
 import { GLYPH, KIND_COLOR } from "./glyphs.ts";
 import { layoutModel, type Zone } from "./layout.ts";
 import { buildRoutes } from "./router.ts";
-import { layoutTraffic } from "./traffic.ts";
+import { layoutTraffic, arrowHead, labelAlong, longestSegment } from "./traffic.ts";
 
 const COS30 = Math.cos(Math.PI / 6);
 const SIN30 = 0.5;
@@ -105,12 +105,43 @@ function drawBlocks(devices: Device[], boxes: Map<string, IsoBox>, C: Canvas, S:
   return out;
 }
 
-/** Triangle at `tip`, oriented along the direction of travel from `from`. */
-function arrowHead(tip: Pt, from: Pt, col: string, size = 9): string {
-  const dx = tip.x - from.x, dy = tip.y - from.y, len = Math.hypot(dx, dy) || 1;
-  const ux = dx / len, uy = dy / len, px = -uy, py = ux;
-  const bx = tip.x - ux * size, by = tip.y - uy * size, hw = size * 0.52;
-  return `<path d="M ${tip.x.toFixed(1)},${tip.y.toFixed(1)} L ${(bx + px * hw).toFixed(1)},${(by + py * hw).toFixed(1)} L ${(bx - px * hw).toFixed(1)},${(by - py * hw).toFixed(1)} Z" fill="${col}"/>`;
+/**
+ * The VISIBLE outline of an extruded block, in screen space.
+ *
+ * In isometric the four floor corners land as: P00 topmost, P10 rightmost,
+ * P11 bottommost, P01 leftmost. Only the two front faces and the top are
+ * drawn, so the silhouette is the hexagon Q00 → Q10 → P10 → P11 → P01 → Q01.
+ * The floor's two BACK edges (P00–P01, P00–P10) sit inside it, hidden.
+ *
+ * This matters because a flow's terminal point is computed in flat space on
+ * the card's edge — which projects onto exactly those hidden back edges. Left
+ * uncorrected, an arrow either buries itself behind the block or floats short
+ * of it, depending on which edge it came from.
+ */
+const silhouette = (b: IsoBox): Pt[] => [b.Q00, b.Q10, b.P10, b.P11, b.P01, b.Q01];
+
+/**
+ * Where the ray A→B (extended past B if need be) first meets a polygon's
+ * boundary. Returns null if it never does. Extending past B is the point: a
+ * terminal that fell short gets pushed out to touch, one that fell inside gets
+ * pulled back to the visible edge — one operation fixes both.
+ */
+function rayHitPolygon(A: Pt, B: Pt, poly: Pt[]): Pt | null {
+  const dx = B.x - A.x, dy = B.y - A.y;
+  let best = Infinity, hit: Pt | null = null;
+  for (let i = 0; i < poly.length; i++) {
+    const P = poly[i], Q = poly[(i + 1) % poly.length];
+    const ex = Q.x - P.x, ey = Q.y - P.y;
+    const den = dx * ey - dy * ex;
+    if (Math.abs(den) < 1e-9) continue;                       // parallel
+    const t = ((P.x - A.x) * ey - (P.y - A.y) * ex) / den;    // along A→B
+    const u = ((P.x - A.x) * dy - (P.y - A.y) * dx) / den;    // along P→Q
+    if (t >= 0 && u >= -1e-9 && u <= 1 + 1e-9 && t < best) {
+      best = t;
+      hit = { x: A.x + dx * t, y: A.y + dy * t };
+    }
+  }
+  return hit;
 }
 
 function header(S: Theme, title: string, tag: string): string[] {
@@ -194,45 +225,77 @@ export function renderTrafficIso(m: NetModel, themeName: string | Theme = "clean
   const projSockets = T.sockets.map((s) => ({ ...s, at: proj(s.at.x, s.at.y) }));
   allPts.push(...projSockets.map((s) => s.at));
 
-  const C = fit(allPts, 86);   // footer room for the service legend
+  const C = fit(allPts, 108);   // footer room for the (wrapping) service legend
   const out: string[] = [`<svg viewBox="0 0 ${C.W.toFixed(0)} ${C.H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
   out.push(`<rect width="${C.W.toFixed(0)}" height="${C.H.toFixed(0)}" fill="${S.bg}"/>`);
 
+  // Land every flow on the TARGET BLOCK'S VISIBLE OUTLINE, not on the flat
+  // card edge it was routed to. Those edges project onto the block's hidden
+  // back faces, so uncorrected an arrow either disappears behind the block or
+  // stops short of it. Done once here so the line, its arrowhead and its label
+  // all agree on where the flow actually ends.
+  const shiftedRoutes = T.flows.map((f, i) => {
+    const pts = projRoutes[i].map(C.shift);
+    const box = devBox.get(f.to);
+    if (!box || pts.length < 2) return pts;
+    const hit = rayHitPolygon(pts[pts.length - 2], pts[pts.length - 1], silhouette(C.shiftBox(box)));
+    if (hit) pts[pts.length - 1] = hit;
+    return pts;
+  });
+
   // flow lines at floor level, under the blocks
   T.flows.forEach((f, i) => {
-    const pts = projRoutes[i].map(C.shift);
-    const col = T.color(f);
-    out.push(`<polyline points="${poly(pts)}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`);
-    out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="2.8" fill="${col}"/>`);
+    const pts = shiftedRoutes[i];
+    const col = T.color(f), dash = T.dash(f);
+    out.push(`<polyline points="${poly(pts)}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    // OPEN ring = the end that opens the connection; the solid arrowhead at the
+    // far end is where it lands. Two different marks, so the reader never has to
+    // infer initiation from which way a line happens to lean.
+    out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4" fill="${S.bg}" stroke="${col}" stroke-width="2"/>`);
   });
 
   out.push(...drawBlocks(m.devices, devBox, C, S));
 
-  // Arrowheads and socket chips ride ON TOP of the blocks — in a projected
-  // scene the terminal end of a flow can otherwise fall behind whatever block
-  // sits in front of it, and the socket is the whole point of the drawing.
+  // Arrowheads ride ON TOP of the blocks: in a projected scene the terminal end
+  // can otherwise fall behind whatever block sits in front of it.
   T.flows.forEach((f, i) => {
-    const pts = projRoutes[i].map(C.shift);
+    const pts = shiftedRoutes[i];
     out.push(arrowHead(pts[pts.length - 1], pts[pts.length - 2], T.color(f)));
   });
-  for (const s of projSockets) {
-    const p = C.shift(s.at);
-    const tw = 6.4 * s.svc.length + 14;
-    out.push(`<rect x="${(p.x - tw / 2).toFixed(1)}" y="${(p.y + 6).toFixed(1)}" width="${tw.toFixed(1)}" height="16" rx="8" fill="${S.bg}" stroke="${s.color}" stroke-width="1.5"/>`);
-    out.push(`<text x="${p.x.toFixed(1)}" y="${(p.y + 17.5).toFixed(1)}" font-size="9.5" text-anchor="middle" fill="${s.color}" font-weight="700" font-family="${S.mono}">${esc(s.svc)}</text>`);
-  }
+  // The USE CASE, laid along each line, with a chevron ON the line showing
+  // which way the connection is opened. A projected block has no rows to read,
+  // so the line has to carry both facts itself: what the traffic is for, and
+  // which end initiates it. No port chip at the landing point — the label
+  // already states the port, and repeating it there is pure clutter.
+  T.flows.forEach((f, i) => {
+    const r = T.resolved.get(f)!;
+    const pts = shiftedRoutes[i];
+    const port = r.port === undefined ? r.proto : `${r.proto}/${r.port}`;
+    const text = r.name ? `${r.name} · ${port}` : port;
+    const [p, q] = longestSegment(pts);
+    const col = T.color(f);
+    // chevron at the segment midpoint, pointing the way traffic travels
+    const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy) || 1;
+    const mid = { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 };
+    const tip = { x: mid.x + (dx / len) * 8, y: mid.y + (dy / len) * 8 };
+    out.push(arrowHead(tip, mid, col, 8));
+    out.push(labelAlong(p, q, text, col, S, 8.5, 9));
+  });
 
-  // service legend
-  const ly = C.H - 44;
+  // service legend (wraps — a vendor port table can carry a lot of services)
+  const ly = C.H - 62;
   out.push(`<text x="18" y="${ly.toFixed(1)}" font-size="11" fill="${S.sub}" font-weight="700" font-family="${S.mono}" letter-spacing="1">SERVICES</text>`);
-  let lx = 106;
-  for (const { svc, label, color } of T.legend) {
+  let lx = 100, lrow = 0;
+  for (const { svc, label, color, dash } of T.legend) {
     const t = label ? `${svc} · ${label}` : svc;
-    out.push(`<line x1="${lx.toFixed(1)}" y1="${(ly - 3.5).toFixed(1)}" x2="${(lx + 24).toFixed(1)}" y2="${(ly - 3.5).toFixed(1)}" stroke="${color}" stroke-width="3.4" stroke-linecap="round"/>`);
-    out.push(`<text x="${(lx + 31).toFixed(1)}" y="${ly.toFixed(1)}" font-size="10.5" fill="${S.sub}" font-family="${S.mono}">${esc(t)}</text>`);
-    lx += 46 + 6.6 * t.length;
+    const need = 40 + 6.1 * t.length;
+    if (lx + need > C.W - 18) { lx = 100; lrow++; }
+    const y = ly + lrow * 15;
+    out.push(`<line x1="${lx.toFixed(1)}" y1="${(y - 3.5).toFixed(1)}" x2="${(lx + 20).toFixed(1)}" y2="${(y - 3.5).toFixed(1)}" stroke="${color}" stroke-width="3.2" stroke-linecap="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    out.push(`<text x="${(lx + 26).toFixed(1)}" y="${y.toFixed(1)}" font-size="10" fill="${S.sub}" font-family="${S.mono}">${esc(t)}</text>`);
+    lx += need;
   }
-  out.push(`<text x="18" y="${(ly + 21).toFixed(1)}" font-size="10" fill="${S.sub}" font-family="${S.mono}">ARROW POINTS INITIATOR → LISTENER · A SOCKET IS AN EXPOSED PORT (INBOUND) · FLOWS LEAVING A BLOCK ARE ITS OUTBOUND</text>`);
+  out.push(`<text x="18" y="${(ly + lrow * 15 + 22).toFixed(1)}" font-size="10" fill="${S.sub}" font-family="${S.mono}">○ OPENS THE CONNECTION · ▶ DIRECTION OF TRAFFIC · ARROWHEAD LANDS ON THE LISTENING PORT</text>`);
 
   out.push(...header(S, m.title, `TRAFFIC · L4 FLOWS · ${T.flows.length} FLOWS · ${T.legend.length} SERVICES · ISOMETRIC`));
   out.push("</svg>");

@@ -31,7 +31,7 @@ import specifiers are fine).
 **Pipeline:** `model → layout → router → render`
 
 ```
-src/model.ts        NetModel types (Device/Link/Rack/Port/Vlan/Bond/Flow) + geometry helpers
+src/model.ts        NetModel types (Device/Link/Rack/Port/Service/Vlan/Bond/Flow) + helpers
 src/examples.ts      bundled sample models (three-rack leaf-spine, homelab logical)
 src/layout.ts        deterministic tiered/rack placement; assigns x/y/w/h + zones
 src/router.ts         orthogonal router: lane allocation, uplink risers, jumps
@@ -56,8 +56,8 @@ adapters — they never leak into the core.
 ### Three layers, two axes
 
 Layers in the model: **physical** (devices/ports/cabling), **logical**
-(VLANs/subnets/bonds), **flow** (L4 traffic). All three are first-class in the
-model, the `.net` DSL, and the renderers.
+(VLANs/subnets/bonds), **flow** (L4 services + traffic). All three are
+first-class in the model, the `.net` DSL, and the renderers.
 
 Rendering has two INDEPENDENT axes, dispatched by `renderView()` in
 `views.ts` — keep them independent:
@@ -72,16 +72,45 @@ one shared set of primitives. If you add a new scene, add a layout that
 produces that shape and it gets isometric for free. Physical-vs-logical-vs-
 hybrid is a *third*, separate selector carried by the theme's `mode`.
 
-### Traffic view notes
+### Traffic view notes (the part most likely to bite)
 
+- **A `Service` is hosted, not standalone.** It lives on a `Device` the way a
+  `Port` does. Do not "simplify" this into one node per service: a vendor port
+  table puts a dozen listeners on one machine, and separate nodes would claim a
+  dozen firewall destinations where there is one.
+- **Layout ordering is load-bearing and non-obvious.** x is assigned FIRST,
+  lanes are allocated against x, and only THEN is each level's vertical gap
+  sized to hold its own lane bank. Sizing gaps before counting lanes lets the
+  lane band overflow into the level below, which routes flows backwards through
+  the card they departed from.
+- **Approach corridors are reserved during placement**, as part of a
+  container's slot — not computed afterwards from final positions. A container
+  taking N flows needs `APPROACH_BASE + N*APPROACH_STEP` of clear space beside
+  it; without the reservation those verticals spear the neighbouring card.
+  The corridor is always on the LEFT, which is what keeps it independent of the
+  x positions it would otherwise have to be derived from.
+- **Level-skipping flows detour via an outer channel** past every card.
+  Otherwise their long vertical run pierces whatever sits between the endpoints.
 - Placement is derived from the flow graph (longest-path layering over inbound
-  edges), NOT from `tier`: pure initiators sink to the bottom, pure listeners
-  rise to the top. Cycle-guarded.
+  edges), NOT from `tier`. Cycles are removed by DFS back-edge detection first:
+  one documented reverse ping forms a 2-cycle that a naive guard resolves by
+  inverting the whole diagram.
 - Service colour is keyed on `proto/port` in **declaration order**, so the
   author's first-written flow gets the lead colour. Deliberately not sorted —
-  see the comment on `serviceIndex`.
+  see the comment on `serviceIndex`. Past the palette length a dash pattern is
+  added as a second channel; colour alone silently aliases beyond ~16 services.
 - Inbound/outbound is never stored; it's read off arrow geometry, because it's
   a point of view rather than a property of a flow.
+- **Direction is marked at BOTH ends, differently**: an open ring where the
+  connection is opened, a solid arrowhead where it lands, plus a chevron on the
+  line. Don't collapse these to one mark — "which end initiates" is the whole
+  question the view exists to answer, and a line's lean doesn't answer it.
+- **Don't repeat a fact the line already carries.** Iso labels state
+  `use case · proto/port` along the line, so there is deliberately no port chip
+  at the landing point. Flat states it on the row instead, for the same reason.
+- Geometry here does not show up in types OR in a glance at the SVG. When
+  changing layout, verify: no card overlap, rows contained, flows terminating
+  on their row/socket, and no route crossing a card it doesn't belong to.
 
 ### Router notes (the part most likely to bite)
 

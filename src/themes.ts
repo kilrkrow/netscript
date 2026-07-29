@@ -59,6 +59,21 @@ const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 const VLAN_LIGHT = ["#2563eb", "#16a34a", "#db2777", "#d97706", "#0891b2", "#7c3aed", "#dc2626", "#0d9488"];
 const VLAN_DARK = ["#7fd1ff", "#86efac", "#ff9ed6", "#ffd27f", "#67e8f9", "#c4b5fd", "#fca5a5", "#5eead4"];
 
+// Service palettes are deliberately WIDER than the VLAN ones. A VLAN diagram
+// has a handful of segments; a vendor port table routinely carries twenty-odd
+// services, and an 8-colour cycle silently reuses every colour two or three
+// times — a legend that looks authoritative while being unable to tell two
+// services apart. Sixteen entries, plus the renderer's dash fallback once even
+// these wrap, keeps colour meaningful for realistic inputs.
+const SERVICE_LIGHT = [
+  "#2563eb", "#16a34a", "#db2777", "#d97706", "#0891b2", "#7c3aed", "#dc2626", "#0d9488",
+  "#4d7c0f", "#9333ea", "#c2410c", "#0369a1", "#be123c", "#15803d", "#a16207", "#4338ca",
+];
+const SERVICE_DARK = [
+  "#7fd1ff", "#86efac", "#ff9ed6", "#ffd27f", "#67e8f9", "#c4b5fd", "#fca5a5", "#5eead4",
+  "#bef264", "#e9d5ff", "#fdba74", "#93c5fd", "#fda4af", "#4ade80", "#fcd34d", "#a5b4fc",
+];
+
 export const clean: Theme = {
   name: "clean", font: SANS, mono: MONO, bg: "#ffffff", grid: null,
   mode: "physical", portCallouts: true,
@@ -66,7 +81,7 @@ export const clean: Theme = {
   chipStroke: null, text: "#1f2430", sub: "#6b7280", showMgmt: false,
   link: "#7c8696", linkW: 1.5, jumps: true, endDots: true,
   speedColor: { WAN: "#64748b", "1G": "#94a3b8", "10G": "#3b82f6", "25G": "#ef6c2f", "40G": "#d97706", "100G": "#db2777", LAG: "#7c3aed" },
-  vlanPalette: VLAN_LIGHT,
+  vlanPalette: VLAN_LIGHT, servicePalette: SERVICE_LIGHT,
   pill: true, pillFill: "#ffffff", pillStroke: "#e5e7eb", speedText: "#475569",
   zoneFill: "#f8fafc", zoneStroke: "#e2e8f0", zoneText: "#64748b", titleBlock: false,
 };
@@ -78,7 +93,7 @@ export const blueprint: Theme = {
   chipStroke: "#bcd6ff", text: "#eaf2ff", sub: "#9dc0f0", showMgmt: true,
   link: "#cfe0ff", linkW: 1.3, jumps: true, endDots: true,
   speedColor: { WAN: "#cfe0ff", "1G": "#9dc0f0", "10G": "#7fd1ff", "25G": "#ffd27f", "40G": "#ffc04d", "100G": "#ff9ed6", LAG: "#a7f3d0" },
-  vlanPalette: VLAN_DARK,
+  vlanPalette: VLAN_DARK, servicePalette: SERVICE_DARK,
   pill: false, pillFill: "none", pillStroke: "none", speedText: "#dbe9ff",
   zoneFill: "#0e3f7d", zoneStroke: "#2f63a8", zoneText: "#bcd6ff", titleBlock: true,
 };

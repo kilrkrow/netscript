@@ -1,21 +1,14 @@
 /**
  * NetScript Ethernet tubes — Visio-style L2 buses.
  *
- * Critical design rule (from operator Visio samples):
+ * Critical design rules:
  *
- *   The callout documents an INTERFACE on a device. The spur root is the
- *   exact attachment point where the object↔ethernet drop meets the device
- *   (the interface itself) — not offset below the box, not mid-span, not at
- *   the tube. A short arm from that point carries port + address.
- *
- *        [ DR7 ]
- *            *\______ eth3     ← spur root = interface point on DR7
- *            |        .1         (where the drop touches the object)
- *            |
- *       ═════●════════  192.168.86.0/24
- *
- * Drops are pure verticals from that interface point to the bus. Paper grows
- * under topology so the bus never competes for space.
+ * 1. Callout documents an attachment on a device. Spur root = exact point
+ *    where the drop meets the device bottom-centre (d.x, bottom) — never a
+ *    fanned column x that floats off the card.
+ * 2. Pure vertical drop from that point to the tube.
+ * 3. Leader → vertical flag bar ("|"); port and/or addr beside it.
+ * 4. Hosts are laid L→R by layout.ts so drops stay short and rooted.
  */
 import type { NetModel, Pt } from "./model.ts";
 import { escapeXml as esc } from "./model.ts";
@@ -23,18 +16,13 @@ import type { Theme } from "./themes.ts";
 import { resolveSegments, portOf } from "./logical.ts";
 
 const TUBE_H = 20;
-const BAND_GAP = 80;
-const TUBE_PITCH = 96;
-const SIDE_PAD = 52;
-const COL_GAP = 100;
-/**
- * Leader reaches this far sideways from the interface to the flag bar.
- * Keep clear of the device card — too small and eth3/.1 collides with the object.
- */
-const ARM_DX = 72;
-/** How far below the interface the flag bar is centred (opens the diagonal). */
-const ARM_DY = 28;
-/** Flag bar half-height (text sits beside this vertical tick — not a "[" ). */
+const BAND_GAP = 96;
+const TUBE_PITCH = 100;
+const SIDE_PAD = 56;
+/** Leader sideways clearance from the interface to the flag bar. */
+const ARM_DX = 64;
+/** Leader drops this far so the flag sits under the stagger gap. */
+const ARM_DY = 32;
 const FLAG_HALF = 11;
 
 export interface TubeDrop {
@@ -42,13 +30,7 @@ export interface TubeDrop {
   port?: string;
   portLabel?: string;
   addr?: string;
-  /** Pure vertical (or tiny fan) from object to tube. */
   path: Pt[];
-  /**
-   * Attachment point where the drop meets the device.
-   * When a port is known this *is* the interface; when not (scan-style),
-   * it is still the object edge the callout documents.
-   */
   spurRoot: Pt;
   spurRight: boolean;
 }
@@ -83,17 +65,12 @@ function topologyBounds(m: NetModel): { minX: number; maxX: number; maxY: number
   return { minX, maxX, maxY };
 }
 
-/**
- * Which members get a visible drop?
- * Hosts always. Edge/firewall gateways always. Core/ToR fabric only when the
- * segment has no hosts — otherwise long drops spear the rack (anti-Visio).
- */
 function shouldDrop(m: NetModel, deviceId: string, segmentHasHost: boolean): boolean {
   const d = m.devices.find((x) => x.id === deviceId);
   if (!d) return false;
   if (d.tier === "host") return true;
   if (d.tier === "edge" || d.kind === "firewall" || d.kind === "router") return true;
-  if (!segmentHasHost) return true; // isolated segment of switches only
+  if (!segmentHasHost) return true;
   return false;
 }
 
@@ -105,7 +82,7 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
   let padL = 48, padR = 100;
   let bandY = bounds.maxY + BAND_GAP;
 
-  segs.forEach((seg, si) => {
+  segs.forEach((seg) => {
     type PM = {
       device: string; port?: string; portLabel?: string; addr?: string;
       dx: number; yBottom: number;
@@ -128,53 +105,30 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
     const placed = raw.filter((p) => shouldDrop(m, p.device, hasHost));
     if (!placed.length) return;
 
+    // Stable L→R by device position (layout already placed hosts L→R).
     placed.sort((a, b) => a.dx - b.dx || a.yBottom - b.yBottom || (a.port ?? "").localeCompare(b.port ?? ""));
 
-    // One column per drop; prefer the device's own x so the drop is a pure vertical.
-    // When two devices share an x (stacked tiers we still drop), fan slightly.
-    const colX: number[] = [];
-    const xUsed: { x: number; n: number }[] = [];
-    for (const p of placed) {
-      let x = p.dx;
-      const hit = xUsed.find((u) => Math.abs(u.x - p.dx) < 8);
-      if (hit) {
-        hit.n++;
-        x = p.dx + (hit.n % 2 === 0 ? -1 : 1) * Math.ceil(hit.n / 2) * 16;
-      } else {
-        xUsed.push({ x: p.dx, n: 0 });
-      }
-      // Enforce min gap from previous column
-      if (colX.length) {
-        const prev = colX[colX.length - 1]!;
-        if (x - prev < COL_GAP * 0.55) x = prev + COL_GAP * 0.55;
-      }
-      colX.push(x);
-    }
-
-    const n = placed.length;
-    const tubeTop = bandY + 8;
-    const y = tubeTop + TUBE_H / 2;
-    const x1 = Math.min(...colX) - SIDE_PAD;
-    const x2 = Math.max(...colX) + SIDE_PAD;
-
-    // Multi-port fan under the same device
+    // Multi-port fan: only offset when the *same device* has multiple members.
     const totals = new Map<string, number>();
     for (const p of placed) totals.set(p.device, (totals.get(p.device) ?? 0) + 1);
     const seen = new Map<string, number>();
+
+    const tubeTop = bandY + 8;
+    const y = tubeTop + TUBE_H / 2;
 
     const drops: TubeDrop[] = [];
     placed.forEach((p, i) => {
       const nth = seen.get(p.device) ?? 0;
       seen.set(p.device, nth + 1);
       const total = totals.get(p.device) ?? 1;
-      const fan = total > 1 ? (nth - (total - 1) / 2) * 14 : 0;
-      // Pure vertical at column x (column already near device.x).
-      // Path start = interface point on the device (where drop meets object).
-      const x = colX[i]! + fan;
+      // Fan only multi-port on ONE card — never invent a column away from the device.
+      const fan = total > 1 ? (nth - (total - 1) / 2) * 12 : 0;
+      const x = p.dx + fan;
+      // Interface point: bottom centre of the device (plus tiny multi-port fan).
       const iface: Pt = { x, y: p.yBottom };
       const path: Pt[] = [iface, { x, y: tubeTop }];
-      // Spur roots at the interface itself — that is what we're documenting.
-      const spurRight = x <= (bounds.minX + bounds.maxX) / 2;
+      // Alternate flag side so neighbours don't collide; prefer outside of pack.
+      const spurRight = i % 2 === 0;
 
       drops.push({
         device: p.device,
@@ -187,26 +141,29 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
       });
     });
 
+    const xs = drops.map((d) => d.spurRoot.x);
+    const x1 = Math.min(...xs) - SIDE_PAD;
+    const x2 = Math.max(...xs) + SIDE_PAD;
+
     tubes.push({
       id: seg.id,
       name: seg.name,
       subnet: seg.subnet,
-      color: colorAt(si),
+      color: colorAt(tubes.length),
       y,
       x1,
       x2,
       drops,
     });
-    bandY = y + TUBE_H / 2 + TUBE_PITCH * 0.5;
-    void n; void si;
+    bandY = y + TUBE_H / 2 + TUBE_PITCH * 0.55;
   });
 
   if (tubes.length) {
     for (const t of tubes) {
       for (const d of t.drops) {
         const armEnd = d.spurRoot.x + (d.spurRight ? ARM_DX : -ARM_DX);
-        padL = Math.max(padL, bounds.minX - Math.min(d.spurRoot.x, armEnd) + 70);
-        padR = Math.max(padR, Math.max(d.spurRoot.x, armEnd) - bounds.maxX + 70);
+        padL = Math.max(padL, bounds.minX - Math.min(d.spurRoot.x, armEnd) + 80);
+        padR = Math.max(padR, Math.max(d.spurRoot.x, armEnd) - bounds.maxX + 80);
       }
     }
   }
@@ -219,10 +176,6 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
 
 export const hasTubes = (m: NetModel): boolean => resolveSegments(m).length > 0;
 
-/**
- * Ports that already have a segment callout — L1 chips for these should be
- * suppressed so we don't double-label (Visio shows eth3/.1 once, on the drop).
- */
 export function segmentAnnotatedPorts(m: NetModel): Set<string> {
   const out = new Set<string>();
   for (const s of resolveSegments(m)) {
@@ -272,32 +225,22 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
 
     for (const d of t.drops) {
       const a = d.path[0]!, b = d.path[d.path.length - 1]!;
-      // Pure vertical drop: interface point on device → tube
       out.push(
         `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" ` +
         `stroke="${col}" stroke-width="1.7" stroke-linecap="round"/>`,
       );
-      // Tube end
       out.push(`<circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="2.5" fill="${col}"/>`);
-      // Interface point on the device (drop + spur share this exact point)
+      // Interface / attachment point on the device
       out.push(
         `<circle cx="${a.x.toFixed(1)}" cy="${a.y.toFixed(1)}" r="2.8" fill="${S.bg}" stroke="${col}" stroke-width="1.6"/>`,
       );
 
-      // Callout text: port and/or addr — either alone is fine (scan import often
-      // has only an IP). Skip the flag only when neither is known.
       const lines = [d.portLabel, d.addr].filter(Boolean) as string[];
       if (!lines.length) continue;
 
-      // Visio callout (samples 1 & 2):
-      //   leader from attachment point → vertical FLAG BAR
-      //   text stacked beside the bar (port and/or addr)
-      // The terminator is a short vertical tick "|", not a square bracket "[".
-      const root = d.spurRoot;
+      const root = d.spurRoot; // === device bottom centre
       const dir = d.spurRight ? 1 : -1;
       const barX = root.x + dir * ARM_DX;
-      // Leader meets the flag bar at its vertical centre (sample2 diagonal).
-      // ARM_DX/DY keep the flag clear of the device card.
       const barMidY = root.y + ARM_DY;
       out.push(
         `<line x1="${root.x.toFixed(1)}" y1="${root.y.toFixed(1)}" ` +
@@ -312,7 +255,6 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
       const tx = barX + dir * 7;
       const anchor = d.spurRight ? "start" : "end";
       const halo = `paint-order="stroke" stroke="${S.bg}" stroke-width="3.2" stroke-linejoin="round"`;
-      // Two lines → centre on bar; one line → mid bar.
       const lineH = 12;
       const textTop = barMidY - ((lines.length - 1) * lineH) / 2;
       lines.forEach((line, li) => {

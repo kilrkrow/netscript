@@ -40,14 +40,17 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
   // logical/hybrid. Physical-only models still draw tubes if authored.
   const drawTubeLayer = hasTubes(m) && (logical || !!m.segments?.length);
   const tubeColor = (i: number) => vpal[i % vpal.length];
-  const tubePack = drawTubeLayer ? layoutTubes(m, tubeColor) : { tubes: [], bottom: 0 };
+  const tubePack = drawTubeLayer
+    ? layoutTubes(m, tubeColor)
+    : { tubes: [] as ReturnType<typeof layoutTubes>["tubes"], bottom: 0, padL: 0, padR: 0 };
+  const shiftX = tubePack.padL ?? 0;
   if (tubePack.tubes.length) {
     H = expandHeightForTubes(H, tubePack);
     const minX = Math.min(...tubePack.tubes.map((t) => t.x1));
     const maxX = Math.max(...tubePack.tubes.map((t) => t.x2));
-    // Tubes may stick past device bounds — grow the canvas, not the layout.
-    if (minX < 24) W += 24 - minX;
-    if (maxX > W - 24) W = maxX + 24;
+    // Infinite paper: grow for side risers, tube extent, and callout text.
+    W = Math.max(W, maxX + 24) - Math.min(0, minX - 24);
+    W += shiftX + (tubePack.padR ?? 0);
   }
 
   const out: string[] = [`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
@@ -57,6 +60,9 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
   out.push(`<rect width="${W}" height="${H}" fill="${S.bg}"/>`);
   if (S.grid)
     out.push(`<defs><pattern id="grd" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="${S.grid}" stroke-width="1"/></pattern></defs><rect width="${W}" height="${H}" fill="url(#grd)"/>`);
+
+  // Shift content when left risers need margin (topology coords stay layout-native).
+  if (shiftX) out.push(`<g transform="translate(${shiftX},0)">`);
 
   // zones
   for (const z of zones) {
@@ -228,12 +234,15 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
     const tubesN = tubePack.tubes.length;
     const layerTag = mode === "logical" ? "LOGICAL L2/L3" : mode === "hybrid" ? "HYBRID L1+L2/L3" : "PHYSICAL L1";
     const tubeTag = tubesN ? ` · ${tubesN} TUBE${tubesN === 1 ? "" : "S"}` : "";
-    out.push(`<rect x="${W - 252}" y="${H - 70}" width="236" height="54" fill="none" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
-    out.push(`<line x1="${W - 252}" y1="${H - 50}" x2="${W - 16}" y2="${H - 50}" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
-    out.push(`<text x="${W - 244}" y="${H - 55}" font-size="9.5" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">${esc(m.title.toUpperCase())} · ${layerTag}</text>`);
-    out.push(`<text x="${W - 244}" y="${H - 34}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${nodes} NODES · ${links} LINKS${tubeTag} · REV A · NTS</text>`);
+    // Title block is in content space (inside the shift group when present).
+    const tbX = W - shiftX - 252;
+    out.push(`<rect x="${tbX}" y="${H - 70}" width="236" height="54" fill="none" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
+    out.push(`<line x1="${tbX}" y1="${H - 50}" x2="${W - shiftX - 16}" y2="${H - 50}" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
+    out.push(`<text x="${tbX + 8}" y="${H - 55}" font-size="9.5" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">${esc(m.title.toUpperCase())} · ${layerTag}</text>`);
+    out.push(`<text x="${tbX + 8}" y="${H - 34}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${nodes} NODES · ${links} LINKS${tubeTag} · REV A · NTS</text>`);
   }
 
+  if (shiftX) out.push("</g>");
   out.push("</svg>");
   return out.join("\n");
 }

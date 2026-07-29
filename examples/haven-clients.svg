@@ -1,255 +1,253 @@
-<svg viewBox="0 0 6162 887" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+<svg viewBox="0 0 6082 920" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
 <defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#0f172a" flood-opacity="0.16"/></filter></defs>
-<rect width="6162" height="887" fill="#ffffff"/>
+<rect width="6082" height="920" fill="#ffffff"/>
 <g transform="translate(48,0)">
-<rect x="76.0" y="476.0" width="4176.0" height="136.0" rx="13" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2"/>
-<text x="82.0" y="469.0" font-size="11.5" fill="#64748b" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">DEFAULT</text>
-<rect x="4300.0" y="476.0" width="1660.0" height="136.0" rx="13" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2"/>
-<text x="4306.0" y="469.0" font-size="11.5" fill="#64748b" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">IOT SSID</text>
-<rect x="110.0" y="688.0" width="4108.0" height="20" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="1.9"/>
-<ellipse cx="110.0" cy="698.0" rx="5.0" ry="10.0" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
-<ellipse cx="4218.0" cy="698.0" rx="5.0" ry="10.0" fill="none" stroke="#2563eb" stroke-width="1.6"/>
-<text x="2164.0" y="702.0" font-size="11.5" text-anchor="middle" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">192.168.86.0/24</text>
-<text x="2164.0" y="722.0" font-size="9.5" text-anchor="middle" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">Default</text>
+<rect x="76.0" y="476.0" width="5804.0" height="136.0" rx="13" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2"/>
+<text x="82.0" y="469.0" font-size="11.5" fill="#64748b" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">HAVEN</text>
+<rect x="58.0" y="688.0" width="5840.0" height="20" rx="10" fill="#ffffff" stroke="#2563eb" stroke-width="1.9"/>
+<ellipse cx="58.0" cy="698.0" rx="5.0" ry="10.0" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
+<ellipse cx="5898.0" cy="698.0" rx="5.0" ry="10.0" fill="none" stroke="#2563eb" stroke-width="1.6"/>
+<text x="2978.0" y="702.0" font-size="11.5" text-anchor="middle" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">192.168.86.0/24</text>
+<text x="2978.0" y="722.0" font-size="9.5" text-anchor="middle" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">Default</text>
 <line x1="166.0" y1="544.0" x2="166.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="166.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="166.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="166.0" y1="544.0" x2="230.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="230.0" y1="565.0" x2="230.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="237.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.198</text>
+<text x="237.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.198</text>
 <line x1="314.0" y1="584.0" x2="314.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="314.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="314.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="314.0" y1="584.0" x2="250.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="250.0" y1="605.0" x2="250.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="243.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.104</text>
+<text x="243.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.104</text>
 <line x1="462.0" y1="544.0" x2="462.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="462.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="462.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="462.0" y1="544.0" x2="526.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="526.0" y1="565.0" x2="526.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="533.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.5</text>
+<text x="533.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.5</text>
 <line x1="610.0" y1="584.0" x2="610.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="610.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="610.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="610.0" y1="584.0" x2="546.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="546.0" y1="605.0" x2="546.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="539.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.3</text>
+<text x="539.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.3</text>
 <line x1="758.0" y1="544.0" x2="758.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="758.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="758.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="758.0" y1="544.0" x2="822.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="822.0" y1="565.0" x2="822.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="829.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.54</text>
+<text x="829.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.54</text>
 <line x1="906.0" y1="584.0" x2="906.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="906.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="906.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="906.0" y1="584.0" x2="842.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="842.0" y1="605.0" x2="842.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="835.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.81</text>
+<text x="835.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.81</text>
 <line x1="1054.0" y1="544.0" x2="1054.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="1054.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="1054.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="1054.0" y1="544.0" x2="1118.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="1118.0" y1="565.0" x2="1118.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="1125.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.19</text>
+<text x="1125.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.19</text>
 <line x1="1202.0" y1="584.0" x2="1202.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="1202.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="1202.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="1202.0" y1="584.0" x2="1138.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="1138.0" y1="605.0" x2="1138.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="1131.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.2</text>
+<text x="1131.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.2</text>
 <line x1="1350.0" y1="544.0" x2="1350.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="1350.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="1350.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="1350.0" y1="544.0" x2="1414.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="1414.0" y1="565.0" x2="1414.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="1421.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.25</text>
+<text x="1421.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.25</text>
 <line x1="1498.0" y1="584.0" x2="1498.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="1498.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="1498.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="1498.0" y1="584.0" x2="1434.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="1434.0" y1="605.0" x2="1434.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="1427.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.40</text>
+<text x="1427.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.40</text>
 <line x1="1646.0" y1="544.0" x2="1646.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="1646.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="1646.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="1646.0" y1="544.0" x2="1710.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="1710.0" y1="565.0" x2="1710.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="1717.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.8</text>
+<text x="1717.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.8</text>
 <line x1="1794.0" y1="584.0" x2="1794.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="1794.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="1794.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="1794.0" y1="584.0" x2="1730.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="1730.0" y1="605.0" x2="1730.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="1723.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.42</text>
+<text x="1723.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.42</text>
 <line x1="1942.0" y1="544.0" x2="1942.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="1942.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="1942.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="1942.0" y1="544.0" x2="2006.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="2006.0" y1="565.0" x2="2006.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="2013.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.49</text>
+<text x="2013.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.49</text>
 <line x1="2090.0" y1="584.0" x2="2090.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="2090.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="2090.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="2090.0" y1="584.0" x2="2026.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="2026.0" y1="605.0" x2="2026.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="2019.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.7</text>
+<text x="2019.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.7</text>
 <line x1="2238.0" y1="544.0" x2="2238.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="2238.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="2238.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="2238.0" y1="544.0" x2="2302.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="2302.0" y1="565.0" x2="2302.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="2309.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.12</text>
+<text x="2309.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.12</text>
 <line x1="2386.0" y1="584.0" x2="2386.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="2386.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="2386.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="2386.0" y1="584.0" x2="2322.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="2322.0" y1="605.0" x2="2322.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="2315.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.230</text>
+<text x="2315.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.230</text>
 <line x1="2534.0" y1="544.0" x2="2534.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="2534.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="2534.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="2534.0" y1="544.0" x2="2598.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="2598.0" y1="565.0" x2="2598.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="2605.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.9</text>
+<text x="2605.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.9</text>
 <line x1="2682.0" y1="584.0" x2="2682.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="2682.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="2682.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="2682.0" y1="584.0" x2="2618.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="2618.0" y1="605.0" x2="2618.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="2611.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.53</text>
+<text x="2611.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.53</text>
 <line x1="2830.0" y1="544.0" x2="2830.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="2830.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="2830.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="2830.0" y1="544.0" x2="2894.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="2894.0" y1="565.0" x2="2894.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="2901.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.4</text>
+<text x="2901.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.4</text>
 <line x1="2978.0" y1="584.0" x2="2978.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="2978.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="2978.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="2978.0" y1="584.0" x2="2914.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="2914.0" y1="605.0" x2="2914.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="2907.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.251</text>
+<text x="2907.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.251</text>
 <line x1="3126.0" y1="544.0" x2="3126.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="3126.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="3126.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="3126.0" y1="544.0" x2="3190.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="3190.0" y1="565.0" x2="3190.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="3197.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.123</text>
+<text x="3197.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.123</text>
 <line x1="3274.0" y1="584.0" x2="3274.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="3274.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="3274.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="3274.0" y1="584.0" x2="3210.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="3210.0" y1="605.0" x2="3210.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="3203.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.245</text>
+<text x="3203.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.245</text>
 <line x1="3422.0" y1="544.0" x2="3422.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="3422.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="3422.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="3422.0" y1="544.0" x2="3486.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="3486.0" y1="565.0" x2="3486.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="3493.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.221</text>
+<text x="3493.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.221</text>
 <line x1="3570.0" y1="584.0" x2="3570.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="3570.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="3570.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="3570.0" y1="584.0" x2="3506.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="3506.0" y1="605.0" x2="3506.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="3499.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.168</text>
+<text x="3499.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.168</text>
 <line x1="3718.0" y1="544.0" x2="3718.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="3718.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="3718.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="3718.0" y1="544.0" x2="3782.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="3782.0" y1="565.0" x2="3782.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="3789.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.209</text>
+<text x="3789.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.209</text>
 <line x1="3866.0" y1="584.0" x2="3866.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="3866.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="3866.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="3866.0" y1="584.0" x2="3802.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="3802.0" y1="605.0" x2="3802.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="3795.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.219</text>
+<text x="3795.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.219</text>
 <line x1="4014.0" y1="544.0" x2="4014.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="4014.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="4014.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="4014.0" y1="544.0" x2="4078.0" y2="576.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="4078.0" y1="565.0" x2="4078.0" y2="587.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="4085.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.127</text>
+<text x="4085.0" y="579.5" font-size="10.5" text-anchor="start" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.127</text>
 <line x1="4162.0" y1="584.0" x2="4162.0" y2="688.0" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round"/>
 <circle cx="4162.0" cy="688.0" r="2.5" fill="#2563eb"/>
 <circle cx="4162.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
 <line x1="4162.0" y1="584.0" x2="4098.0" y2="616.0" stroke="#2563eb" stroke-width="1.35" stroke-linecap="round"/>
 <line x1="4098.0" y1="605.0" x2="4098.0" y2="627.0" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="4091.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.156</text>
-<rect x="4334.0" y="771.0" width="1592.0" height="20" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="1.9"/>
-<ellipse cx="4334.0" cy="781.0" rx="5.0" ry="10.0" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<ellipse cx="5926.0" cy="781.0" rx="5.0" ry="10.0" fill="none" stroke="#16a34a" stroke-width="1.6"/>
-<text x="5130.0" y="785.0" font-size="11.5" text-anchor="middle" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">192.168.86.0/24</text>
-<text x="5130.0" y="805.0" font-size="9.5" text-anchor="middle" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">iot</text>
-<line x1="4390.0" y1="544.0" x2="4390.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="4390.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="4390.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="4390.0" y1="544.0" x2="4454.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="4454.0" y1="565.0" x2="4454.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="4461.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.95</text>
-<line x1="4538.0" y1="584.0" x2="4538.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="4538.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="4538.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="4538.0" y1="584.0" x2="4474.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="4474.0" y1="605.0" x2="4474.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="4467.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.183</text>
-<line x1="4686.0" y1="544.0" x2="4686.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="4686.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="4686.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="4686.0" y1="544.0" x2="4750.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="4750.0" y1="565.0" x2="4750.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="4757.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.102</text>
-<line x1="4834.0" y1="584.0" x2="4834.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="4834.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="4834.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="4834.0" y1="584.0" x2="4770.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="4770.0" y1="605.0" x2="4770.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="4763.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.141</text>
-<line x1="4982.0" y1="544.0" x2="4982.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="4982.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="4982.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="4982.0" y1="544.0" x2="5046.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="5046.0" y1="565.0" x2="5046.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="5053.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.21</text>
-<line x1="5130.0" y1="584.0" x2="5130.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="5130.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="5130.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="5130.0" y1="584.0" x2="5066.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="5066.0" y1="605.0" x2="5066.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="5059.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.73</text>
-<line x1="5278.0" y1="544.0" x2="5278.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="5278.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="5278.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="5278.0" y1="544.0" x2="5342.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="5342.0" y1="565.0" x2="5342.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="5349.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.101</text>
-<line x1="5426.0" y1="584.0" x2="5426.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="5426.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="5426.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="5426.0" y1="584.0" x2="5362.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="5362.0" y1="605.0" x2="5362.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="5355.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.93</text>
-<line x1="5574.0" y1="544.0" x2="5574.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="5574.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="5574.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="5574.0" y1="544.0" x2="5638.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="5638.0" y1="565.0" x2="5638.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="5645.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.225</text>
-<line x1="5722.0" y1="584.0" x2="5722.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="5722.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="5722.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="5722.0" y1="584.0" x2="5658.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="5658.0" y1="605.0" x2="5658.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="5651.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.247</text>
-<line x1="5870.0" y1="544.0" x2="5870.0" y2="771.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
-<circle cx="5870.0" cy="771.0" r="2.5" fill="#16a34a"/>
-<circle cx="5870.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
-<line x1="5870.0" y1="544.0" x2="5934.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
-<line x1="5934.0" y1="565.0" x2="5934.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="5941.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">192.168.86.171</text>
+<text x="4091.0" y="619.5" font-size="10.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.156</text>
+<rect x="58.0" y="804.0" width="5840.0" height="20" rx="10" fill="#ffffff" stroke="#16a34a" stroke-width="1.9"/>
+<ellipse cx="58.0" cy="814.0" rx="5.0" ry="10.0" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<ellipse cx="5898.0" cy="814.0" rx="5.0" ry="10.0" fill="none" stroke="#16a34a" stroke-width="1.6"/>
+<text x="2978.0" y="818.0" font-size="11.5" text-anchor="middle" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">192.168.86.0/24</text>
+<text x="2978.0" y="838.0" font-size="9.5" text-anchor="middle" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">iot</text>
+<line x1="4310.0" y1="544.0" x2="4310.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="4310.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="4310.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="4310.0" y1="544.0" x2="4374.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="4374.0" y1="565.0" x2="4374.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="4381.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.95</text>
+<line x1="4458.0" y1="584.0" x2="4458.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="4458.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="4458.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="4458.0" y1="584.0" x2="4394.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="4394.0" y1="605.0" x2="4394.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="4387.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.183</text>
+<line x1="4606.0" y1="544.0" x2="4606.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="4606.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="4606.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="4606.0" y1="544.0" x2="4670.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="4670.0" y1="565.0" x2="4670.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="4677.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.102</text>
+<line x1="4754.0" y1="584.0" x2="4754.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="4754.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="4754.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="4754.0" y1="584.0" x2="4690.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="4690.0" y1="605.0" x2="4690.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="4683.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.141</text>
+<line x1="4902.0" y1="544.0" x2="4902.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="4902.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="4902.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="4902.0" y1="544.0" x2="4966.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="4966.0" y1="565.0" x2="4966.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="4973.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.21</text>
+<line x1="5050.0" y1="584.0" x2="5050.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="5050.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="5050.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="5050.0" y1="584.0" x2="4986.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="4986.0" y1="605.0" x2="4986.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="4979.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.73</text>
+<line x1="5198.0" y1="544.0" x2="5198.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="5198.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="5198.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="5198.0" y1="544.0" x2="5262.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="5262.0" y1="565.0" x2="5262.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="5269.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.101</text>
+<line x1="5346.0" y1="584.0" x2="5346.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="5346.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="5346.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="5346.0" y1="584.0" x2="5282.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="5282.0" y1="605.0" x2="5282.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="5275.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.93</text>
+<line x1="5494.0" y1="544.0" x2="5494.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="5494.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="5494.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="5494.0" y1="544.0" x2="5558.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="5558.0" y1="565.0" x2="5558.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="5565.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.225</text>
+<line x1="5642.0" y1="584.0" x2="5642.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="5642.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="5642.0" cy="584.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="5642.0" y1="584.0" x2="5578.0" y2="616.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="5578.0" y1="605.0" x2="5578.0" y2="627.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="5571.0" y="619.5" font-size="10.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.247</text>
+<line x1="5790.0" y1="544.0" x2="5790.0" y2="804.0" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round"/>
+<circle cx="5790.0" cy="804.0" r="2.5" fill="#16a34a"/>
+<circle cx="5790.0" cy="544.0" r="2.8" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<line x1="5790.0" y1="544.0" x2="5854.0" y2="576.0" stroke="#16a34a" stroke-width="1.35" stroke-linecap="round"/>
+<line x1="5854.0" y1="565.0" x2="5854.0" y2="587.0" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
+<text x="5861.0" y="579.5" font-size="10.5" text-anchor="start" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.171</text>
 <rect x="114.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
 <rect x="124.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="133.0" y1="524.4" x2="133.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="128.7" y1="527.6" x2="137.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
 <text x="148.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">VENGEANCE</text>
@@ -334,39 +332,39 @@
 <rect x="4110.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
 <rect x="4120.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4129.0" y1="564.4" x2="4129.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="4124.7" y1="567.6" x2="4133.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
 <text x="4144.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Hue bridge</text>
-<rect x="4338.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="4348.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4357.0" y1="524.4" x2="4357.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="4352.7" y1="527.6" x2="4361.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
-<text x="4372.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">LB130</text>
-<rect x="4486.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="4496.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4505.0" y1="564.4" x2="4505.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="4500.7" y1="567.6" x2="4509.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
-<text x="4520.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Amazon Echo (3rd)</text>
-<rect x="4634.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="4644.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4653.0" y1="524.4" x2="4653.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="4648.7" y1="527.6" x2="4657.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
-<text x="4668.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">NVIDIA Shield TV</text>
-<rect x="4782.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="4792.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4801.0" y1="564.4" x2="4801.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="4796.7" y1="567.6" x2="4805.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
-<text x="4816.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Samsung 40:08</text>
-<rect x="4930.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="4940.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4949.0" y1="524.4" x2="4949.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="4944.7" y1="527.6" x2="4953.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
-<text x="4964.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Amazon Echo Dot (2nd)</text>
-<rect x="5078.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="5088.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5097.0" y1="564.4" x2="5097.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="5092.7" y1="567.6" x2="5101.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
-<text x="5112.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">HS200 05:2f</text>
-<rect x="5226.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="5236.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5245.0" y1="524.4" x2="5245.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="5240.7" y1="527.6" x2="5249.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
-<text x="5260.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">HS200 dd:af</text>
-<rect x="5374.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="5384.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5393.0" y1="564.4" x2="5393.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="5388.7" y1="567.6" x2="5397.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
-<text x="5408.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Amazon Echo Flex</text>
-<rect x="5522.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="5532.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5541.0" y1="524.4" x2="5541.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="5536.7" y1="527.6" x2="5545.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
-<text x="5556.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">HS103</text>
-<rect x="5670.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="5680.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5689.0" y1="564.4" x2="5689.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="5684.7" y1="567.6" x2="5693.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
-<text x="5704.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Nuki Smart Lock 2</text>
-<rect x="5818.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
-<rect x="5828.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5837.0" y1="524.4" x2="5837.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="5832.7" y1="527.6" x2="5841.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
-<text x="5852.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">espresso (WYZE)</text>
-<text x="110" y="852" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LINK SPEED</text>
+<rect x="4258.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="4268.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4277.0" y1="524.4" x2="4277.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="4272.7" y1="527.6" x2="4281.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
+<text x="4292.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">LB130</text>
+<rect x="4406.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="4416.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4425.0" y1="564.4" x2="4425.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="4420.7" y1="567.6" x2="4429.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
+<text x="4440.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Amazon Echo (3rd)</text>
+<rect x="4554.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="4564.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4573.0" y1="524.4" x2="4573.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="4568.7" y1="527.6" x2="4577.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
+<text x="4588.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">NVIDIA Shield TV</text>
+<rect x="4702.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="4712.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4721.0" y1="564.4" x2="4721.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="4716.7" y1="567.6" x2="4725.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
+<text x="4736.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Samsung 40:08</text>
+<rect x="4850.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="4860.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="4869.0" y1="524.4" x2="4869.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="4864.7" y1="527.6" x2="4873.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
+<text x="4884.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Amazon Echo Dot (2nd)</text>
+<rect x="4998.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="5008.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5017.0" y1="564.4" x2="5017.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="5012.7" y1="567.6" x2="5021.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
+<text x="5032.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">HS200 05:2f</text>
+<rect x="5146.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="5156.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5165.0" y1="524.4" x2="5165.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="5160.7" y1="527.6" x2="5169.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
+<text x="5180.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">HS200 dd:af</text>
+<rect x="5294.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="5304.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5313.0" y1="564.4" x2="5313.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="5308.7" y1="567.6" x2="5317.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
+<text x="5328.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Amazon Echo Flex</text>
+<rect x="5442.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="5452.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5461.0" y1="524.4" x2="5461.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="5456.7" y1="527.6" x2="5465.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
+<text x="5476.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">HS103</text>
+<rect x="5590.0" y="536.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="5600.4" y="552.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5609.0" y1="564.4" x2="5609.0" y2="567.6" stroke="#475569" stroke-width="1.4"/><line x1="5604.7" y1="567.6" x2="5613.3" y2="567.6" stroke="#475569" stroke-width="1.4"/>
+<text x="5624.0" y="561.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">Nuki Smart Lock 2</text>
+<rect x="5738.0" y="496.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="5748.4" y="512.6" width="17.3" height="11.7" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="5757.0" y1="524.4" x2="5757.0" y2="527.6" stroke="#475569" stroke-width="1.4"/><line x1="5752.7" y1="527.6" x2="5761.3" y2="527.6" stroke="#475569" stroke-width="1.4"/>
+<text x="5772.0" y="521.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">espresso (WYZE)</text>
+<text x="110" y="885" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LINK SPEED</text>
 </g>
 </svg>

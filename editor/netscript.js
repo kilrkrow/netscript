@@ -17,7 +17,7 @@
 
                   
                                               
-                                            
+                                                       
 
 /** Vertical tier — drives layout and link-class inference. */
                                                             
@@ -56,6 +56,8 @@
                 
                                                                             
                  
+                                                                    
+                       
                                                              
                            
                                                  
@@ -115,16 +117,51 @@
  * gets this for free from the arrow direction.
  */
                                                    
+
+/**
+ * A SERVICE — a named listening endpoint that lives ON a host.
+ *
+ * Deliberately not a device. A vendor's port table routinely puts a dozen
+ * services on one machine, and modelling each as its own node would claim a
+ * dozen machines where there is one — which for the firewall audience these
+ * tables are written for is an actively harmful lie: it implies a dozen
+ * destination addresses needing a dozen rule sets, when it is one address with
+ * a dozen open ports. A service belongs to its host the way a port does.
+ *
+ * `exe` is the binary that owns the listener, because that is what a vendor
+ * port table keys on and what an admin greps the process list for.
+ */
+                          
+                                                              
+                                                                
+               
+               
+                                                                       
+ 
+
                        
                                                                    
                                                                              
-               
+     
+                                                                         
+                                                                           
+     
+                     
+                                                                       
                                                                      
                                                                          
  
 
-/** Canonical service identity — the thing colour is keyed on. */const serviceKey = (f      )         =>
-  f.port === undefined ? f.proto : `${f.proto}/${f.port}`;const byId = (m          )                      =>
+/** What a flow actually targets, after resolving any `toService` reference. */function resolveFlow(m          , f      )               {
+  if (f.toService) {
+    const s = m.devices.find((d) => d.id === f.to)?.services?.find((x) => x.id === f.toService);
+    if (s) return { proto: s.proto, port: s.port, name: s.name, exe: s.exe, svcId: s.id };
+  }
+  return { proto: f.proto ?? "any", port: f.port, name: f.label };
+}
+
+/** Canonical service identity — the thing colour is keyed on. */const serviceKey = (r                                 )         =>
+  r.port === undefined ? r.proto : `${r.proto}/${r.port}`;const byId = (m          )                      =>
   new Map(m.devices.map((d) => [d.id, d]));
 
 // boundary anchors on a positioned deviceconst top    = (d        )     => ({ x: d.x , y: d.y  - d.h  / 2 });const bottom = (d        )     => ({ x: d.x , y: d.y  + d.h  / 2 });const leftP  = (d        )     => ({ x: d.x  - d.w  / 2, y: d.y  });const rightP = (d        )     => ({ x: d.x  + d.w  / 2, y: d.y  });const escapeXml = (s        )         =>
@@ -194,14 +231,29 @@ const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 
 // Qualitative VLAN palettes (high-contrast, colour-blind-aware-ish). Cyclic.
 const VLAN_LIGHT = ["#2563eb", "#16a34a", "#db2777", "#d97706", "#0891b2", "#7c3aed", "#dc2626", "#0d9488"];
-const VLAN_DARK = ["#7fd1ff", "#86efac", "#ff9ed6", "#ffd27f", "#67e8f9", "#c4b5fd", "#fca5a5", "#5eead4"];const clean        = {
+const VLAN_DARK = ["#7fd1ff", "#86efac", "#ff9ed6", "#ffd27f", "#67e8f9", "#c4b5fd", "#fca5a5", "#5eead4"];
+
+// Service palettes are deliberately WIDER than the VLAN ones. A VLAN diagram
+// has a handful of segments; a vendor port table routinely carries twenty-odd
+// services, and an 8-colour cycle silently reuses every colour two or three
+// times — a legend that looks authoritative while being unable to tell two
+// services apart. Sixteen entries, plus the renderer's dash fallback once even
+// these wrap, keeps colour meaningful for realistic inputs.
+const SERVICE_LIGHT = [
+  "#2563eb", "#16a34a", "#db2777", "#d97706", "#0891b2", "#7c3aed", "#dc2626", "#0d9488",
+  "#4d7c0f", "#9333ea", "#c2410c", "#0369a1", "#be123c", "#15803d", "#a16207", "#4338ca",
+];
+const SERVICE_DARK = [
+  "#7fd1ff", "#86efac", "#ff9ed6", "#ffd27f", "#67e8f9", "#c4b5fd", "#fca5a5", "#5eead4",
+  "#bef264", "#e9d5ff", "#fdba74", "#93c5fd", "#fda4af", "#4ade80", "#fcd34d", "#a5b4fc",
+];const clean        = {
   name: "clean", font: SANS, mono: MONO, bg: "#ffffff", grid: null,
   mode: "physical", portCallouts: true,
   cardFill: "#ffffff", cardStroke: "#d7dbe2", cardStrokeW: 1.2, radius: 8, shadow: true,
   chipStroke: null, text: "#1f2430", sub: "#6b7280", showMgmt: false,
   link: "#7c8696", linkW: 1.5, jumps: true, endDots: true,
   speedColor: { WAN: "#64748b", "1G": "#94a3b8", "10G": "#3b82f6", "25G": "#ef6c2f", "40G": "#d97706", "100G": "#db2777", LAG: "#7c3aed" },
-  vlanPalette: VLAN_LIGHT,
+  vlanPalette: VLAN_LIGHT, servicePalette: SERVICE_LIGHT,
   pill: true, pillFill: "#ffffff", pillStroke: "#e5e7eb", speedText: "#475569",
   zoneFill: "#f8fafc", zoneStroke: "#e2e8f0", zoneText: "#64748b", titleBlock: false,
 };const blueprint        = {
@@ -211,7 +263,7 @@ const VLAN_DARK = ["#7fd1ff", "#86efac", "#ff9ed6", "#ffd27f", "#67e8f9", "#c4b5
   chipStroke: "#bcd6ff", text: "#eaf2ff", sub: "#9dc0f0", showMgmt: true,
   link: "#cfe0ff", linkW: 1.3, jumps: true, endDots: true,
   speedColor: { WAN: "#cfe0ff", "1G": "#9dc0f0", "10G": "#7fd1ff", "25G": "#ffd27f", "40G": "#ffc04d", "100G": "#ff9ed6", LAG: "#a7f3d0" },
-  vlanPalette: VLAN_DARK,
+  vlanPalette: VLAN_DARK, servicePalette: SERVICE_DARK,
   pill: false, pillFill: "none", pillStroke: "none", speedText: "#dbe9ff",
   zoneFill: "#0e3f7d", zoneStroke: "#2f63a8", zoneText: "#bcd6ff", titleBlock: true,
 };
@@ -304,15 +356,28 @@ const desktop          = (cx, cy, s, st, fill, sw) => {
   return out;
 };
 
+/** Fixed-lens box camera on a wall mount — the physical-security endpoint. */
+const camera          = (cx, cy, s, st, fill, sw) => {
+  const bw = s * 1.05, bh = s * 0.6, bx = cx - bw * 0.42, by = cy - bh / 2;
+  let out = `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${fill}" stroke="${st}" stroke-width="${sw}"/>`;
+  // lens barrel on the front face
+  out += `<rect x="${(bx + bw).toFixed(1)}" y="${(cy - bh * 0.28).toFixed(1)}" width="${(s * 0.2).toFixed(1)}" height="${(bh * 0.56).toFixed(1)}" rx="1" fill="${fill}" stroke="${st}" stroke-width="${sw}"/>`;
+  // mount arm + ceiling plate
+  out += `<line x1="${(bx + bw * 0.3).toFixed(1)}" y1="${by.toFixed(1)}" x2="${(bx + bw * 0.3).toFixed(1)}" y2="${(by - s * 0.26).toFixed(1)}" stroke="${st}" stroke-width="${sw}"/>`;
+  out += `<line x1="${(bx + bw * 0.05).toFixed(1)}" y1="${(by - s * 0.26).toFixed(1)}" x2="${(bx + bw * 0.55).toFixed(1)}" y2="${(by - s * 0.26).toFixed(1)}" stroke="${st}" stroke-width="${sw}"/>`;
+  return out;
+};
+
 const CLOUD = "M54,40 H14 C6.3,40 0,33.7 0,26 0,18.8 5.4,12.9 12.4,12.1 14.7,5.1 21.3,0 29,0 c8,0 14.7,5.5 16.6,12.9 C53.4,13.6 64,18.3 64,26 64,33.7 60.6,40 54,40 Z";
 const cloud          = (cx, cy, s, st, fill, sw) => {
   const scale = (s * 1.6) / 64, tx = cx - 32 * scale, ty = cy - 20 * scale;
   return `<g transform="translate(${tx.toFixed(1)},${ty.toFixed(1)}) scale(${scale.toFixed(3)})"><path d="${CLOUD}" fill="${fill}" stroke="${st}" stroke-width="${(sw/scale).toFixed(2)}"/></g>`;
 };const GLYPH                        = {
-  cloud, router, firewall, switch: sw_switch, server, storage, ap, desktop,
+  cloud, router, firewall, switch: sw_switch, server, storage, ap, desktop, camera,
 };const KIND_COLOR                       = {
   cloud: "#64748b", router: "#2563eb", firewall: "#b91c1c", switch: "#0d9488",
   server: "#4f46e5", storage: "#7c3aed", ap: "#ea580c", desktop: "#475569",
+  camera: "#0891b2",
 };
 
 
@@ -552,8 +617,9 @@ function jumpsOnH(h     , foreignV       , r        )           {
  *   ---
  *
  *   <id> <kind> "label" [tier <tier>] [mgmt <addr>]      # device
- *   <id> <kind> "label" ... {                            # device, with a port block
- *     port <id> "<name>" [speed <speed>] [media <media>] [addr <addr>]
+ *   <id> <kind> "label" ... {                            # device, with a member block
+ *     port    <id> "<name>" [speed <speed>] [media <media>] [addr <addr>]
+ *     service <id> "<name>" <proto>/<port> [exe <exe>]   # listening service (L4)
  *   }
  *   rack <id> "role" { <device>... }                     # group (members default tier host)
  *   vlan <id> "name" [subnet <cidr>] {                    # VLAN (logical layer)
@@ -563,7 +629,8 @@ function jumpsOnH(h     , foreignV       , r        )           {
  *     member <port>
  *   }
  *   <a>[.<port>] (->|--) <b>[.<port>] : <speed> [lag]     # link (-- = peer; class inferred)
- *   flow <from> -> <to> : <proto>[/<port>] ["label"]      # traffic flow (L4)
+ *   flow <from> -> <to>.<service> ["label"]               # flow to a declared service
+ *   flow <from> -> <to> : <proto>[/<port>] ["label"]      # ad-hoc flow (e.g. icmp)
  *
  *   # line comments with '#'
  *
@@ -575,7 +642,7 @@ function jumpsOnH(h     , foreignV       , r        )           {
  */
                                                                                                            
 
-const KINDS = new Set        (["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop"]);
+const KINDS = new Set        (["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop", "camera"]);
 const TIERS = new Set        (["wan", "edge", "core", "tor", "host"]);
 const SPEEDS = new Set        (["WAN", "1G", "10G", "25G", "40G", "100G", "LAG"]);function inferTier(kind      , inRack         )       {
   if (kind === "cloud") return "wan";
@@ -642,8 +709,19 @@ function splitPort(tok        )                               {
     // ---- lines only valid inside a specific frame ----
     const tf = top();
     if (tf?.kind === "device") {
+      // service <id> "<name>" <proto>/<port> [exe <exe>]
+      const svc = header.match(/^service\s+(\S+)\s+"([^"]*)"\s+(tcp|udp|icmp|any)\/(\d+)(?:\s+exe\s+(\S+))?$/i);
+      if (svc) {
+        const [, sid, sname, sproto, sport, sexe] = svc;
+        tf.dev.services ??= [];
+        if (tf.dev.services.some((s) => s.id === sid)) throw new Error(`line ${ln}: duplicate service "${sid}" on device "${tf.dev.id}"`);
+        const portNum = Number(sport);
+        if (portNum < 0 || portNum > 65535) throw new Error(`line ${ln}: port out of range "${sport}"`);
+        tf.dev.services.push({ id: sid, name: sname, proto: sproto.toLowerCase()         , port: portNum, ...(sexe ? { exe: sexe } : {}) });
+        continue;
+      }
       const m = header.match(/^port\s+(\S+)\s+"([^"]*)"\s*(.*)$/);
-      if (!m) throw new Error(`line ${ln}: expected "port <id> \\"<name>\\"" inside device block → ${header}`);
+      if (!m) throw new Error(`line ${ln}: expected "port <id> \\"<name>\\"" or "service <id> \\"<name>\\" <proto>/<port>" inside device block → ${header}`);
       const [, id, name, rest] = m;
       if (tf.dev.ports .some((p) => p.id === id)) throw new Error(`line ${ln}: duplicate port "${id}" on device "${tf.dev.id}"`);
       const port       = { id, name };
@@ -710,19 +788,29 @@ function splitPort(tok        )                               {
       continue;
     }
 
-    // flow <from> -> <to> : <proto>[/<port>] ["label"]
+    // flow <from> -> <to>.<service> ["label"]           (port comes from the service)
+    // flow <from> -> <to> : <proto>[/<port>] ["label"]  (ad-hoc, no declared service)
     // Keyword-prefixed so it can never be confused with a physical link line
     // (`a -> b : 10G`), which shares the arrow shape but means something else.
-    m = header.match(/^flow\s+(\S+)\s*->\s*(\S+)\s*:\s*(tcp|udp|icmp|any)(?:\/(\d+))?(?:\s+"([^"]*)")?$/i);
+    m = header.match(/^flow\s+(\S+)\s*->\s*(\S+)(?:\s*:\s*(tcp|udp|icmp|any)(?:\/(\d+))?)?(?:\s+"([^"]*)")?$/i);
     if (!blockOpen && m && !stack.length) {
-      const proto = m[3].toLowerCase()         ;
-      const flow       = { from: m[1], to: m[2], proto };
-      if (m[4] !== undefined) {
-        const port = Number(m[4]);
-        if (port < 0 || port > 65535) throw new Error(`line ${ln}: port out of range "${m[4]}"`);
-        flow.port = port;
+      const [, from, target, proto, port, label] = m;
+      const flow       = { from, to: target };
+      if (proto) {
+        flow.proto = proto.toLowerCase()         ;
+        if (port !== undefined) {
+          const p = Number(port);
+          if (p < 0 || p > 65535) throw new Error(`line ${ln}: port out of range "${port}"`);
+          flow.port = p;
+        }
+      } else {
+        // No `: proto/port` given, so the target must name a service: `host.svc`.
+        const [devId, svcId] = splitPort(target);
+        if (!svcId) throw new Error(`line ${ln}: flow needs either "<host>.<service>" or ": <proto>[/<port>]" → ${header}`);
+        flow.to = devId;
+        flow.toService = svcId;
       }
-      if (m[5]) flow.label = m[5];
+      if (label) flow.label = label;
       (model.flows ??= []).push(flow);
       continue;
     }
@@ -802,6 +890,9 @@ function splitPort(tok        )                               {
     if (!devById.has(f.from)) throw new Error(`flow references unknown device "${f.from}"`);
     if (!devById.has(f.to)) throw new Error(`flow references unknown device "${f.to}"`);
     if (f.from === f.to) throw new Error(`flow "${f.from}" targets itself`);
+    if (f.toService && !devById.get(f.to) .services?.some((s) => s.id === f.toService))
+      throw new Error(`flow references unknown service "${f.to}.${f.toService}"`);
+    if (!f.toService && !f.proto) throw new Error(`flow ${f.from} -> ${f.to} has neither a service nor a protocol`);
   }
 }
 

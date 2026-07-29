@@ -77,6 +77,18 @@ const desktop: GlyphFn = (cx, cy, s, st, fill, sw) => {
   return out;
 };
 
+/** Fixed-lens box camera on a wall mount — the physical-security endpoint. */
+const camera: GlyphFn = (cx, cy, s, st, fill, sw) => {
+  const bw = s * 1.05, bh = s * 0.6, bx = cx - bw * 0.42, by = cy - bh / 2;
+  let out = `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${fill}" stroke="${st}" stroke-width="${sw}"/>`;
+  // lens barrel on the front face
+  out += `<rect x="${(bx + bw).toFixed(1)}" y="${(cy - bh * 0.28).toFixed(1)}" width="${(s * 0.2).toFixed(1)}" height="${(bh * 0.56).toFixed(1)}" rx="1" fill="${fill}" stroke="${st}" stroke-width="${sw}"/>`;
+  // mount arm + ceiling plate
+  out += `<line x1="${(bx + bw * 0.3).toFixed(1)}" y1="${by.toFixed(1)}" x2="${(bx + bw * 0.3).toFixed(1)}" y2="${(by - s * 0.26).toFixed(1)}" stroke="${st}" stroke-width="${sw}"/>`;
+  out += `<line x1="${(bx + bw * 0.05).toFixed(1)}" y1="${(by - s * 0.26).toFixed(1)}" x2="${(bx + bw * 0.55).toFixed(1)}" y2="${(by - s * 0.26).toFixed(1)}" stroke="${st}" stroke-width="${sw}"/>`;
+  return out;
+};
+
 const CLOUD = "M54,40 H14 C6.3,40 0,33.7 0,26 0,18.8 5.4,12.9 12.4,12.1 14.7,5.1 21.3,0 29,0 c8,0 14.7,5.5 16.6,12.9 C53.4,13.6 64,18.3 64,26 64,33.7 60.6,40 54,40 Z";
 const cloud: GlyphFn = (cx, cy, s, st, fill, sw) => {
   const scale = (s * 1.6) / 64, tx = cx - 32 * scale, ty = cy - 20 * scale;
@@ -84,10 +96,11 @@ const cloud: GlyphFn = (cx, cy, s, st, fill, sw) => {
 };
 
 export const GLYPH: Record<Kind, GlyphFn> = {
-  cloud, router, firewall, switch: sw_switch, server, storage, ap, desktop,
+  cloud, router, firewall, switch: sw_switch, server, storage, ap, desktop, camera,
 };
 
 export const KIND_COLOR: Record<Kind, string> = {
   cloud: "#64748b", router: "#2563eb", firewall: "#b91c1c", switch: "#0d9488",
   server: "#4f46e5", storage: "#7c3aed", ap: "#ea580c", desktop: "#475569",
+  camera: "#0891b2",
 };

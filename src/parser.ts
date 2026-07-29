@@ -9,8 +9,9 @@
  *   ---
  *
  *   <id> <kind> "label" [tier <tier>] [mgmt <addr>]      # device
- *   <id> <kind> "label" ... {                            # device, with a port block
- *     port <id> "<name>" [speed <speed>] [media <media>] [addr <addr>]
+ *   <id> <kind> "label" ... {                            # device, with a member block
+ *     port    <id> "<name>" [speed <speed>] [media <media>] [addr <addr>]
+ *     service <id> "<name>" <proto>/<port> [exe <exe>]   # listening service (L4)
  *   }
  *   rack <id> "role" { <device>... }                     # group (members default tier host)
  *   vlan <id> "name" [subnet <cidr>] {                    # VLAN (logical layer)
@@ -20,7 +21,8 @@
  *     member <port>
  *   }
  *   <a>[.<port>] (->|--) <b>[.<port>] : <speed> [lag]     # link (-- = peer; class inferred)
- *   flow <from> -> <to> : <proto>[/<port>] ["label"]      # traffic flow (L4)
+ *   flow <from> -> <to>.<service> ["label"]               # flow to a declared service
+ *   flow <from> -> <to> : <proto>[/<port>] ["label"]      # ad-hoc flow (e.g. icmp)
  *
  *   # line comments with '#'
  *
@@ -32,7 +34,7 @@
  */
 import type { NetModel, Device, Link, Kind, Tier, Speed, Port, Vlan, Bond, Flow, Proto } from "./model.ts";
 
-const KINDS = new Set<string>(["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop"]);
+const KINDS = new Set<string>(["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop", "camera"]);
 const TIERS = new Set<string>(["wan", "edge", "core", "tor", "host"]);
 const SPEEDS = new Set<string>(["WAN", "1G", "10G", "25G", "40G", "100G", "LAG"]);
 
@@ -109,8 +111,19 @@ export function parseNet(src: string): NetModel {
     // ---- lines only valid inside a specific frame ----
     const tf = top();
     if (tf?.kind === "device") {
+      // service <id> "<name>" <proto>/<port> [exe <exe>]
+      const svc = header.match(/^service\s+(\S+)\s+"([^"]*)"\s+(tcp|udp|icmp|any)\/(\d+)(?:\s+exe\s+(\S+))?$/i);
+      if (svc) {
+        const [, sid, sname, sproto, sport, sexe] = svc;
+        tf.dev.services ??= [];
+        if (tf.dev.services.some((s) => s.id === sid)) throw new Error(`line ${ln}: duplicate service "${sid}" on device "${tf.dev.id}"`);
+        const portNum = Number(sport);
+        if (portNum < 0 || portNum > 65535) throw new Error(`line ${ln}: port out of range "${sport}"`);
+        tf.dev.services.push({ id: sid, name: sname, proto: sproto.toLowerCase() as Proto, port: portNum, ...(sexe ? { exe: sexe } : {}) });
+        continue;
+      }
       const m = header.match(/^port\s+(\S+)\s+"([^"]*)"\s*(.*)$/);
-      if (!m) throw new Error(`line ${ln}: expected "port <id> \\"<name>\\"" inside device block → ${header}`);
+      if (!m) throw new Error(`line ${ln}: expected "port <id> \\"<name>\\"" or "service <id> \\"<name>\\" <proto>/<port>" inside device block → ${header}`);
       const [, id, name, rest] = m;
       if (tf.dev.ports!.some((p) => p.id === id)) throw new Error(`line ${ln}: duplicate port "${id}" on device "${tf.dev.id}"`);
       const port: Port = { id, name };
@@ -177,19 +190,29 @@ export function parseNet(src: string): NetModel {
       continue;
     }
 
-    // flow <from> -> <to> : <proto>[/<port>] ["label"]
+    // flow <from> -> <to>.<service> ["label"]           (port comes from the service)
+    // flow <from> -> <to> : <proto>[/<port>] ["label"]  (ad-hoc, no declared service)
     // Keyword-prefixed so it can never be confused with a physical link line
     // (`a -> b : 10G`), which shares the arrow shape but means something else.
-    m = header.match(/^flow\s+(\S+)\s*->\s*(\S+)\s*:\s*(tcp|udp|icmp|any)(?:\/(\d+))?(?:\s+"([^"]*)")?$/i);
+    m = header.match(/^flow\s+(\S+)\s*->\s*(\S+)(?:\s*:\s*(tcp|udp|icmp|any)(?:\/(\d+))?)?(?:\s+"([^"]*)")?$/i);
     if (!blockOpen && m && !stack.length) {
-      const proto = m[3].toLowerCase() as Proto;
-      const flow: Flow = { from: m[1], to: m[2], proto };
-      if (m[4] !== undefined) {
-        const port = Number(m[4]);
-        if (port < 0 || port > 65535) throw new Error(`line ${ln}: port out of range "${m[4]}"`);
-        flow.port = port;
+      const [, from, target, proto, port, label] = m;
+      const flow: Flow = { from, to: target };
+      if (proto) {
+        flow.proto = proto.toLowerCase() as Proto;
+        if (port !== undefined) {
+          const p = Number(port);
+          if (p < 0 || p > 65535) throw new Error(`line ${ln}: port out of range "${port}"`);
+          flow.port = p;
+        }
+      } else {
+        // No `: proto/port` given, so the target must name a service: `host.svc`.
+        const [devId, svcId] = splitPort(target);
+        if (!svcId) throw new Error(`line ${ln}: flow needs either "<host>.<service>" or ": <proto>[/<port>]" → ${header}`);
+        flow.to = devId;
+        flow.toService = svcId;
       }
-      if (m[5]) flow.label = m[5];
+      if (label) flow.label = label;
       (model.flows ??= []).push(flow);
       continue;
     }
@@ -270,5 +293,8 @@ export function validateModel(model: NetModel): void {
     if (!devById.has(f.from)) throw new Error(`flow references unknown device "${f.from}"`);
     if (!devById.has(f.to)) throw new Error(`flow references unknown device "${f.to}"`);
     if (f.from === f.to) throw new Error(`flow "${f.from}" targets itself`);
+    if (f.toService && !devById.get(f.to)!.services?.some((s) => s.id === f.toService))
+      throw new Error(`flow references unknown service "${f.to}.${f.toService}"`);
+    if (!f.toService && !f.proto) throw new Error(`flow ${f.from} -> ${f.to} has neither a service nor a protocol`);
   }
 }

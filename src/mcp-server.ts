@@ -56,11 +56,24 @@ const PORT_SCHEMA = {
   required: ["id", "name"],
 } as const;
 
+const SERVICE_SCHEMA = {
+  type: "object",
+  description: "A listening service hosted ON this device. Declare each listener once here; flows then reference it and inherit its port. Do NOT model services as separate devices — a dozen services on one machine is one firewall destination with a dozen open ports, not a dozen machines.",
+  properties: {
+    id: { type: "string", description: "Service id, unique within the device (e.g. \"gis\")" },
+    name: { type: "string", description: "Display label / use case, e.g. \"GIS Service\"" },
+    proto: { type: "string", enum: ["tcp", "udp", "icmp", "any"] },
+    port: { type: "number", description: "Listening port, e.g. 9005" },
+    exe: { type: "string", description: "Owning executable, e.g. \"ipscserver.exe\"" },
+  },
+  required: ["id", "name", "proto", "port"],
+} as const;
+
 const DEVICE_SCHEMA = {
   type: "object",
   properties: {
     id: { type: "string", description: "Unique device id" },
-    kind: { type: "string", enum: ["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop"] },
+    kind: { type: "string", enum: ["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop", "camera"] },
     label: { type: "string", description: "Display label" },
     tier: {
       type: "string", enum: ["wan", "edge", "core", "tor", "host"],
@@ -69,6 +82,7 @@ const DEVICE_SCHEMA = {
     mgmt: { type: "string", description: "Management address on managed gear only (not a CIDR)" },
     rack: { type: "string", description: "Rack id this device belongs to (must match a rack in `racks`)" },
     ports: { type: "array", items: PORT_SCHEMA },
+    services: { type: "array", items: SERVICE_SCHEMA },
   },
   required: ["id", "kind", "label"],
 } as const;
@@ -125,11 +139,12 @@ const FLOW_SCHEMA = {
   properties: {
     from: { type: "string", description: "Initiator device id (the client end)" },
     to: { type: "string", description: "Listener device id (the end exposing the port)" },
-    proto: { type: "string", enum: ["tcp", "udp", "icmp", "any"] },
+    toService: { type: "string", description: "Service id on `to`. Preferred: proto/port are taken from that service, so the port is declared once where it lives. Omit proto/port when using this." },
+    proto: { type: "string", enum: ["tcp", "udp", "icmp", "any"], description: "Only when `toService` is absent (e.g. an ICMP ping with no declared service)." },
     port: { type: "number", description: "Listening port, e.g. 1433. Omit for icmp/any." },
     label: { type: "string", description: "Service name shown in the legend, e.g. \"SQL\", \"LDAPS\"" },
   },
-  required: ["from", "to", "proto"],
+  required: ["from", "to"],
 } as const;
 
 // `view` and `projection` are independent axes — every combination is valid.

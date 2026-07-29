@@ -12,7 +12,7 @@
 
 export type Kind =
   | "cloud" | "router" | "firewall" | "switch"
-  | "server" | "storage" | "ap" | "desktop";
+  | "server" | "storage" | "ap" | "desktop" | "camera";
 
 /** Vertical tier — drives layout and link-class inference. */
 export type Tier = "wan" | "edge" | "core" | "tor" | "host";
@@ -51,6 +51,8 @@ export interface Device {
   mgmt?: string;
   /** Optional first-class physical ports (completes the physical layer). */
   ports?: Port[];
+  /** Optional listening services (the flow layer) — see Service. */
+  services?: Service[];
   rack?: string;            // rack id (for tor/host devices)
   /** assigned by layout */
   x?: number; y?: number; w?: number; h?: number;
@@ -110,17 +112,55 @@ export interface Bond {
  * gets this for free from the arrow direction.
  */
 export type Proto = "tcp" | "udp" | "icmp" | "any";
+
+/**
+ * A SERVICE — a named listening endpoint that lives ON a host.
+ *
+ * Deliberately not a device. A vendor's port table routinely puts a dozen
+ * services on one machine, and modelling each as its own node would claim a
+ * dozen machines where there is one — which for the firewall audience these
+ * tables are written for is an actively harmful lie: it implies a dozen
+ * destination addresses needing a dozen rule sets, when it is one address with
+ * a dozen open ports. A service belongs to its host the way a port does.
+ *
+ * `exe` is the binary that owns the listener, because that is what a vendor
+ * port table keys on and what an admin greps the process list for.
+ */
+export interface Service {
+  id: string;               // unique WITHIN the owning device
+  name: string;             // display label, e.g. "GIS Service"
+  proto: Proto;
+  port: number;
+  exe?: string;             // owning executable, e.g. "ipscserver.exe"
+}
+
 export interface Flow {
   from: string;             // initiator device id (the client end)
   to: string;               // listener device id (the end exposing the port)
-  proto: Proto;
+  /**
+   * Service id on `to`. When set, proto/port are taken FROM that service
+   * rather than restated here — the port is declared once, where it lives.
+   */
+  toService?: string;
+  proto?: Proto;            // required only when `toService` is absent
   port?: number;            // listening port; omitted for icmp / any
   label?: string;           // optional service name, e.g. "SQL", "LDAPS"
 }
 
+/** What a flow actually targets, after resolving any `toService` reference. */
+export interface ResolvedFlow { proto: Proto; port?: number; name?: string; exe?: string; svcId?: string; }
+
+export function resolveFlow(m: NetModel, f: Flow): ResolvedFlow {
+  if (f.toService) {
+    const s = m.devices.find((d) => d.id === f.to)?.services?.find((x) => x.id === f.toService);
+    if (s) return { proto: s.proto, port: s.port, name: s.name, exe: s.exe, svcId: s.id };
+  }
+  return { proto: f.proto ?? "any", port: f.port, name: f.label };
+}
+
 /** Canonical service identity — the thing colour is keyed on. */
-export const serviceKey = (f: Flow): string =>
-  f.port === undefined ? f.proto : `${f.proto}/${f.port}`;
+export const serviceKey = (r: { proto: Proto; port?: number }): string =>
+  r.port === undefined ? r.proto : `${r.proto}/${r.port}`;
 
 export interface NetModel {
   title: string;

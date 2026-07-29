@@ -19,13 +19,20 @@ function portLine(p: Port): string {
   return `  ${bits.join(" ")}`;
 }
 
+function serviceLine(s: NonNullable<Device["services"]>[number]): string {
+  return `  service ${s.id} ${q(s.name)} ${s.proto}/${s.port}${s.exe ? ` exe ${s.exe}` : ""}`;
+}
+
 function deviceLines(d: Device, indent: string): string[] {
   const bits = [`${indent}${d.id} ${d.kind} ${q(d.label)}`, `tier ${d.tier}`];
   if (d.mgmt) bits.push(`mgmt ${d.mgmt}`);
-  const hasPorts = !!d.ports?.length;
-  const head = bits.join(" ") + (hasPorts ? " {" : "");
-  if (!hasPorts) return [head];
-  return [head, ...d.ports!.map((p) => indent + portLine(p)), `${indent}}`];
+  const members = [
+    ...(d.ports ?? []).map((p) => indent + portLine(p)),
+    ...(d.services ?? []).map((s) => indent + serviceLine(s)),
+  ];
+  const head = bits.join(" ") + (members.length ? " {" : "");
+  if (!members.length) return [head];
+  return [head, ...members, `${indent}}`];
 }
 
 export function serializeNet(m: NetModel): string {
@@ -86,8 +93,13 @@ export function serializeNet(m: NetModel): string {
   if (m.flows?.length) {
     out.push("");
     for (const f of m.flows) {
-      const svc = f.port === undefined ? f.proto : `${f.proto}/${f.port}`;
-      out.push(`flow ${f.from} -> ${f.to} : ${svc}${f.label ? ` ${q(f.label)}` : ""}`);
+      const lbl = f.label ? ` ${q(f.label)}` : "";
+      if (f.toService) {
+        out.push(`flow ${f.from} -> ${f.to}.${f.toService}${lbl}`);
+      } else {
+        const svc = f.port === undefined ? f.proto : `${f.proto}/${f.port}`;
+        out.push(`flow ${f.from} -> ${f.to} : ${svc}${lbl}`);
+      }
     }
   }
 

@@ -4,3 +4,6 @@ dist/
 .DS_Store
 .env
 examples/_check_*.png
+
+# Local working examples (client/vendor-derived) — never published
+examples/local/

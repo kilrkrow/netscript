@@ -38,6 +38,8 @@ export interface Theme {
   speedColor: Record<Speed, string>;
   /** cyclic VLAN colour palette for the logical overlay */
   vlanPalette?: string[];
+  /** cyclic SERVICE colour palette for the traffic (flow) view; falls back to vlanPalette */
+  servicePalette?: string[];
   // pills
   pill: boolean;
   pillFill: string;

@@ -9,15 +9,20 @@
   "files": ["dist", "src", "README.md", "LICENSE"],
   "scripts": {
     "build": "esbuild src/index.ts src/cli.ts --bundle --platform=node --format=esm --outdir=dist --packages=external",
+    "build:mcp": "esbuild src/mcp-server.ts --bundle --platform=node --format=esm --outdir=dist --packages=external",
     "build:editor": "node scripts/build-editor.mjs",
     "typecheck": "tsc --noEmit",
-    "render:examples": "node src/cli.ts --example three-rack --theme blueprint -o examples/three-rack-blueprint.svg && node src/cli.ts --example three-rack --theme clean -o examples/three-rack-clean.svg",
+    "render:examples": "node src/cli.ts --example three-rack --theme blueprint -o examples/three-rack-blueprint.svg && node src/cli.ts --example three-rack --theme clean -o examples/three-rack-clean.svg && node src/cli.ts --example three-rack --theme blueprint --projection iso -o examples/three-rack-iso.svg && node src/cli.ts examples/homelab-logical.net --theme blueprint-hybrid -o examples/homelab-logical.svg && node src/cli.ts examples/sql-traffic.net --view traffic -o examples/sql-traffic.svg && node src/cli.ts examples/sql-traffic.net --view traffic --projection iso -o examples/sql-traffic-iso.svg",
     "dev": "node src/cli.ts"
   },
-  "keywords": ["network-diagram", "topology", "svg", "dsl", "diagram-as-code", "infrastructure", "homelab", "leaf-spine", "netbox"],
+  "keywords": ["network-diagram", "topology", "svg", "dsl", "diagram-as-code", "infrastructure", "homelab", "leaf-spine", "netbox", "mcp", "isometric"],
   "license": "MIT",
   "author": "kilrkrow",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "esbuild": "^0.23.0",
     "typescript": "^5.5.0"
   }

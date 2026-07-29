@@ -15,10 +15,10 @@
  *   }
  *   rack <id> "role" { <device>... }                     # group (members default tier host)
  *   vlan <id> "name" [subnet <cidr>] {                    # VLAN (logical layer)
- *     member <device>.<port> [tagged] [addr <addr>]
+ *     member <device>[.<port>] [tagged] [addr <addr>]     # port optional
  *   }
  *   segment <id> "name" [subnet <cidr>] {                 # Ethernet tube (L2 bus)
- *     member <device>[.<port>] [addr <addr>]
+ *     member <device>[.<port>] [addr <addr>]              # port optional (scan-style)
  *   }
  *   bond <id> on <device> [mode <mode>] {                 # LAG/bond (logical layer)
  *     member <port>
@@ -142,12 +142,14 @@ export function parseNet(src: string): NetModel {
     }
     if (tf?.kind === "vlan") {
       const m = header.match(/^member\s+(\S+)((?:\s+tagged)?)(?:\s+addr\s+(\S+))?$/);
-      if (!m) throw new Error(`line ${ln}: expected "member <device>.<port> [tagged] [addr <addr>]" inside vlan block → ${header}`);
+      if (!m) throw new Error(`line ${ln}: expected "member <device>[.<port>] [tagged] [addr <addr>]" inside vlan block → ${header}`);
       const [dev, port] = splitPort(m[1]);
-      if (!port) throw new Error(`line ${ln}: vlan member must be "device.port" → ${header}`);
+      if (m[2]?.includes("tagged") && !port) {
+        throw new Error(`line ${ln}: "tagged" requires a port (device.port) → ${header}`);
+      }
       tf.vlan.members.push({
         device: dev,
-        port,
+        ...(port ? { port } : {}),
         ...(m[2]?.includes("tagged") ? { tagged: true } : {}),
         ...(m[3] ? { addr: m[3] } : {}),
       });
@@ -311,16 +313,25 @@ export function validateModel(model: NetModel): void {
     if (!hasPort(l.a, l.aPort)) throw new Error(`link references unknown port "${l.a}.${l.aPort}"`);
     if (!hasPort(l.b, l.bPort)) throw new Error(`link references unknown port "${l.b}.${l.bPort}"`);
   }
+  // Ports are optional on vlan/segment members. When a port id is given AND the
+  // device declares a ports list, it must resolve; freeform labels on port-less
+  // devices (scan import) are allowed so interfaces are never mandatory.
+  const portOk = (devId: string, portId?: string) => {
+    if (!portId) return true;
+    const ports = devById.get(devId)?.ports;
+    if (!ports?.length) return true; // freeform interface name, not declared
+    return ports.some((p) => p.id === portId);
+  };
   for (const v of model.vlans ?? []) {
     for (const mem of v.members) {
       if (!devById.has(mem.device)) throw new Error(`vlan ${v.id}: unknown device "${mem.device}"`);
-      if (!hasPort(mem.device, mem.port)) throw new Error(`vlan ${v.id}: unknown port "${mem.device}.${mem.port}"`);
+      if (!portOk(mem.device, mem.port)) throw new Error(`vlan ${v.id}: unknown port "${mem.device}.${mem.port}"`);
     }
   }
   for (const s of model.segments ?? []) {
     for (const mem of s.members) {
       if (!devById.has(mem.device)) throw new Error(`segment "${s.id}": unknown device "${mem.device}"`);
-      if (!hasPort(mem.device, mem.port)) throw new Error(`segment "${s.id}": unknown port "${mem.device}.${mem.port}"`);
+      if (!portOk(mem.device, mem.port)) throw new Error(`segment "${s.id}": unknown port "${mem.device}.${mem.port}"`);
     }
   }
   for (const b of model.bonds ?? []) {

@@ -41,9 +41,10 @@ export function bondForPort(m: NetModel, device: string, port?: string): Bond | 
 export function vlansOnLink(m: NetModel, l: Link): Vlan[] {
   const hits: Vlan[] = [];
   for (const v of m.vlans ?? []) {
-    const onA = l.aPort && v.members.some((mem) => mem.device === l.a && mem.port === l.aPort);
-    const onB = l.bPort && v.members.some((mem) => mem.device === l.b && mem.port === l.bPort);
-    if (onA || onB) hits.push(v);
+    const onEnd = (dev: string, port?: string) =>
+      v.members.some((mem) =>
+        mem.device === dev && (!mem.port || !port || mem.port === port));
+    if (onEnd(l.a, l.aPort) || onEnd(l.b, l.bPort)) hits.push(v);
   }
   return hits;
 }
@@ -89,7 +90,11 @@ export function resolveSegments(m: NetModel): Segment[] {
       const portAddr = portOf(m, mem.device, mem.port)?.addr;
       // Prefer host address on the segment; fall back to interface addr (may be CIDR).
       const addr = mem.addr ?? (portAddr && !portAddr.includes("/") ? portAddr : portAddr?.split("/")[0]);
-      return { device: mem.device, port: mem.port, ...(addr ? { addr } : {}) };
+      return {
+        device: mem.device,
+        ...(mem.port ? { port: mem.port } : {}),
+        ...(addr ? { addr } : {}),
+      };
     });
     out.push({ id: `vlan${v.id}`, name: v.name, subnet: v.subnet, members });
   }

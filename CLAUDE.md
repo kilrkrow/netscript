@@ -123,7 +123,8 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
   1. Callout documents an **interface**. Spur root = exact point where the
      object↔ethernet drop **touches the device** (that junction *is* the
      interface) — not offset below the box, not mid-span, not at the bus.
-  2. Short diagonal arm from that point to port + addr.
+  2. Leader from that point to a vertical **flag bar** ("|"); port + addr
+     stack beside the bar — not a square-bracket "[" terminator.
   3. Pure vertical drops; no doglegs through the rack. Hosts + edge gateways
      drop; core/ToR fabric members do not (unless the segment has no hosts).
   4. Ports already on a segment callout are **not** also L1 port chips.

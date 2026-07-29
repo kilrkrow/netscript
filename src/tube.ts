@@ -27,9 +27,10 @@ const BAND_GAP = 80;
 const TUBE_PITCH = 96;
 const SIDE_PAD = 52;
 const COL_GAP = 100;
-/** Diagonal arm reach (dx, dy) from the interface point to the bracket. */
-const ARM_DX = 36;
-const ARM_DY = 22;
+/** Leader reaches this far sideways from the interface to the flag bar. */
+const ARM_DX = 40;
+/** Flag bar half-height (text sits beside this vertical tick — not a "[" ). */
+const FLAG_HALF = 11;
 
 export interface TubeDrop {
   device: string;
@@ -279,40 +280,39 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
 
       if (!d.portLabel && !d.addr) continue;
 
-      // Callout arm leaves the INTERFACE POINT — that junction *is* the port.
-      const root = d.spurRoot; // === path start / device attachment
+      // Visio callout (samples 1 & 2):
+      //   leader from INTERFACE POINT → vertical FLAG BAR
+      //   text stacked beside the bar (port, then addr)
+      // The terminator is a short vertical tick "|", not a square bracket "[".
+      const root = d.spurRoot; // interface point on the device
       const dir = d.spurRight ? 1 : -1;
-      const endX = root.x + dir * ARM_DX;
-      const endY = root.y + ARM_DY;
+      const lines = [d.portLabel, d.addr].filter(Boolean) as string[];
+      const barX = root.x + dir * ARM_DX;
+      // Leader meets the flag bar at its vertical centre (sample2 diagonal).
+      const barMidY = root.y + 10;
       out.push(
         `<line x1="${root.x.toFixed(1)}" y1="${root.y.toFixed(1)}" ` +
-        `x2="${endX.toFixed(1)}" y2="${endY.toFixed(1)}" ` +
+        `x2="${barX.toFixed(1)}" y2="${barMidY.toFixed(1)}" ` +
         `stroke="${col}" stroke-width="1.35" stroke-linecap="round"/>`,
       );
-      // Corner bracket at the label (Visio-style flag)
-      const bx = endX;
-      const by = endY;
-      const tip = dir * 4;
       out.push(
-        `<path d="M ${bx.toFixed(1)},${(by - 9).toFixed(1)} L ${bx.toFixed(1)},${(by + 9).toFixed(1)} ` +
-        `M ${bx.toFixed(1)},${(by + 9).toFixed(1)} L ${(bx + tip).toFixed(1)},${(by + 9).toFixed(1)}" ` +
-        `fill="none" stroke="${col}" stroke-width="1.5" stroke-linecap="square"/>`,
+        `<line x1="${barX.toFixed(1)}" y1="${(barMidY - FLAG_HALF).toFixed(1)}" ` +
+        `x2="${barX.toFixed(1)}" y2="${(barMidY + FLAG_HALF).toFixed(1)}" ` +
+        `stroke="${col}" stroke-width="1.5" stroke-linecap="square"/>`,
       );
-      const tx = endX + dir * 8;
+      const tx = barX + dir * 7;
       const anchor = d.spurRight ? "start" : "end";
       const halo = `paint-order="stroke" stroke="${S.bg}" stroke-width="3.2" stroke-linejoin="round"`;
-      if (d.portLabel) {
+      // Two lines → centre on bar; one line → mid bar.
+      const lineH = 12;
+      const textTop = barMidY - ((lines.length - 1) * lineH) / 2;
+      lines.forEach((line, li) => {
+        const ty = textTop + li * lineH + 3.5;
         out.push(
-          `<text x="${tx.toFixed(1)}" y="${(by - 1).toFixed(1)}" font-size="10.5" text-anchor="${anchor}" ` +
-          `fill="${col}" font-weight="700" font-family="${S.mono}" ${halo}>${esc(d.portLabel)}</text>`,
+          `<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" font-size="10.5" text-anchor="${anchor}" ` +
+          `fill="${col}" font-weight="${li === 0 ? 700 : 600}" font-family="${S.mono}" ${halo}>${esc(line)}</text>`,
         );
-      }
-      if (d.addr) {
-        out.push(
-          `<text x="${tx.toFixed(1)}" y="${(by + 12).toFixed(1)}" font-size="10.5" text-anchor="${anchor}" ` +
-          `fill="${col}" font-weight="600" font-family="${S.mono}" ${halo}>${esc(d.addr)}</text>`,
-        );
-      }
+      });
     }
   }
   return out;

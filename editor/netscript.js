@@ -20,15 +20,114 @@
                                             
 
 /** Vertical tier — drives layout and link-class inference. */
-const byId = (m          )                      =>
+                                                            
+
+                                                                          
+
+/**
+ * A first-class PHYSICAL PORT on a device. Ports are a physical-layer concept:
+ * a jack on the chassis with a name (wan0 / eth1 / g1) and, optionally, a
+ * speed and media. Labeling them is physical documentation — closing the gap
+ * left by today's device→device links, which skip the port callouts.
+ *
+ * `addr` is the one place the physical and logical layers touch on a port: an
+ * L3 address configured directly on the interface (the untagged / native case,
+ * or a routed port). VLAN/SVI addressing lives on the logical layer instead.
+ */
+                       
+                                                              
+                                                                           
+                                                                                        
+                                                                      
+                                                                                         
+ 
+
+                         
+             
+             
+                
+             
+     
+                                                                    
+                                                                           
+                                                                            
+                                                                        
+     
+                
+                                                                            
+                 
+                                                             
+                           
+                                                 
+ 
+
+                       
+                                                                              
+                                                                
+               
+                                                                         
+     
+                                                                             
+                                                                           
+                                                                              
+     
+                                                    
+                                                    
+                           
+                                                      
+ 
+
+                                                                  
+
+/**
+ * LOGICAL-layer additions (additive; absent on pure physical models).
+ *
+ * A VLAN is an L2 segment that may carry an L3 subnet (CIDR). Its members
+ * reference physical ports by `{ device, port }` and record tagged/untagged
+ * (trunk vs. access). A Bond/LAG is a LOGICAL INTERFACE built from physical
+ * member ports on one device — the bridge between the two layers.
+ */
+                                                                               
+                       
+                                             
+               
+                                                                 
+                        
+ 
+                       
+                                                                           
+                                               
+                                                            
+                                                                     
+ 
+
+/**
+ * FLOW-layer (L4) additions — traffic, not topology.
+ *
+ * A Flow is one direction of intent: `from` INITIATES a connection to `to` on
+ * a listening service (`proto`/`port`). This is deliberately asymmetric — it
+ * is the thing a firewall rule, a security review, or a "what talks to what"
+ * question actually cares about. Return traffic is implied and never drawn.
+ *
+ * "Inbound" and "outbound" are therefore not properties of a flow; they are
+ * relative to whichever device you're looking at. A flow arriving at `to` is
+ * that device's inbound; the same flow is `from`'s outbound. The traffic view
+ * gets this for free from the arrow direction.
+ */
+                                                   
+                       
+                                                                   
+                                                                             
+               
+                                                                     
+                                                                         
+ 
+
+/** Canonical service identity — the thing colour is keyed on. */const serviceKey = (f      )         =>
+  f.port === undefined ? f.proto : `${f.proto}/${f.port}`;const byId = (m          )                      =>
   new Map(m.devices.map((d) => [d.id, d]));
 
-// boundary anchors on a positioned device
-const top    = (d        )     => ({ x: d.x , y: d.y  - d.h  / 2 });
-const bottom = (d        )     => ({ x: d.x , y: d.y  + d.h  / 2 });
-const leftP  = (d        )     => ({ x: d.x  - d.w  / 2, y: d.y  });
-const rightP = (d        )     => ({ x: d.x  + d.w  / 2, y: d.y  });
-const escapeXml = (s        )         =>
+// boundary anchors on a positioned deviceconst top    = (d        )     => ({ x: d.x , y: d.y  - d.h  / 2 });const bottom = (d        )     => ({ x: d.x , y: d.y  + d.h  / 2 });const leftP  = (d        )     => ({ x: d.x  - d.w  / 2, y: d.y  });const rightP = (d        )     => ({ x: d.x  + d.w  / 2, y: d.y  });const escapeXml = (s        )         =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -39,12 +138,25 @@ const esc = escapeXml;
 /** NetScript themes — palette/typography tokens. Same model, swappable view. */
                                         
 
+/**
+ * View MODE selects which layer(s) the renderer projects:
+ *   physical — devices · ports · cabling · speeds (the v0.1 default)
+ *   logical  — VLAN-coloured links, subnet/CIDR badges, interface addresses,
+ *              bonded members collapsed to one logical link
+ *   hybrid   — physical cabling AND logical annotations together (as-built)
+ */
+                                                         
+
                         
                
                
                
              
                       
+                                                                       
+                  
+                                                                                 
+                         
                  
                    
                      
@@ -61,6 +173,10 @@ const esc = escapeXml;
                  
                    
                                     
+                                                           
+                         
+                                                                                             
+                            
           
                 
                    
@@ -75,26 +191,37 @@ const esc = escapeXml;
 
 const SANS = "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
 const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
-const clean        = {
+
+// Qualitative VLAN palettes (high-contrast, colour-blind-aware-ish). Cyclic.
+const VLAN_LIGHT = ["#2563eb", "#16a34a", "#db2777", "#d97706", "#0891b2", "#7c3aed", "#dc2626", "#0d9488"];
+const VLAN_DARK = ["#7fd1ff", "#86efac", "#ff9ed6", "#ffd27f", "#67e8f9", "#c4b5fd", "#fca5a5", "#5eead4"];const clean        = {
   name: "clean", font: SANS, mono: MONO, bg: "#ffffff", grid: null,
+  mode: "physical", portCallouts: true,
   cardFill: "#ffffff", cardStroke: "#d7dbe2", cardStrokeW: 1.2, radius: 8, shadow: true,
   chipStroke: null, text: "#1f2430", sub: "#6b7280", showMgmt: false,
   link: "#7c8696", linkW: 1.5, jumps: true, endDots: true,
   speedColor: { WAN: "#64748b", "1G": "#94a3b8", "10G": "#3b82f6", "25G": "#ef6c2f", "40G": "#d97706", "100G": "#db2777", LAG: "#7c3aed" },
+  vlanPalette: VLAN_LIGHT,
   pill: true, pillFill: "#ffffff", pillStroke: "#e5e7eb", speedText: "#475569",
   zoneFill: "#f8fafc", zoneStroke: "#e2e8f0", zoneText: "#64748b", titleBlock: false,
-};
-const blueprint        = {
+};const blueprint        = {
   name: "blueprint", font: MONO, mono: MONO, bg: "#0c356a", grid: "#1c4a8a",
+  mode: "physical", portCallouts: true,
   cardFill: "none", cardStroke: "#bcd6ff", cardStrokeW: 1.2, radius: 4, shadow: false,
   chipStroke: "#bcd6ff", text: "#eaf2ff", sub: "#9dc0f0", showMgmt: true,
   link: "#cfe0ff", linkW: 1.3, jumps: true, endDots: true,
   speedColor: { WAN: "#cfe0ff", "1G": "#9dc0f0", "10G": "#7fd1ff", "25G": "#ffd27f", "40G": "#ffc04d", "100G": "#ff9ed6", LAG: "#a7f3d0" },
+  vlanPalette: VLAN_DARK,
   pill: false, pillFill: "none", pillStroke: "none", speedText: "#dbe9ff",
   zoneFill: "#0e3f7d", zoneStroke: "#2f63a8", zoneText: "#bcd6ff", titleBlock: true,
 };
-const THEMES                        = { clean, blueprint };
-const resolveTheme = (name        )        => THEMES[name] ?? clean;
+
+// Logical / hybrid variants — same palettes, different MODE. The default
+// physical output is untouched; these are opt-in views over the same model.const cleanLogical        = { ...clean, name: "clean-logical", mode: "logical" };const cleanHybrid        = { ...clean, name: "clean-hybrid", mode: "hybrid" };const blueprintLogical        = { ...blueprint, name: "blueprint-logical", mode: "logical" };const blueprintHybrid        = { ...blueprint, name: "blueprint-hybrid", mode: "hybrid" };const THEMES                        = {
+  clean, blueprint,
+  "clean-logical": cleanLogical, "clean-hybrid": cleanHybrid,
+  "blueprint-logical": blueprintLogical, "blueprint-hybrid": blueprintHybrid,
+};const resolveTheme = (name        )        => THEMES[name] ?? clean;
 
 
 // ---- glyphs.ts ----
@@ -181,11 +308,9 @@ const CLOUD = "M54,40 H14 C6.3,40 0,33.7 0,26 0,18.8 5.4,12.9 12.4,12.1 14.7,5.1
 const cloud          = (cx, cy, s, st, fill, sw) => {
   const scale = (s * 1.6) / 64, tx = cx - 32 * scale, ty = cy - 20 * scale;
   return `<g transform="translate(${tx.toFixed(1)},${ty.toFixed(1)}) scale(${scale.toFixed(3)})"><path d="${CLOUD}" fill="${fill}" stroke="${st}" stroke-width="${(sw/scale).toFixed(2)}"/></g>`;
-};
-const GLYPH                        = {
+};const GLYPH                        = {
   cloud, router, firewall, switch: sw_switch, server, storage, ap, desktop,
-};
-const KIND_COLOR                       = {
+};const KIND_COLOR                       = {
   cloud: "#64748b", router: "#2563eb", firewall: "#b91c1c", switch: "#0d9488",
   server: "#4f46e5", storage: "#7c3aed", ap: "#ea580c", desktop: "#475569",
 };
@@ -206,9 +331,20 @@ const SIZE                                   = {
 const LEFT = 92, RIGHT = 92, ZW = 356, GAP = 116;
 const Y = { wan: 44, edge: 150, core: 278, tor: 430, host0: 560, hostStep: 118 };
 const ROW_EVEN = [-114, 38], ROW_ODD = [-38, 114];   // staggered host x-offsets
-function layoutModel(m          )         {
+
+                                                                                    
+                                                                
+
+const SLOT = 140;   // width reserved per rackless tor/host in the fallback rowfunction layoutModel(m          )         {
   const n = m.racks.length;
-  const W = LEFT + n * ZW + (n - 1) * GAP + RIGHT;
+  // Devices that belong to no rack still need a home. Without this they keep
+  // undefined x/y and every downstream measurement turns to NaN — which is
+  // reachable from ordinary input: a flow-only model, or a flat lab with no
+  // racks declared at all.
+  const rackless = m.devices.filter((d) => !d.rack && (d.tier === "tor" || d.tier === "host"));
+  const rackW = n ? LEFT + n * ZW + (n - 1) * GAP + RIGHT : 0;
+  const looseW = rackless.length ? LEFT + rackless.length * SLOT + RIGHT : 0;
+  const W = Math.max(rackW, looseW) || 560;   // the 560 floor applies only to an empty model
   const cx0 = W / 2;
   const rackCenter                         = {};
   m.racks.forEach((r, i) => { rackCenter[r.id] = LEFT + ZW / 2 + i * (ZW + GAP); });
@@ -235,6 +371,15 @@ function layoutModel(m          )         {
     });
   }
 
+  // rackless tor/host devices: one centred row per tier, below the fabric
+  for (const [tier, y] of [["tor", Y.tor], ["host", Y.host0]]         ) {
+    const row = rackless.filter((d) => d.tier === tier);
+    row.forEach((d, i) => {
+      d.x = cx0 - ((row.length - 1) * SLOT) / 2 + i * SLOT;
+      d.y = y;
+    });
+  }
+
   const pad = { l: 38, r: 38, t: 20, b: 24 };
   const bbox = (ds          ) => {
     const x1 = Math.min(...ds.map((d) => d.x  - d.w  / 2)), x2 = Math.max(...ds.map((d) => d.x  + d.w  / 2));
@@ -242,15 +387,19 @@ function layoutModel(m          )         {
     return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
   };
   const zones         = [];
-  if (cores.length) { const b = bbox(cores); zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: "CORE" }); }
+  // Only draw a CORE container when there's a core *pair* to group; a lone
+  // core switch doesn't need a box around it.
+  if (cores.length >= 2) { const b = bbox(cores); zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: "CORE" }); }
   for (const r of m.racks) {
     const ds = m.devices.filter((d) => d.rack === r.id);
     if (!ds.length) continue;
     const b = bbox(ds);
-    zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: `${r.label} · ${r.role}`.toUpperCase() });
+    // Zone label is whatever the author wrote (the rack "role" string) — so a
+    // container can read "WLAN · Haven" or "Wired", not a forced "RACK X".
+    zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: r.role.toUpperCase() });
   }
 
-  const maxY = Math.max(...m.devices.map((d) => d.y  + d.h  / 2));
+  const maxY = Math.max(Y.host0, ...m.devices.map((d) => d.y  + d.h  / 2));   // seeded, so an empty model can't yield -Infinity
   return { W, H: maxY + 110, zones };
 }
 
@@ -266,8 +415,7 @@ function layoutModel(m          )         {
  * This is the workable skeleton of NetScript's eventual layered, port-aware
  * router. It is NOT yet crossing-minimising (no node/lane reordering) — see
  * README roadmap.
- */
-function allocLanes(
+ */function allocLanes(
   runs                                           , y0        , gap        , margin = 12,
 )                         {
   const slots                       = [];
@@ -283,8 +431,7 @@ function allocLanes(
     if (!placed) { ys[r.key] = y0 + slots.length * gap; slots.push([[xlo, xhi]]); }
   }
   return ys;
-}
-function classify(m          )       {
+}function classify(m          )       {
   const id = new Map(m.devices.map((d) => [d.id, d]));
   for (const l of m.links) {
     const ta = id.get(l.a) .tier, tb = id.get(l.b) .tier;
@@ -295,14 +442,19 @@ function classify(m          )       {
     else if (s.has("tor") && s.has("core")) l.klass = "uplink";
     else l.klass = "intra";
   }
-}
-function buildRoutes(m          )         {
+}function buildRoutes(m          )         {
   classify(m);
   const id = new Map(m.devices.map((d) => [d.id, d]));
   const D = (x        ) => id.get(x) ;
   const cores = m.devices.filter((d) => d.tier === "core").sort((p, q) => p.x  - q.x );
-  const core = cores[0], tor = m.devices.find((d) => d.tier === "tor") , edge = m.devices.find((d) => d.tier === "edge") ;
-  const coreBottom = core.y  + core.h  / 2, torBottom = tor.y  + tor.h  / 2, edgeBottom = edge.y  + edge.h  / 2;
+  // A tier may be absent entirely (a flow-only model, a rackless lab, a lone
+  // switch). These are only lane BASELINES, and a missing tier also means the
+  // link classes that use it can't occur — so fall back to 0 rather than
+  // dereferencing a device that isn't there.
+  const bottomOf = (d         ) => (d ? d.y  + d.h  / 2 : 0);
+  const coreBottom = bottomOf(cores[0]);
+  const torBottom = bottomOf(m.devices.find((d) => d.tier === "tor"));
+  const edgeBottom = bottomOf(m.devices.find((d) => d.tier === "edge"));
   const rackOrder = m.racks.map((r) => r.id);
 
   const e2c = m.links.filter((l) => l.klass === "e2c");
@@ -346,16 +498,14 @@ function buildRoutes(m          )         {
     }
   });
   return routes;
-}
-const segments = (pts      )        => {
+}const segments = (pts      )        => {
   const out        = [];
   for (let i = 0; i < pts.length - 1; i++) {
     const p = pts[i], q = pts[i + 1];
     out.push({ x1: p.x, y1: p.y, x2: q.x, y2: q.y, o: Math.abs(p.y - q.y) < 0.5 ? "h" : "v" });
   }
   return out;
-};
-function offsetPts(pts      , d        )       {
+};function offsetPts(pts      , d        )       {
   const segs = segments(pts).map((s) => s.o === "v"
     ? { ...s, x1: s.x1 + d, x2: s.x2 + d }
     : { ...s, y1: s.y1 + d, y2: s.y2 + d });
@@ -371,8 +521,7 @@ function jumpsOnH(h     , foreignV       , r        )           {
     if (lo + 4 < vx && vx < hi - 4 && vlo + 1 < y && y < vhi - 1) xs.push(vx);
   }
   return [...new Set(xs)].sort((a, b) => a - b);
-}
-function pathD(pts      , myIdx        , allSegs         , jumps = true, r = 5)         {
+}function pathD(pts      , myIdx        , allSegs         , jumps = true, r = 5)         {
   const segs = segments(pts);
   let foreignV        = [];
   if (jumps) allSegs.forEach((ss, j) => { if (j !== myIdx) foreignV = foreignV.concat(ss.filter((s) => s.o === "v")); });
@@ -395,7 +544,7 @@ function pathD(pts      , myIdx        , allSegs         , jumps = true, r = 5) 
 /**
  * NetScript `.net` parser — text DSL → NetModel.
  *
- * Grammar (physical layer, v0.1):
+ * Grammar:
  *
  *   ---                         # optional frontmatter
  *   title: My Lab
@@ -403,23 +552,32 @@ function pathD(pts      , myIdx        , allSegs         , jumps = true, r = 5) 
  *   ---
  *
  *   <id> <kind> "label" [tier <tier>] [mgmt <addr>]      # device
- *   rack <id> "role" { ... }                             # group (members default tier host)
- *   <a> -> <b> : <speed> [lag]                           # link (-- = peer; class inferred)
+ *   <id> <kind> "label" ... {                            # device, with a port block
+ *     port <id> "<name>" [speed <speed>] [media <media>] [addr <addr>]
+ *   }
+ *   rack <id> "role" { <device>... }                     # group (members default tier host)
+ *   vlan <id> "name" [subnet <cidr>] {                    # VLAN (logical layer)
+ *     member <device>.<port> [tagged]
+ *   }
+ *   bond <id> on <device> [mode <mode>] {                 # LAG/bond (logical layer)
+ *     member <port>
+ *   }
+ *   <a>[.<port>] (->|--) <b>[.<port>] : <speed> [lag]     # link (-- = peer; class inferred)
+ *   flow <from> -> <to> : <proto>[/<port>] ["label"]      # traffic flow (L4)
  *
  *   # line comments with '#'
  *
- * Link class (uplink / peer / intra / e2c / wan) is inferred from tiers by the
- * router, so authors never hand-classify. `tier` is optional where it can be
- * inferred from kind (cloud→wan, firewall/router→edge, host kinds→host, a
- * switch→core at top level / tor inside a rack).
+ * Blocks nest via a small mode stack (rack ⊃ device is the only real nesting;
+ * vlan/bond are top-level). Link class (uplink / peer / intra / e2c / wan) is
+ * inferred from tiers by the router, so authors never hand-classify. `tier` is
+ * optional where it can be inferred from kind (cloud→wan, firewall/router→edge,
+ * host kinds→host, a switch→core at top level / tor inside a rack).
  */
-                                                                            
+                                                                                                           
 
 const KINDS = new Set        (["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop"]);
 const TIERS = new Set        (["wan", "edge", "core", "tor", "host"]);
-const SPEEDS = new Set        (["WAN", "1G", "10G", "25G", "40G", "100G", "LAG"]);
-
-function inferTier(kind      , inRack         )       {
+const SPEEDS = new Set        (["WAN", "1G", "10G", "25G", "40G", "100G", "LAG"]);function inferTier(kind      , inRack         )       {
   if (kind === "cloud") return "wan";
   if (kind === "firewall" || kind === "router") return "edge";
   if (kind === "switch") return inRack ? "tor" : "core";
@@ -436,7 +594,12 @@ function stripComment(line        )         {
   }
   return line;
 }
-function parseNet(src        )           {
+
+/** Split "device.port" → ["device", "port"] on the FIRST dot; no dot → [tok, undefined]. */
+function splitPort(tok        )                               {
+  const i = tok.indexOf(".");
+  return i < 0 ? [tok, undefined] : [tok.slice(0, i), tok.slice(i + 1)];
+}function parseNet(src        )           {
   const lines = src.split(/\r?\n/);
   const model           = { title: "Untitled", devices: [], links: [], racks: [] };
   let i = 0;
@@ -455,36 +618,132 @@ function parseNet(src        )           {
   }
 
   // ---- body ----
-  let rack                = null;
+  const stack          = [];
+  const currentRack = ()                => {
+    for (let k = stack.length - 1; k >= 0; k--) if (stack[k].kind === "rack") return (stack[k]                                ).id;
+    return null;
+  };
+  const top = ()                    => stack[stack.length - 1];
+
   for (; i < lines.length; i++) {
     const ln = i + 1;
     const t = stripComment(lines[i]).trim();
     if (!t) continue;
 
-    if (t === "}") { rack = null; continue; }
+    if (t === "}") {
+      if (!stack.length) throw new Error(`line ${ln}: unexpected "}"`);
+      stack.pop();
+      continue;
+    }
+
+    const blockOpen = t.endsWith("{");
+    const header = blockOpen ? t.slice(0, -1).trim() : t;
+
+    // ---- lines only valid inside a specific frame ----
+    const tf = top();
+    if (tf?.kind === "device") {
+      const m = header.match(/^port\s+(\S+)\s+"([^"]*)"\s*(.*)$/);
+      if (!m) throw new Error(`line ${ln}: expected "port <id> \\"<name>\\"" inside device block → ${header}`);
+      const [, id, name, rest] = m;
+      if (tf.dev.ports .some((p) => p.id === id)) throw new Error(`line ${ln}: duplicate port "${id}" on device "${tf.dev.id}"`);
+      const port       = { id, name };
+      const sm = rest.match(/\bspeed\s+(\S+)/);
+      if (sm) { if (!SPEEDS.has(sm[1].toUpperCase())) throw new Error(`line ${ln}: unknown speed "${sm[1]}"`); port.speed = sm[1].toUpperCase()         ; }
+      const mm = rest.match(/\bmedia\s+(\S+)/);
+      if (mm) port.media = mm[1];
+      const am = rest.match(/\baddr\s+(\S+)/);
+      if (am) port.addr = am[1];
+      tf.dev.ports .push(port);
+      continue;
+    }
+    if (tf?.kind === "vlan") {
+      const m = header.match(/^member\s+(\S+)(\s+tagged)?$/);
+      if (!m) throw new Error(`line ${ln}: expected "member <device>.<port> [tagged]" inside vlan block → ${header}`);
+      const [dev, port] = splitPort(m[1]);
+      if (!port) throw new Error(`line ${ln}: vlan member must be "device.port" → ${header}`);
+      tf.vlan.members.push({ device: dev, port, ...(m[2] ? { tagged: true } : {}) });
+      continue;
+    }
+    if (tf?.kind === "bond") {
+      const m = header.match(/^member\s+(\S+)$/);
+      if (!m) throw new Error(`line ${ln}: expected "member <port>" inside bond block → ${header}`);
+      tf.bond.memberPorts.push(m[1]);
+      continue;
+    }
+    if (header.startsWith("port ")) throw new Error(`line ${ln}: "port" is only valid inside a device block`);
+    if (header.startsWith("member ")) throw new Error(`line ${ln}: "member" is only valid inside a vlan or bond block`);
+
+    // ---- top-level / rack-level lines ----
 
     // rack <id> "role" {
-    let m = t.match(/^rack\s+(\S+)\s+"([^"]*)"\s*\{$/);
-    if (m) {
+    let m = header.match(/^rack\s+(\S+)\s+"([^"]*)"$/);
+    if (blockOpen && m) {
+      if (stack.length) throw new Error(`line ${ln}: "rack" blocks cannot nest`);
       const id = m[1];
       if (model.racks.some((r) => r.id === id)) throw new Error(`line ${ln}: duplicate rack "${id}"`);
       model.racks.push({ id, label: `Rack ${id}`, role: m[2] });
-      rack = id;
+      stack.push({ kind: "rack", id });
       continue;
     }
 
-    // <a> (->|--) <b> : <speed> [lag]
-    m = t.match(/^(\S+)\s*(->|--)\s*(\S+)\s*:\s*([A-Za-z0-9]+)(\s+lag)?$/i);
-    if (m) {
+    // vlan <id> "name" [subnet <cidr>] {
+    m = header.match(/^vlan\s+(\d+)\s+"([^"]*)"(?:\s+subnet\s+(\S+))?$/);
+    if (blockOpen && m && !stack.length) {
+      const id = Number(m[1]);
+      model.vlans ??= [];
+      if (model.vlans.some((v) => v.id === id)) throw new Error(`line ${ln}: duplicate vlan "${id}"`);
+      const vlan       = { id, name: m[2], members: [], ...(m[3] ? { subnet: m[3] } : {}) };
+      model.vlans.push(vlan);
+      stack.push({ kind: "vlan", vlan });
+      continue;
+    }
+
+    // bond <id> on <device> [mode <mode>] {
+    m = header.match(/^bond\s+(\S+)\s+on\s+(\S+)(?:\s+mode\s+(\S+))?$/);
+    if (blockOpen && m && !stack.length) {
+      const id = m[1];
+      model.bonds ??= [];
+      if (model.bonds.some((b) => b.id === id)) throw new Error(`line ${ln}: duplicate bond "${id}"`);
+      const bond       = { id, device: m[2], memberPorts: [], ...(m[3] ? { mode: m[3] } : {}) };
+      model.bonds.push(bond);
+      stack.push({ kind: "bond", bond });
+      continue;
+    }
+
+    // flow <from> -> <to> : <proto>[/<port>] ["label"]
+    // Keyword-prefixed so it can never be confused with a physical link line
+    // (`a -> b : 10G`), which shares the arrow shape but means something else.
+    m = header.match(/^flow\s+(\S+)\s*->\s*(\S+)\s*:\s*(tcp|udp|icmp|any)(?:\/(\d+))?(?:\s+"([^"]*)")?$/i);
+    if (!blockOpen && m && !stack.length) {
+      const proto = m[3].toLowerCase()         ;
+      const flow       = { from: m[1], to: m[2], proto };
+      if (m[4] !== undefined) {
+        const port = Number(m[4]);
+        if (port < 0 || port > 65535) throw new Error(`line ${ln}: port out of range "${m[4]}"`);
+        flow.port = port;
+      }
+      if (m[5]) flow.label = m[5];
+      (model.flows ??= []).push(flow);
+      continue;
+    }
+
+    // <a>[.<port>] (->|--) <b>[.<port>] : <speed> [lag]
+    m = header.match(/^(\S+)\s*(->|--)\s*(\S+)\s*:\s*([A-Za-z0-9]+)(\s+lag)?$/i);
+    if (!blockOpen && m && (!stack.length || tf?.kind === "rack")) {
+      const [aId, aPort] = splitPort(m[1]);
+      const [bId, bPort] = splitPort(m[3]);
       const speed = m[4].toUpperCase();
       if (!SPEEDS.has(speed)) throw new Error(`line ${ln}: unknown speed "${m[4]}"`);
-      model.links.push({ a: m[1], b: m[3], speed: speed         , ...(m[5] ? { bond: true } : {}) });
+      const link       = { a: aId, b: bId, speed: speed         , ...(m[5] ? { bond: true } : {}) };
+      if (aPort) link.aPort = aPort;
+      if (bPort) link.bPort = bPort;
+      model.links.push(link);
       continue;
     }
 
-    // <id> <kind> "label" [tier X] [mgmt Y]
-    m = t.match(/^(\S+)\s+(\S+)\s+"([^"]*)"\s*(.*)$/);
-    if (m) {
+    // <id> <kind> "label" [tier X] [mgmt Y] [{]
+    m = header.match(/^(\S+)\s+(\S+)\s+"([^"]*)"\s*(.*)$/);
+    if (m && (!stack.length || tf?.kind === "rack")) {
       const id = m[1], kindRaw = m[2].toLowerCase(), label = m[3], rest = m[4];
       if (model.devices.some((d) => d.id === id)) throw new Error(`line ${ln}: duplicate device id "${id}"`);
       if (!KINDS.has(kindRaw)) throw new Error(`line ${ln}: unknown kind "${m[2]}"`);
@@ -495,41 +754,87 @@ function parseNet(src        )           {
         if (!TIERS.has(tm[1])) throw new Error(`line ${ln}: unknown tier "${tm[1]}"`);
         dev.tier = tm[1]        ;
       } else {
-        dev.tier = inferTier(kind, rack !== null);
+        dev.tier = inferTier(kind, currentRack() !== null);
       }
       const mm = rest.match(/\bmgmt\s+(\S+)/);
       if (mm) dev.mgmt = mm[1];
-      if (rack !== null) dev.rack = rack;
+      const rackId = currentRack();
+      if (rackId !== null) dev.rack = rackId;
       model.devices.push(dev);
+      if (blockOpen) { dev.ports = []; stack.push({ kind: "device", dev }); }
       continue;
     }
 
     throw new Error(`line ${ln}: cannot parse → ${t}`);
   }
 
-  // ---- light validation (resolvable endpoints) ----
-  const ids = new Set(model.devices.map((d) => d.id));
-  for (const l of model.links) {
-    if (!ids.has(l.a)) throw new Error(`link references unknown device "${l.a}"`);
-    if (!ids.has(l.b)) throw new Error(`link references unknown device "${l.b}"`);
-  }
+  if (stack.length) throw new Error(`unexpected end of file: unclosed "${stack[stack.length - 1].kind}" block`);
+
+  validateModel(model);
   return model;
+}
+
+/**
+ * Cross-reference validation shared by the parser and by callers that build a
+ * NetModel directly (e.g. the MCP `compile_net` tool) — links/vlan-members/
+ * bond-members must resolve to real devices and, where a port id is given, a
+ * real port on that device. Throws on the first problem found.
+ */function validateModel(model          )       {
+  const devById = new Map(model.devices.map((d) => [d.id, d]));
+  const hasPort = (devId        , portId         ) => !portId || !!devById.get(devId)?.ports?.some((p) => p.id === portId);
+  for (const l of model.links) {
+    if (!devById.has(l.a)) throw new Error(`link references unknown device "${l.a}"`);
+    if (!devById.has(l.b)) throw new Error(`link references unknown device "${l.b}"`);
+    if (!hasPort(l.a, l.aPort)) throw new Error(`link references unknown port "${l.a}.${l.aPort}"`);
+    if (!hasPort(l.b, l.bPort)) throw new Error(`link references unknown port "${l.b}.${l.bPort}"`);
+  }
+  for (const v of model.vlans ?? []) {
+    for (const mem of v.members) {
+      if (!devById.has(mem.device)) throw new Error(`vlan ${v.id}: unknown device "${mem.device}"`);
+      if (!hasPort(mem.device, mem.port)) throw new Error(`vlan ${v.id}: unknown port "${mem.device}.${mem.port}"`);
+    }
+  }
+  for (const b of model.bonds ?? []) {
+    if (!devById.has(b.device)) throw new Error(`bond "${b.id}": unknown device "${b.device}"`);
+    for (const p of b.memberPorts) if (!hasPort(b.device, p)) throw new Error(`bond "${b.id}": unknown port "${b.device}.${p}"`);
+  }
+  for (const f of model.flows ?? []) {
+    if (!devById.has(f.from)) throw new Error(`flow references unknown device "${f.from}"`);
+    if (!devById.has(f.to)) throw new Error(`flow references unknown device "${f.to}"`);
+    if (f.from === f.to) throw new Error(`flow "${f.from}" targets itself`);
+  }
 }
 
 
 // ---- render.ts ----
 /** NetScript renderer — positioned model + theme → SVG string. */
-                                                        
+                                                      
                                          
+  vlanColorIndex, vlansOnLink, bondKey, portOf, bondForPort,
+} from "./logical.ts";
 
 const SPEED_ORDER          = ["1G", "10G", "25G", "40G", "100G", "LAG"];
-function renderModel(m          , themeName                 = "clean")         {
+
+/** Unit direction of the segment that leaves an endpoint (toward the device). */
+function endDir(pts      , which           )     {
+  const [p, q] = which === "a" ? [pts[0], pts[1]] : [pts[pts.length - 1], pts[pts.length - 2]];
+  const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy) || 1;
+  return { x: dx / len, y: dy / len };
+}function renderModel(m          , themeName                 = "clean")         {
   const S = typeof themeName === "string" ? resolveTheme(themeName) : themeName;
+  const mode = S.mode ?? "physical";
+  const logical = mode === "logical" || mode === "hybrid";
+  const showCables = mode !== "logical"; // logical hides raw cabling; hybrid keeps it
   const { W, H, zones } = layoutModel(m);
   const id = new Map(m.devices.map((d) => [d.id, d]));
   const routes = buildRoutes(m);
   const allSegs = routes.map((p) => segments(p));
   const out           = [`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
+
+  // logical projection (only computed when needed)
+  const vlanIdx = logical ? vlanColorIndex(m) : new Map                ();
+  const vpal = S.vlanPalette ?? ["#2563eb"];
+  const vlanColor = (vid        ) => vpal[(vlanIdx.get(vid) ?? 0) % vpal.length];
 
   if (S.shadow)
     out.push('<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#0f172a" flood-opacity="0.16"/></filter></defs>');
@@ -543,35 +848,87 @@ function renderModel(m          , themeName                 = "clean")         {
     out.push(`<text x="${(z.x + 6).toFixed(1)}" y="${(z.y - 7).toFixed(1)}" font-size="11.5" fill="${S.zoneText}" font-weight="700" letter-spacing="1.8" font-family="${S.mono}">${esc(z.label)}</text>`);
   }
 
-  // links
+  // ---- links ----
+  // In logical/hybrid we colour by VLAN and collapse bonded member pairs into a
+  // single logical link; in physical we keep the v0.1 speed-coloured cabling.
+  const drawnBond = new Set        ();
   m.links.forEach((l, i) => {
-    const col = S.speedColor[l.speed] ?? S.link;
-    const lw = S.linkW * (l.speed === "100G" ? 1.7 : 1);
-    if (l.bond) {
+    const vlans = logical ? vlansOnLink(m, l) : [];
+    const bk = logical ? bondKey(m, l) : null;
+
+    if (logical && bk) {
+      if (drawnBond.has(bk)) return;       // collapse: draw the bond once
+      drawnBond.add(bk);
+    }
+
+    // colour: physical → speed; logical → first VLAN (else fall back to speed)
+    const col = logical && vlans.length ? vlanColor(vlans[0].id) : (S.speedColor[l.speed] ?? S.link);
+    const isBond = l.bond || (logical && !!bk);
+    const lw = S.linkW * (l.speed === "100G" ? 1.7 : 1) * (logical && isBond ? 1.5 : 1);
+
+    if (!showCables && !logical) return;
+
+    if (isBond && !logical) {
+      // physical bond: offset parallel pair
       for (const off of [-2.4, 2.4])
         out.push(`<path d="${pathD(offsetPts(routes[i], off), i, allSegs, S.jumps)}" fill="none" stroke="${col}" stroke-width="${S.linkW}" stroke-linecap="round" stroke-linejoin="round"/>`);
+    } else if (logical && bk) {
+      // logical: single thicker link for the whole bond
+      out.push(`<path d="${pathD(routes[i], i, allSegs, S.jumps)}" fill="none" stroke="${col}" stroke-width="${lw.toFixed(1)}" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="${mode === "hybrid" ? 0.92 : 1}"/>`);
     } else {
-      out.push(`<path d="${pathD(routes[i], i, allSegs, S.jumps)}" fill="none" stroke="${col}" stroke-width="${lw.toFixed(1)}" stroke-linecap="round" stroke-linejoin="round"/>`);
+      out.push(`<path d="${pathD(routes[i], i, allSegs, S.jumps)}" fill="none" stroke="${col}" stroke-width="${lw.toFixed(1)}" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="${mode === "hybrid" && vlans.length ? 0.92 : 1}"/>`);
     }
-    if (S.endDots) for (const e of [routes[i][0], routes[i][routes[i].length - 1]])
+    if (S.endDots && showCables) for (const e of [routes[i][0], routes[i][routes[i].length - 1]])
       out.push(`<circle cx="${e.x.toFixed(1)}" cy="${e.y.toFixed(1)}" r="2.3" fill="${col}"/>`);
   });
 
-  // speed pills (trunk links + LAG tags) — intra-rack speed is carried by colour + legend
-  const pill = (mx        , my        , label        , col        ) => {
+  // ---- speed / tag pills (physical + hybrid keep trunk speeds) ----
+  const pill = (mx        , my        , label        , col        , fill = S.pillFill, stroke = S.pillStroke, txtCol = S.speedText || col) => {
     const tw = 7.0 * label.length + 12;
-    if (S.pill) out.push(`<rect x="${(mx - tw / 2).toFixed(1)}" y="${(my - 9).toFixed(1)}" width="${tw.toFixed(1)}" height="16" rx="8" fill="${S.pillFill}" stroke="${S.pillStroke}" stroke-width="1"/>`);
-    out.push(`<text x="${mx.toFixed(1)}" y="${(my + 2).toFixed(1)}" font-size="10" text-anchor="middle" fill="${S.speedText || col}" font-weight="600" font-family="${S.mono}">${esc(label)}</text>`);
+    if (S.pill || fill !== S.pillFill) out.push(`<rect x="${(mx - tw / 2).toFixed(1)}" y="${(my - 9).toFixed(1)}" width="${tw.toFixed(1)}" height="16" rx="8" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`);
+    out.push(`<text x="${mx.toFixed(1)}" y="${(my + 2).toFixed(1)}" font-size="10" text-anchor="middle" fill="${txtCol}" font-weight="600" font-family="${S.mono}">${esc(label)}</text>`);
   };
-  m.links.forEach((l, i) => {
-    const col = S.speedColor[l.speed] ?? S.link, pts = routes[i];
-    if (l.klass === "e2c") { const p = pts[pts.length - 2], q = pts[pts.length - 1]; pill(q.x, (p.y + q.y) / 2, l.speed, col); }
-    else if (l.klass === "peer") { const p = pts[0], q = pts[1]; pill((p.x + q.x) / 2, p.y, "100G", col); }
-    else if (l.klass === "wan") { const p = pts[0], q = pts[1]; pill((p.x + q.x) / 2, (p.y + q.y) / 2, "WAN", col); }
-    if (l.bond) { const p = pts[pts.length - 2], q = pts[pts.length - 1]; pill(q.x, (p.y + q.y) / 2 + 14, "LAG", S.speedColor.LAG); }
-  });
+  if (mode !== "logical") {
+    m.links.forEach((l, i) => {
+      const col = S.speedColor[l.speed] ?? S.link, pts = routes[i];
+      if (l.klass === "e2c") { const p = pts[pts.length - 2], q = pts[pts.length - 1]; pill(q.x, (p.y + q.y) / 2, l.speed, col); }
+      else if (l.klass === "peer") { const p = pts[0], q = pts[1]; pill((p.x + q.x) / 2, p.y, "100G", col); }
+      else if (l.klass === "wan") { const p = pts[0], q = pts[1]; pill((p.x + q.x) / 2, (p.y + q.y) / 2, "WAN", col); }
+      if (l.bond) { const p = pts[pts.length - 2], q = pts[pts.length - 1]; pill(q.x, (p.y + q.y) / 2 + 14, "LAG", S.speedColor.LAG); }
+    });
+  }
 
-  // nodes
+  // ---- port callouts (PHYSICAL documentation; on whenever portCallouts) ----
+  // A small chip with the port name sits just outside the device where the
+  // cable lands. In logical/hybrid it also carries the interface address (if
+  // any) and a bond tag. Skipped in pure-logical (cabling is hidden there).
+  if (S.portCallouts && mode !== "logical") {
+    const calloutChip = (anchor    , dir    , name        , accent        , sub         ) => {
+      // push the chip ~13px back from the device along the incoming cable
+      const cx = anchor.x - dir.x * 14, cy = anchor.y - dir.y * 14;
+      const tw = Math.max(18, 6.2 * name.length + 8);
+      out.push(`<rect x="${(cx - tw / 2).toFixed(1)}" y="${(cy - 7).toFixed(1)}" width="${tw.toFixed(1)}" height="13" rx="3" fill="${S.bg}" stroke="${accent}" stroke-width="1"/>`);
+      out.push(`<text x="${cx.toFixed(1)}" y="${(cy + 2.5).toFixed(1)}" font-size="8" text-anchor="middle" fill="${accent}" font-weight="700" font-family="${S.mono}">${esc(name)}</text>`);
+      if (sub) out.push(`<text x="${cx.toFixed(1)}" y="${(cy + 13).toFixed(1)}" font-size="7.5" text-anchor="middle" fill="${S.sub}" font-family="${S.mono}">${esc(sub)}</text>`);
+    };
+    m.links.forEach((l, i) => {
+      const pts = routes[i];
+      for (const which of ["a", "b"]         ) {
+        const devId = which === "a" ? l.a : l.b;
+        const portId = which === "a" ? l.aPort : l.bPort;
+        const p = portOf(m, devId, portId);
+        if (!p) continue;                  // no named port → no callout (back-compat)
+        const anchor = which === "a" ? pts[0] : pts[pts.length - 1];
+        const dir = endDir(pts, which);
+        const bond = logical ? bondForPort(m, devId, portId) : undefined;
+        const accent = bond ? (S.speedColor.LAG) : (S.chipStroke ?? S.sub);
+        const sub = logical ? (p.addr ?? (bond ? bond.id : undefined)) : undefined;
+        calloutChip(anchor, dir, p.name, accent, sub);
+      }
+    });
+  }
+
+  // ---- nodes ----
   for (const d of m.devices) {
     const cx = d.x , cy = d.y , w = d.w , h = d.h , kc = KIND_COLOR[d.kind];
     const filt = S.shadow ? ' filter="url(#sh)"' : "";
@@ -584,23 +941,72 @@ function renderModel(m          , themeName                 = "clean")         {
     if (hasMgmt) out.push(`<text x="${(gx + 15).toFixed(1)}" y="${(cy + 10).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(d.mgmt )}</text>`);
   }
 
-  // legend (speeds actually present)
-  const present = SPEED_ORDER.filter((s) => m.links.some((l) => l.speed === s) || (s === "LAG" && m.links.some((l) => l.bond)));
-  let lx = 110; const ly = H - 35;
-  out.push(`<text x="${lx}" y="${ly}" font-size="11" fill="${S.sub}" font-weight="700" font-family="${S.mono}">LINK SPEED</text>`);
-  let x = lx + 92;
-  for (const sp of present) {
-    const c = S.speedColor[sp];
-    out.push(`<line x1="${x}" y1="${ly - 3}" x2="${x + 24}" y2="${ly - 3}" stroke="${c}" stroke-width="3.2" stroke-linecap="round"/>`);
-    out.push(`<text x="${x + 30}" y="${ly}" font-size="10.5" fill="${S.sub}" font-family="${S.mono}">${sp}</text>`);
-    x += 92;
+  // ---- logical overlay: bond brackets + subnet/CIDR badges ----
+  if (logical) {
+    // Bond bracket + logical interface name at the owning device.
+    for (const bnd of m.bonds ?? []) {
+      const dev = id.get(bnd.device);
+      if (!dev) continue;
+      const bx = dev.x  - dev.w  / 2 - 8, by = dev.y ;
+      out.push(`<path d="M ${bx.toFixed(1)},${(by - 12).toFixed(1)} q -5,0 -5,5 v 14 q 0,5 5,5" fill="none" stroke="${S.speedColor.LAG}" stroke-width="1.4"/>`);
+      const lbl = bnd.mode ? `${bnd.id} · ${bnd.mode}` : bnd.id;
+      const tw = 6.6 * lbl.length + 10;
+      out.push(`<rect x="${(bx - 10 - tw).toFixed(1)}" y="${(by - 7).toFixed(1)}" width="${tw.toFixed(1)}" height="15" rx="7" fill="${S.bg}" stroke="${S.speedColor.LAG}" stroke-width="1"/>`);
+      out.push(`<text x="${(bx - 10 - tw / 2).toFixed(1)}" y="${(by + 3.5).toFixed(1)}" font-size="9" text-anchor="middle" fill="${S.speedColor.LAG}" font-weight="700" font-family="${S.mono}">${esc(lbl)}</text>`);
+    }
+
+    // Subnet/CIDR badge per VLAN, anchored at the centroid of its member ports.
+    for (const v of m.vlans ?? []) {
+      const col = vlanColor(v.id);
+      const pts       = [];
+      for (const mem of v.members) {
+        const dev = id.get(mem.device);
+        if (dev) pts.push({ x: dev.x , y: dev.y  });
+      }
+      if (!pts.length) continue;
+      const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+      const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+      const lbl = v.subnet ? `VLAN ${v.id} · ${v.subnet}` : `VLAN ${v.id} · ${v.name}`;
+      const tw = 6.4 * lbl.length + 16;
+      out.push(`<rect x="${(cx - tw / 2).toFixed(1)}" y="${(cy - 9).toFixed(1)}" width="${tw.toFixed(1)}" height="18" rx="9" fill="${S.bg}" stroke="${col}" stroke-width="1.3" fill-opacity="0.96"/>`);
+      out.push(`<circle cx="${(cx - tw / 2 + 11).toFixed(1)}" cy="${cy.toFixed(1)}" r="3.4" fill="${col}"/>`);
+      out.push(`<text x="${(cx + 6).toFixed(1)}" y="${(cy + 3.5).toFixed(1)}" font-size="9.5" text-anchor="middle" fill="${S.text}" font-weight="600" font-family="${S.mono}">${esc(lbl)}</text>`);
+    }
+  }
+
+  // ---- legend ----
+  if (logical && (m.vlans?.length ?? 0)) {
+    // VLAN legend
+    let lx = 110; const ly = H - 35;
+    out.push(`<text x="${lx}" y="${ly}" font-size="11" fill="${S.sub}" font-weight="700" font-family="${S.mono}">VLANS</text>`);
+    let x = lx + 64;
+    for (const v of [...(m.vlans ?? [])].sort((a, b) => a.id - b.id)) {
+      const c = vlanColor(v.id);
+      const t = `${v.id} ${v.name}`;
+      out.push(`<line x1="${x}" y1="${ly - 3}" x2="${x + 22}" y2="${ly - 3}" stroke="${c}" stroke-width="3.4" stroke-linecap="round"/>`);
+      out.push(`<text x="${x + 28}" y="${ly}" font-size="10" fill="${S.sub}" font-family="${S.mono}">${esc(t)}</text>`);
+      x += 34 + 6.4 * t.length;
+    }
+  } else {
+    // physical speed legend
+    const present = SPEED_ORDER.filter((s) => m.links.some((l) => l.speed === s) || (s === "LAG" && m.links.some((l) => l.bond)));
+    let lx = 110; const ly = H - 35;
+    out.push(`<text x="${lx}" y="${ly}" font-size="11" fill="${S.sub}" font-weight="700" font-family="${S.mono}">LINK SPEED</text>`);
+    let x = lx + 92;
+    for (const sp of present) {
+      const c = S.speedColor[sp];
+      out.push(`<line x1="${x}" y1="${ly - 3}" x2="${x + 24}" y2="${ly - 3}" stroke="${c}" stroke-width="3.2" stroke-linecap="round"/>`);
+      out.push(`<text x="${x + 30}" y="${ly}" font-size="10.5" fill="${S.sub}" font-family="${S.mono}">${sp}</text>`);
+      x += 92;
+    }
   }
 
   if (S.titleBlock) {
     const nodes = m.devices.length, links = m.links.length;
+    const layerTag = mode === "logical" ? "LOGICAL L2/L3" : mode === "hybrid" ? "HYBRID L1+L2/L3" : "PHYSICAL L1";
     out.push(`<rect x="${W - 252}" y="${H - 70}" width="236" height="54" fill="none" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
     out.push(`<line x1="${W - 252}" y1="${H - 50}" x2="${W - 16}" y2="${H - 50}" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
-    out.push(`<text x="${W - 244}" y="${H - 55}" font-size="9.5" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">${esc(m.title.toUpperCase())} · PHYSICAL L1</text>`);
+    out.push(`<text x="${W - 244}" y="${H - 55}" font-size="9.5" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">${esc(m.title.toUpperCase())} · ${layerTag}</text>`);
     out.push(`<text x="${W - 244}" y="${H - 34}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${nodes} NODES · ${links} LINKS · REV A · NTS</text>`);
   }
 

@@ -1,0 +1,80 @@
+<svg viewBox="0 0 540 694" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+<rect width="540" height="694" fill="#0c356a"/>
+<defs><pattern id="grd" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#1c4a8a" stroke-width="1"/></pattern></defs><rect width="540" height="694" fill="url(#grd)"/>
+<rect x="66.0" y="385.0" width="317.0" height="223.0" rx="13" fill="#0e3f7d" stroke="#2f63a8" stroke-width="1.2"/>
+<text x="72.0" y="378.0" font-size="11.5" fill="#bcd6ff" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">COMPUTE</text>
+<path d="M 270.0,123.0 L 270.0,67.0" fill="none" stroke="#cfe0ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="270.0" cy="123.0" r="2.3" fill="#cfe0ff"/>
+<circle cx="270.0" cy="67.0" r="2.3" fill="#cfe0ff"/>
+<path d="M 270.0,177.0 L 270.0,200.0 L 270.0,200.0 L 270.0,252.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="270.0" cy="177.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="270.0" cy="252.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 263.0,405.0 L 263.0,322.0 L 228.0,322.0 L 228.0,304.0" fill="none" stroke="#86efac" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92"/>
+<circle cx="263.0" cy="405.0" r="2.3" fill="#86efac"/>
+<circle cx="228.0" cy="304.0" r="2.3" fill="#86efac"/>
+<path d="M 215.0,455.0 L 215.0,478.0 L 156.0,478.0 L 156.0,536.0" fill="none" stroke="#7fd1ff" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.92"/>
+<circle cx="215.0" cy="455.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="156.0" cy="536.0" r="2.3" fill="#7fd1ff"/>
+<text x="270.0" y="97.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">WAN</text>
+<text x="270.0" y="228.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10G</text>
+<text x="156.0" y="523.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LAG</text>
+<text x="156.0" y="523.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LAG</text>
+<rect x="253.6" y="130.0" width="32.8" height="13" rx="3" fill="#0c356a" stroke="#bcd6ff" stroke-width="1"/>
+<text x="270.0" y="139.5" font-size="8" text-anchor="middle" fill="#bcd6ff" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">wan0</text>
+<text x="270.0" y="150.0" font-size="7.5" text-anchor="middle" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">dhcp</text>
+<rect x="253.6" y="156.0" width="32.8" height="13" rx="3" fill="#0c356a" stroke="#bcd6ff" stroke-width="1"/>
+<text x="270.0" y="165.5" font-size="8" text-anchor="middle" fill="#bcd6ff" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">lan0</text>
+<text x="270.0" y="176.0" font-size="7.5" text-anchor="middle" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.0.0.1/24</text>
+<rect x="256.7" y="259.0" width="26.6" height="13" rx="3" fill="#0c356a" stroke="#bcd6ff" stroke-width="1"/>
+<text x="270.0" y="268.5" font-size="8" text-anchor="middle" fill="#bcd6ff" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">te1</text>
+<rect x="252.8" y="412.0" width="20.4" height="13" rx="3" fill="#0c356a" stroke="#bcd6ff" stroke-width="1"/>
+<text x="263.0" y="421.5" font-size="8" text-anchor="middle" fill="#bcd6ff" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">g1</text>
+<rect x="214.7" y="283.0" width="26.6" height="13" rx="3" fill="#0c356a" stroke="#bcd6ff" stroke-width="1"/>
+<text x="228.0" y="292.5" font-size="8" text-anchor="middle" fill="#bcd6ff" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">te2</text>
+<rect x="204.8" y="434.0" width="20.4" height="13" rx="3" fill="#0c356a" stroke="#bcd6ff" stroke-width="1"/>
+<text x="215.0" y="443.5" font-size="8" text-anchor="middle" fill="#bcd6ff" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">g1</text>
+<rect x="139.6" y="543.0" width="32.8" height="13" rx="3" fill="#0c356a" stroke="#a7f3d0" stroke-width="1"/>
+<text x="156.0" y="552.5" font-size="8" text-anchor="middle" fill="#a7f3d0" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">eth0</text>
+<text x="156.0" y="563.0" font-size="7.5" text-anchor="middle" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">lag1</text>
+<rect x="204.8" y="434.0" width="20.4" height="13" rx="3" fill="#0c356a" stroke="#bcd6ff" stroke-width="1"/>
+<text x="215.0" y="443.5" font-size="8" text-anchor="middle" fill="#bcd6ff" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">g2</text>
+<rect x="139.6" y="543.0" width="32.8" height="13" rx="3" fill="#0c356a" stroke="#a7f3d0" stroke-width="1"/>
+<text x="156.0" y="552.5" font-size="8" text-anchor="middle" fill="#a7f3d0" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">eth1</text>
+<text x="156.0" y="563.0" font-size="7.5" text-anchor="middle" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">lag1</text>
+<rect x="210.0" y="21.0" width="120" height="46" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g transform="translate(217.0,36.5) scale(0.375)"><path d="M54,40 H14 C6.3,40 0,33.7 0,26 0,18.8 5.4,12.9 12.4,12.1 14.7,5.1 21.3,0 29,0 c8,0 14.7,5.5 16.6,12.9 C53.4,13.6 64,18.3 64,26 64,33.7 60.6,40 54,40 Z" fill="none" stroke="#bcd6ff" stroke-width="3.73"/></g>
+<text x="244.0" y="45.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">Internet</text>
+<rect x="195.0" y="123.0" width="150" height="54" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<rect x="205.0" y="137.3" width="18.0" height="13.5" rx="2" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="205.0" y1="144.0" x2="223.0" y2="144.0" stroke="#bcd6ff" stroke-width="1.4"/><line x1="214.0" y1="137.3" x2="214.0" y2="144.0" stroke="#bcd6ff" stroke-width="1.4"/><line x1="209.5" y1="144.0" x2="209.5" y2="150.8" stroke="#bcd6ff" stroke-width="1.4"/><line x1="218.5" y1="144.0" x2="218.5" y2="150.8" stroke="#bcd6ff" stroke-width="1.4"/>
+<text x="229.0" y="146.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">edge-fw</text>
+<text x="229.0" y="160.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.0.0.1</text>
+<rect x="195.0" y="252.0" width="150" height="52" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<rect x="204.6" y="267.4" width="18.8" height="9.3" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="208.0" y1="270.0" x2="220.0" y2="270.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 220.0,270.0 l -2.0,-1.3 M 220.0,270.0 l -2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/><line x1="208.0" y1="274.0" x2="220.0" y2="274.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 208.0,274.0 l 2.0,-1.3 M 208.0,274.0 l 2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/>
+<text x="229.0" y="274.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">core-sw</text>
+<text x="229.0" y="288.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.0.0.2</text>
+<rect x="195.0" y="405.0" width="150" height="50" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<rect x="204.6" y="419.4" width="18.8" height="9.3" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="208.0" y1="422.0" x2="220.0" y2="422.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 220.0,422.0 l -2.0,-1.3 M 220.0,422.0 l -2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/><line x1="208.0" y1="426.0" x2="220.0" y2="426.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 208.0,426.0 l 2.0,-1.3 M 208.0,426.0 l 2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/>
+<text x="229.0" y="426.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">tor-sw</text>
+<text x="229.0" y="440.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.0.10.2</text>
+<rect x="104.0" y="536.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<rect x="117.2" y="552.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="119.3" y1="555.9" x2="125.1" y2="555.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="126.5" cy="555.9" r="1.4" fill="#bcd6ff"/><line x1="119.3" y1="560.0" x2="125.1" y2="560.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="126.5" cy="560.0" r="1.4" fill="#bcd6ff"/><line x1="119.3" y1="564.1" x2="125.1" y2="564.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="126.5" cy="564.1" r="1.4" fill="#bcd6ff"/>
+<text x="138.0" y="561.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">host-01</text>
+<path d="M 96.0,548.0 q -5,0 -5,5 v 14 q 0,5 5,5" fill="none" stroke="#a7f3d0" stroke-width="1.4"/>
+<rect x="3.4" y="553.0" width="82.6" height="15" rx="7" fill="#0c356a" stroke="#a7f3d0" stroke-width="1"/>
+<text x="44.7" y="563.5" font-size="9" text-anchor="middle" fill="#a7f3d0" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">lag1 · lacp</text>
+<rect x="134.6" y="486.0" width="156.8" height="18" rx="9" fill="#0c356a" stroke="#7fd1ff" stroke-width="1.3" fill-opacity="0.96"/>
+<circle cx="145.6" cy="495.0" r="3.4" fill="#7fd1ff"/>
+<text x="219.0" y="498.5" font-size="9.5" text-anchor="middle" fill="#eaf2ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">VLAN 10 · 10.0.10.0/24</text>
+<rect x="134.6" y="448.0" width="156.8" height="18" rx="9" fill="#0c356a" stroke="#86efac" stroke-width="1.3" fill-opacity="0.96"/>
+<circle cx="145.6" cy="457.0" r="3.4" fill="#86efac"/>
+<text x="219.0" y="460.5" font-size="9.5" text-anchor="middle" fill="#eaf2ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">VLAN 20 · 10.0.20.0/24</text>
+<text x="110" y="659" font-size="11" fill="#9dc0f0" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">VLANS</text>
+<line x1="174" y1="656" x2="196" y2="656" stroke="#7fd1ff" stroke-width="3.4" stroke-linecap="round"/>
+<text x="202" y="659" font-size="10" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10 mgmt</text>
+<line x1="252.8" y1="656" x2="274.8" y2="656" stroke="#86efac" stroke-width="3.4" stroke-linecap="round"/>
+<text x="280.8" y="659" font-size="10" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">20 data</text>
+<rect x="288" y="624" width="236" height="54" fill="none" stroke="#bcd6ff" stroke-width="1.1"/>
+<line x1="288" y1="644" x2="524" y2="644" stroke="#bcd6ff" stroke-width="1.1"/>
+<text x="296" y="639" font-size="9.5" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="1">HOMELAB — LOGICAL · HYBRID L1+L2/L3</text>
+<text x="296" y="660" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">5 NODES · 5 LINKS · REV A · NTS</text>
+</svg>

@@ -1,7 +1,7 @@
 /**
  * NetScript `.net` parser — text DSL → NetModel.
  *
- * Grammar (physical layer, v0.1):
+ * Grammar:
  *
  *   ---                         # optional frontmatter
  *   title: My Lab
@@ -9,23 +9,34 @@
  *   ---
  *
  *   <id> <kind> "label" [tier <tier>] [mgmt <addr>]      # device
- *   rack <id> "role" { ... }                             # group (members default tier host)
- *   <a> -> <b> : <speed> [lag]                           # link (-- = peer; class inferred)
+ *   <id> <kind> "label" ... {                            # device, with a port block
+ *     port <id> "<name>" [speed <speed>] [media <media>] [addr <addr>]
+ *   }
+ *   rack <id> "role" { <device>... }                     # group (members default tier host)
+ *   vlan <id> "name" [subnet <cidr>] {                    # VLAN (logical layer)
+ *     member <device>.<port> [tagged]
+ *   }
+ *   bond <id> on <device> [mode <mode>] {                 # LAG/bond (logical layer)
+ *     member <port>
+ *   }
+ *   <a>[.<port>] (->|--) <b>[.<port>] : <speed> [lag]     # link (-- = peer; class inferred)
+ *   flow <from> -> <to> : <proto>[/<port>] ["label"]      # traffic flow (L4)
  *
  *   # line comments with '#'
  *
- * Link class (uplink / peer / intra / e2c / wan) is inferred from tiers by the
- * router, so authors never hand-classify. `tier` is optional where it can be
- * inferred from kind (cloud→wan, firewall/router→edge, host kinds→host, a
- * switch→core at top level / tor inside a rack).
+ * Blocks nest via a small mode stack (rack ⊃ device is the only real nesting;
+ * vlan/bond are top-level). Link class (uplink / peer / intra / e2c / wan) is
+ * inferred from tiers by the router, so authors never hand-classify. `tier` is
+ * optional where it can be inferred from kind (cloud→wan, firewall/router→edge,
+ * host kinds→host, a switch→core at top level / tor inside a rack).
  */
-import type { NetModel, Device, Link, Kind, Tier, Speed } from "./model.ts";
+import type { NetModel, Device, Link, Kind, Tier, Speed, Port, Vlan, Bond, Flow, Proto } from "./model.ts";
 
 const KINDS = new Set<string>(["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop"]);
 const TIERS = new Set<string>(["wan", "edge", "core", "tor", "host"]);
 const SPEEDS = new Set<string>(["WAN", "1G", "10G", "25G", "40G", "100G", "LAG"]);
 
-function inferTier(kind: Kind, inRack: boolean): Tier {
+export function inferTier(kind: Kind, inRack: boolean): Tier {
   if (kind === "cloud") return "wan";
   if (kind === "firewall" || kind === "router") return "edge";
   if (kind === "switch") return inRack ? "tor" : "core";
@@ -42,6 +53,18 @@ function stripComment(line: string): string {
   }
   return line;
 }
+
+/** Split "device.port" → ["device", "port"] on the FIRST dot; no dot → [tok, undefined]. */
+function splitPort(tok: string): [string, string | undefined] {
+  const i = tok.indexOf(".");
+  return i < 0 ? [tok, undefined] : [tok.slice(0, i), tok.slice(i + 1)];
+}
+
+type Frame =
+  | { kind: "rack"; id: string }
+  | { kind: "device"; dev: Device }
+  | { kind: "vlan"; vlan: Vlan }
+  | { kind: "bond"; bond: Bond };
 
 export function parseNet(src: string): NetModel {
   const lines = src.split(/\r?\n/);
@@ -62,36 +85,132 @@ export function parseNet(src: string): NetModel {
   }
 
   // ---- body ----
-  let rack: string | null = null;
+  const stack: Frame[] = [];
+  const currentRack = (): string | null => {
+    for (let k = stack.length - 1; k >= 0; k--) if (stack[k].kind === "rack") return (stack[k] as { kind: "rack"; id: string }).id;
+    return null;
+  };
+  const top = (): Frame | undefined => stack[stack.length - 1];
+
   for (; i < lines.length; i++) {
     const ln = i + 1;
     const t = stripComment(lines[i]).trim();
     if (!t) continue;
 
-    if (t === "}") { rack = null; continue; }
+    if (t === "}") {
+      if (!stack.length) throw new Error(`line ${ln}: unexpected "}"`);
+      stack.pop();
+      continue;
+    }
+
+    const blockOpen = t.endsWith("{");
+    const header = blockOpen ? t.slice(0, -1).trim() : t;
+
+    // ---- lines only valid inside a specific frame ----
+    const tf = top();
+    if (tf?.kind === "device") {
+      const m = header.match(/^port\s+(\S+)\s+"([^"]*)"\s*(.*)$/);
+      if (!m) throw new Error(`line ${ln}: expected "port <id> \\"<name>\\"" inside device block → ${header}`);
+      const [, id, name, rest] = m;
+      if (tf.dev.ports!.some((p) => p.id === id)) throw new Error(`line ${ln}: duplicate port "${id}" on device "${tf.dev.id}"`);
+      const port: Port = { id, name };
+      const sm = rest.match(/\bspeed\s+(\S+)/);
+      if (sm) { if (!SPEEDS.has(sm[1].toUpperCase())) throw new Error(`line ${ln}: unknown speed "${sm[1]}"`); port.speed = sm[1].toUpperCase() as Speed; }
+      const mm = rest.match(/\bmedia\s+(\S+)/);
+      if (mm) port.media = mm[1];
+      const am = rest.match(/\baddr\s+(\S+)/);
+      if (am) port.addr = am[1];
+      tf.dev.ports!.push(port);
+      continue;
+    }
+    if (tf?.kind === "vlan") {
+      const m = header.match(/^member\s+(\S+)(\s+tagged)?$/);
+      if (!m) throw new Error(`line ${ln}: expected "member <device>.<port> [tagged]" inside vlan block → ${header}`);
+      const [dev, port] = splitPort(m[1]);
+      if (!port) throw new Error(`line ${ln}: vlan member must be "device.port" → ${header}`);
+      tf.vlan.members.push({ device: dev, port, ...(m[2] ? { tagged: true } : {}) });
+      continue;
+    }
+    if (tf?.kind === "bond") {
+      const m = header.match(/^member\s+(\S+)$/);
+      if (!m) throw new Error(`line ${ln}: expected "member <port>" inside bond block → ${header}`);
+      tf.bond.memberPorts.push(m[1]);
+      continue;
+    }
+    if (header.startsWith("port ")) throw new Error(`line ${ln}: "port" is only valid inside a device block`);
+    if (header.startsWith("member ")) throw new Error(`line ${ln}: "member" is only valid inside a vlan or bond block`);
+
+    // ---- top-level / rack-level lines ----
 
     // rack <id> "role" {
-    let m = t.match(/^rack\s+(\S+)\s+"([^"]*)"\s*\{$/);
-    if (m) {
+    let m = header.match(/^rack\s+(\S+)\s+"([^"]*)"$/);
+    if (blockOpen && m) {
+      if (stack.length) throw new Error(`line ${ln}: "rack" blocks cannot nest`);
       const id = m[1];
       if (model.racks.some((r) => r.id === id)) throw new Error(`line ${ln}: duplicate rack "${id}"`);
       model.racks.push({ id, label: `Rack ${id}`, role: m[2] });
-      rack = id;
+      stack.push({ kind: "rack", id });
       continue;
     }
 
-    // <a> (->|--) <b> : <speed> [lag]
-    m = t.match(/^(\S+)\s*(->|--)\s*(\S+)\s*:\s*([A-Za-z0-9]+)(\s+lag)?$/i);
-    if (m) {
+    // vlan <id> "name" [subnet <cidr>] {
+    m = header.match(/^vlan\s+(\d+)\s+"([^"]*)"(?:\s+subnet\s+(\S+))?$/);
+    if (blockOpen && m && !stack.length) {
+      const id = Number(m[1]);
+      model.vlans ??= [];
+      if (model.vlans.some((v) => v.id === id)) throw new Error(`line ${ln}: duplicate vlan "${id}"`);
+      const vlan: Vlan = { id, name: m[2], members: [], ...(m[3] ? { subnet: m[3] } : {}) };
+      model.vlans.push(vlan);
+      stack.push({ kind: "vlan", vlan });
+      continue;
+    }
+
+    // bond <id> on <device> [mode <mode>] {
+    m = header.match(/^bond\s+(\S+)\s+on\s+(\S+)(?:\s+mode\s+(\S+))?$/);
+    if (blockOpen && m && !stack.length) {
+      const id = m[1];
+      model.bonds ??= [];
+      if (model.bonds.some((b) => b.id === id)) throw new Error(`line ${ln}: duplicate bond "${id}"`);
+      const bond: Bond = { id, device: m[2], memberPorts: [], ...(m[3] ? { mode: m[3] } : {}) };
+      model.bonds.push(bond);
+      stack.push({ kind: "bond", bond });
+      continue;
+    }
+
+    // flow <from> -> <to> : <proto>[/<port>] ["label"]
+    // Keyword-prefixed so it can never be confused with a physical link line
+    // (`a -> b : 10G`), which shares the arrow shape but means something else.
+    m = header.match(/^flow\s+(\S+)\s*->\s*(\S+)\s*:\s*(tcp|udp|icmp|any)(?:\/(\d+))?(?:\s+"([^"]*)")?$/i);
+    if (!blockOpen && m && !stack.length) {
+      const proto = m[3].toLowerCase() as Proto;
+      const flow: Flow = { from: m[1], to: m[2], proto };
+      if (m[4] !== undefined) {
+        const port = Number(m[4]);
+        if (port < 0 || port > 65535) throw new Error(`line ${ln}: port out of range "${m[4]}"`);
+        flow.port = port;
+      }
+      if (m[5]) flow.label = m[5];
+      (model.flows ??= []).push(flow);
+      continue;
+    }
+
+    // <a>[.<port>] (->|--) <b>[.<port>] : <speed> [lag]
+    m = header.match(/^(\S+)\s*(->|--)\s*(\S+)\s*:\s*([A-Za-z0-9]+)(\s+lag)?$/i);
+    if (!blockOpen && m && (!stack.length || tf?.kind === "rack")) {
+      const [aId, aPort] = splitPort(m[1]);
+      const [bId, bPort] = splitPort(m[3]);
       const speed = m[4].toUpperCase();
       if (!SPEEDS.has(speed)) throw new Error(`line ${ln}: unknown speed "${m[4]}"`);
-      model.links.push({ a: m[1], b: m[3], speed: speed as Speed, ...(m[5] ? { bond: true } : {}) });
+      const link: Link = { a: aId, b: bId, speed: speed as Speed, ...(m[5] ? { bond: true } : {}) };
+      if (aPort) link.aPort = aPort;
+      if (bPort) link.bPort = bPort;
+      model.links.push(link);
       continue;
     }
 
-    // <id> <kind> "label" [tier X] [mgmt Y]
-    m = t.match(/^(\S+)\s+(\S+)\s+"([^"]*)"\s*(.*)$/);
-    if (m) {
+    // <id> <kind> "label" [tier X] [mgmt Y] [{]
+    m = header.match(/^(\S+)\s+(\S+)\s+"([^"]*)"\s*(.*)$/);
+    if (m && (!stack.length || tf?.kind === "rack")) {
       const id = m[1], kindRaw = m[2].toLowerCase(), label = m[3], rest = m[4];
       if (model.devices.some((d) => d.id === id)) throw new Error(`line ${ln}: duplicate device id "${id}"`);
       if (!KINDS.has(kindRaw)) throw new Error(`line ${ln}: unknown kind "${m[2]}"`);
@@ -102,23 +221,54 @@ export function parseNet(src: string): NetModel {
         if (!TIERS.has(tm[1])) throw new Error(`line ${ln}: unknown tier "${tm[1]}"`);
         dev.tier = tm[1] as Tier;
       } else {
-        dev.tier = inferTier(kind, rack !== null);
+        dev.tier = inferTier(kind, currentRack() !== null);
       }
       const mm = rest.match(/\bmgmt\s+(\S+)/);
       if (mm) dev.mgmt = mm[1];
-      if (rack !== null) dev.rack = rack;
+      const rackId = currentRack();
+      if (rackId !== null) dev.rack = rackId;
       model.devices.push(dev);
+      if (blockOpen) { dev.ports = []; stack.push({ kind: "device", dev }); }
       continue;
     }
 
     throw new Error(`line ${ln}: cannot parse → ${t}`);
   }
 
-  // ---- light validation (resolvable endpoints) ----
-  const ids = new Set(model.devices.map((d) => d.id));
-  for (const l of model.links) {
-    if (!ids.has(l.a)) throw new Error(`link references unknown device "${l.a}"`);
-    if (!ids.has(l.b)) throw new Error(`link references unknown device "${l.b}"`);
-  }
+  if (stack.length) throw new Error(`unexpected end of file: unclosed "${stack[stack.length - 1].kind}" block`);
+
+  validateModel(model);
   return model;
+}
+
+/**
+ * Cross-reference validation shared by the parser and by callers that build a
+ * NetModel directly (e.g. the MCP `compile_net` tool) — links/vlan-members/
+ * bond-members must resolve to real devices and, where a port id is given, a
+ * real port on that device. Throws on the first problem found.
+ */
+export function validateModel(model: NetModel): void {
+  const devById = new Map(model.devices.map((d) => [d.id, d]));
+  const hasPort = (devId: string, portId?: string) => !portId || !!devById.get(devId)?.ports?.some((p) => p.id === portId);
+  for (const l of model.links) {
+    if (!devById.has(l.a)) throw new Error(`link references unknown device "${l.a}"`);
+    if (!devById.has(l.b)) throw new Error(`link references unknown device "${l.b}"`);
+    if (!hasPort(l.a, l.aPort)) throw new Error(`link references unknown port "${l.a}.${l.aPort}"`);
+    if (!hasPort(l.b, l.bPort)) throw new Error(`link references unknown port "${l.b}.${l.bPort}"`);
+  }
+  for (const v of model.vlans ?? []) {
+    for (const mem of v.members) {
+      if (!devById.has(mem.device)) throw new Error(`vlan ${v.id}: unknown device "${mem.device}"`);
+      if (!hasPort(mem.device, mem.port)) throw new Error(`vlan ${v.id}: unknown port "${mem.device}.${mem.port}"`);
+    }
+  }
+  for (const b of model.bonds ?? []) {
+    if (!devById.has(b.device)) throw new Error(`bond "${b.id}": unknown device "${b.device}"`);
+    for (const p of b.memberPorts) if (!hasPort(b.device, p)) throw new Error(`bond "${b.id}": unknown port "${b.device}.${p}"`);
+  }
+  for (const f of model.flows ?? []) {
+    if (!devById.has(f.from)) throw new Error(`flow references unknown device "${f.from}"`);
+    if (!devById.has(f.to)) throw new Error(`flow references unknown device "${f.to}"`);
+    if (f.from === f.to) throw new Error(`flow "${f.from}" targets itself`);
+  }
 }

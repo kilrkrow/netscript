@@ -96,6 +96,32 @@ export interface Bond {
   mode?: string;            // optional, e.g. "lacp", "active-backup"
 }
 
+/**
+ * FLOW-layer (L4) additions — traffic, not topology.
+ *
+ * A Flow is one direction of intent: `from` INITIATES a connection to `to` on
+ * a listening service (`proto`/`port`). This is deliberately asymmetric — it
+ * is the thing a firewall rule, a security review, or a "what talks to what"
+ * question actually cares about. Return traffic is implied and never drawn.
+ *
+ * "Inbound" and "outbound" are therefore not properties of a flow; they are
+ * relative to whichever device you're looking at. A flow arriving at `to` is
+ * that device's inbound; the same flow is `from`'s outbound. The traffic view
+ * gets this for free from the arrow direction.
+ */
+export type Proto = "tcp" | "udp" | "icmp" | "any";
+export interface Flow {
+  from: string;             // initiator device id (the client end)
+  to: string;               // listener device id (the end exposing the port)
+  proto: Proto;
+  port?: number;            // listening port; omitted for icmp / any
+  label?: string;           // optional service name, e.g. "SQL", "LDAPS"
+}
+
+/** Canonical service identity — the thing colour is keyed on. */
+export const serviceKey = (f: Flow): string =>
+  f.port === undefined ? f.proto : `${f.proto}/${f.port}`;
+
 export interface NetModel {
   title: string;
   devices: Device[];
@@ -105,6 +131,8 @@ export interface NetModel {
   /** logical-layer overlays (additive; physical models omit these) */
   vlans?: Vlan[];
   bonds?: Bond[];
+  /** flow-layer overlay (additive; topology-only models omit this) */
+  flows?: Flow[];
 }
 
 export type Pt = { x: number; y: number };

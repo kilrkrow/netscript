@@ -1,8 +1,8 @@
 # NetScript
 
-**Diagram-as-code for physical network & infrastructure topology.** Describe your devices, ports, and links in a declarative model; get clean, Visio-grade SVG — in any theme. No drag-and-drop, no hand-placed coordinates.
+**Diagram-as-code for network topology — physical, logical, and traffic.** Describe your devices, ports, links, VLANs, bonds and service flows in a declarative model; get clean, Visio-grade SVG — flat or isometric, in any theme. No drag-and-drop, no hand-placed coordinates. Callable as text-to-diagram from any MCP client.
 
-> **Status: early (v0.1).** Physical layer only, one bundled example, two themes. The text DSL, importers, and logical overlays are on the roadmap below. The renderer and router are real and working today.
+> **Status: early (v0.1).** Physical + logical + traffic layers, `.net` text DSL, a live editor, an MCP server, and flat + isometric projections are all working today. Importers/discovery and SysML interchange are still on the roadmap below.
 
 ---
 
@@ -62,6 +62,31 @@ python3 -m http.server -d editor 8080   # → http://localhost:8080
 
 Host it for free on **GitHub Pages** (Settings → Pages → deploy from `main`) — the editor is then at `…/netscript/editor/`. No Cloudflare Worker needed; a Worker only enters the picture later for the server-side LLM generation path.
 
+## MCP server
+
+NetScript is callable as an [MCP](https://modelcontextprotocol.io) tool — text-to-diagram from any MCP-capable agent (Claude Desktop, Claude Code, etc.), mirroring [FlowScript](https://github.com/kilrkrow/flowscript)'s server:
+
+```bash
+netscript mcp     # stdio transport
+```
+
+Claude Desktop config:
+
+```json
+{
+  "mcpServers": {
+    "netscript": { "command": "npx", "args": ["-y", "@kilrkrow/netscript", "mcp"] }
+  }
+}
+```
+
+Two tools:
+
+- **`compile_net`** — structured JSON (devices, links, racks, optionally VLANs/bonds/ports) → `{ net, svg }`. Your LLM extracts the topology; the tool handles NetScript syntax, layout, routing and rendering. No `.net` knowledge required of the caller.
+- **`render_net`** — `.net` source text → SVG. Use this when you already have source (hand-authored, or from `compile_net`).
+
+Both accept `theme`, plus the two independent axes `view` (`"topology"` | `"traffic"`) and `projection` (`"flat"` | `"iso"`) — see [Views and projections](#views-and-projections). `compile_net` renders directly from the constructed model — the returned `net` text is for you to read/edit, not a round-trip dependency for the SVG.
+
 ## The model
 
 A `NetModel` is layout-free — you describe *what connects to what*, and NetScript places and routes it:
@@ -88,6 +113,37 @@ const model: NetModel = {
 
 `tier` (`wan` · `edge` · `core` · `tor` · `host`) drives layout and lets the router infer each link's class (uplink, peer, intra-rack, …). `bond: true` draws a link as an offset parallel pair with a `LAG` tag. `mgmt` is an optional **management address** on managed gear only — hosts carry none, and there are no CIDRs at the physical layer (addressing is logical — see below).
 
+### Logical layer — VLANs, bonds, ports (text DSL)
+
+Ports, VLANs and LAG bonds are first-class in `NetModel` and now authorable directly in `.net` text, not just via the TS API:
+
+```
+edge firewall "edge-fw" tier edge mgmt 10.0.0.1 {
+  port wan0 "wan0" speed WAN media RJ45 addr dhcp
+  port lan0 "lan0" speed 10G media SFP+ addr 10.0.0.1/24
+}
+
+tor1.g1 -> srv1.eth0 : 10G lag       # link ports with a "device.port" endpoint
+
+vlan 20 "data" subnet 10.0.20.0/24 {
+  member core1.te2 tagged
+  member tor1.g1 tagged
+}
+
+bond lag1 on srv1 mode lacp {
+  member eth0
+  member eth1
+}
+```
+
+Traffic flows (L4) are authorable too — see [Traffic](#traffic--the-flow-layer-l4):
+
+```
+flow app1 -> sql01 : tcp/1433 "SQL"
+```
+
+See [`examples/homelab-logical.net`](examples/homelab-logical.net) and [`examples/sql-traffic.net`](examples/sql-traffic.net) for full examples, and the grammar comment atop [`src/parser.ts`](src/parser.ts) for the complete syntax. `serializeNet(model)` ([`src/serialize.ts`](src/serialize.ts)) is the inverse — NetModel → `.net` text — used by `compile_net` to hand back editable source. Render a VLAN-coloured view with the `*-logical` / `*-hybrid` themes (`--theme blueprint-hybrid`).
+
 ## How it works
 
 ```
@@ -109,17 +165,68 @@ This is the load-bearing idea: **the model is the source of truth; every renderi
 
 More (dark NOC, monochrome, icon-rich) are straightforward to add — a theme is just a token set.
 
+## Views and projections
+
+Two **independent** axes, because isometric is a projection of a scene, not a kind of scene. Every combination is valid:
+
+| | `--projection flat` | `--projection iso` |
+|---|---|---|
+| **`--view topology`** *(default)* | devices + cabling, 2D | the same layout, projected |
+| **`--view traffic`** | L4 service flows | the same flows, projected |
+
+```bash
+node src/cli.ts --example three-rack --projection iso           -o diagram.svg
+node src/cli.ts examples/sql-traffic.net --view traffic         -o diagram.svg
+node src/cli.ts examples/sql-traffic.net --view traffic --projection iso -o diagram.svg
+```
+
+From code, one entry point covers the grid — `renderView(model, { theme, view, projection })` ([`src/views.ts`](src/views.ts)).
+
+*(Layer choice **within** the topology view — physical vs logical vs hybrid — is a third, separate thing carried by the theme, e.g. `--theme blueprint-hybrid`.)*
+
+### Isometric
+
+![Three-rack leaf-spine, isometric](examples/three-rack-iso.svg)
+
+[`src/iso.ts`](src/iso.ts) reuses each scene's layout completely unchanged — it projects the *existing* positions and routed polylines through a true isometric transform, so an orthogonal run becomes the classic two-diagonal isometric cable look for free. Devices draw as extruded blocks with the kind glyph billboarded flat on the top face (readable, not skewed); racks become shallow platforms underneath.
+
+Scope: fixed extrusion heights, no light/shadow model, no VLAN colouring yet — a documentation-grade projection, not a photorealistic renderer.
+
+### Traffic — the flow layer (L4)
+
+Where the physical view answers *"what is cabled to what"* and the logical view answers *"what segment is this on"*, the traffic view answers **"what talks to what, on which service, and in which direction"** — the question a firewall rule set is made of.
+
+![SQL service traffic flows](examples/sql-traffic.svg)
+
+```
+flow app1 -> sql01 : tcp/1433 "SQL"      # inbound to sql01, from the client's point of view outbound
+flow sql01 -> dc01 : tcp/636  "LDAPS"    # sql01's own outbound call
+```
+
+Two ideas carry the drawing:
+
+- **Colour encodes the service** (`tcp/1433`, `tcp/443`, …) — every line of one colour is the same service wherever it appears. Palette order follows *declaration* order, so the flow you write first gets the lead colour.
+- **Direction encodes intent.** An arrow runs initiator → listener and lands in a labelled **socket** on the listener's edge. A server exposing `tcp/1433` shows one socket with every client converging into it — the picture of "inbound" — while its own outbound calls leave from the opposite edge.
+
+**Inbound and outbound are therefore not stored on the data.** They're a point of view: the same flow is the client's outbound and the server's inbound. The renderer gets both readings for free from the geometry, so the model never has to pick one.
+
+Placement is derived from the flow graph itself, not from `tier` — a device that initiates but never listens sinks to the bottom, one that only listens rises to the top, anything doing both lands in between (longest-path layering over inbound edges).
+
 ## Roadmap
 
 - [x] Physical-layer model · layout · rebuilt router · `clean` + `blueprint` themes · CLI → SVG
 - [x] `.net` text DSL + parser (hand-authoring)
 - [x] Static **live editor** — autocomplete, inline diagnostics, samples, export, share-by-URL
-- [ ] More themes (dark NOC, monochrome, icon-rich) + rack-elevation view
-- [ ] LLM `compile_net` (model JSON in → `.net` + SVG out) for the generation path
-- [ ] Logical layer: VLANs, subnets, bond semantics (L2/L3 overlays on the same model)
+- [x] Logical layer: VLANs, subnets, bond semantics (L2/L3 overlays on the same model) — including `.net` text authoring (port/vlan/bond blocks)
+- [x] `compile_net` (model JSON in → `.net` + SVG out) for the generation path
+- [x] MCP server (`netscript mcp` — `compile_net` + `render_net`, mirrored from FlowScript)
+- [x] Isometric projection (`--projection iso`) — orthogonal to view, so every scene can be projected
+- [x] Traffic view (`--view traffic`) — L4 flows, service-coloured, initiator → listener with exposed-port sockets
+- [ ] REST `/render` endpoint
+- [ ] More themes (dark NOC, monochrome, icon-rich) + rack-elevation view; VLAN colouring in isometric
+- [ ] Crossing minimisation in the traffic view (devices currently keep author order within a level)
 - [ ] **Importers / discovery** — populate the model from real gear: UniFi → Proxmox → Portainer (the diagram that stays current)
 - [ ] SysML v2 export/import as an edge adapter (model interchange, not text parsing)
-- [ ] REST `/render` + MCP server (harness, mirrored from FlowScript)
 
 ## Design notes
 

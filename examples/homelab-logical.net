@@ -1,0 +1,55 @@
+---
+title: Homelab — Logical
+theme: blueprint-hybrid
+---
+
+# Exercises first-class PORTS, port<->port cabling, two VLANs (with subnets),
+# and a LAG bond on the server — the logical-layer DSL grammar.
+wan  cloud    "Internet" tier wan
+
+edge firewall "edge-fw" tier edge mgmt 10.0.0.1 {
+  port wan0 "wan0" speed WAN media RJ45 addr dhcp
+  port lan0 "lan0" speed 10G media SFP+ addr 10.0.0.1/24
+}
+
+core1 switch "core-sw" tier core mgmt 10.0.0.2 {
+  port te1 "te1" speed 10G media SFP+
+  port te2 "te2" speed 10G media SFP+
+  port te3 "te3" speed 10G media SFP+
+}
+
+rack A "Compute" {
+  tor1 switch "tor-sw" tier tor mgmt 10.0.10.2 {
+    port g1 "g1" speed 10G
+    port g2 "g2" speed 10G
+    port g3 "g3" speed 1G addr 10.0.10.2/24
+  }
+
+  srv1 server "host-01" {
+    port eth0 "eth0" speed 10G media SFP+
+    port eth1 "eth1" speed 10G media SFP+
+  }
+}
+
+edge.wan0 -> wan : WAN
+edge.lan0 -> core1.te1 : 10G
+tor1.g1 -> core1.te2 : 10G
+tor1.g1 -> srv1.eth0 : 10G lag
+tor1.g2 -> srv1.eth1 : 10G lag
+
+vlan 10 "mgmt" subnet 10.0.10.0/24 {
+  member tor1.g3
+  member srv1.eth0
+}
+
+vlan 20 "data" subnet 10.0.20.0/24 {
+  member core1.te2 tagged
+  member tor1.g1 tagged
+  member srv1.eth0 tagged
+  member srv1.eth1 tagged
+}
+
+bond lag1 on srv1 mode lacp {
+  member eth0
+  member eth1
+}

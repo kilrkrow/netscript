@@ -1,0 +1,32 @@
+---
+title: SQL Service — Traffic Flows
+theme: clean
+---
+
+# The FLOW layer (L4): who initiates to whom, on what service.
+# Colour is keyed on proto/port; the arrow runs initiator -> listener, so
+# sql-01's exposed sockets read as INBOUND and its own calls read as OUTBOUND.
+
+# --- clients (initiate only; they sink to the bottom) ---
+app1 desktop "app-01"
+app2 desktop "app-02"
+app3 desktop "app-03"
+
+# --- the service under discussion (listens AND initiates -> middle) ---
+sql01 server "sql-01"
+
+# --- upstream services sql-01 depends on (listen only -> top) ---
+dc01 server "dc-01"
+upd  cloud  "Windows Update"
+
+# inbound: every client converges on the one exposed SQL socket
+flow app1 -> sql01 : tcp/1433 "SQL"
+flow app2 -> sql01 : tcp/1433 "SQL"
+flow app3 -> sql01 : tcp/1433 "SQL"
+
+# inbound: a second exposed socket, admin-only — different port, different colour
+flow app1 -> sql01 : tcp/3389 "RDP"
+
+# outbound: sql-01 is the initiator here, so these leave its top edge
+flow sql01 -> dc01 : tcp/636 "LDAPS"
+flow sql01 -> upd  : tcp/443 "HTTPS"

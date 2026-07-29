@@ -156,16 +156,34 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
   if (tubePack.tubes.length) out.push(...drawTubesSvg(tubePack.tubes, S));
 
   // ---- nodes ----
+  // Label must fit inside the card: size comes from layout; still ellipsize as a belt.
+  const fitInBox = (label: string, maxW: number, px = 11.5): string => {
+    const charW = px * 0.58;
+    const maxChars = Math.max(1, Math.floor(maxW / charW));
+    if (label.length <= maxChars) return label;
+    if (maxChars <= 1) return "…";
+    return label.slice(0, maxChars - 1) + "…";
+  };
   for (const d of m.devices) {
     const cx = d.x!, cy = d.y!, w = d.w!, h = d.h!, kc = KIND_COLOR[d.kind];
     const filt = S.shadow ? ' filter="url(#sh)"' : "";
-    out.push(`<rect x="${(cx - w / 2).toFixed(1)}" y="${(cy - h / 2).toFixed(1)}" width="${w}" height="${h}" rx="${S.radius}" fill="${S.cardFill}" stroke="${S.cardStroke}" stroke-width="${S.cardStrokeW}"${filt}/>`);
-    const gx = cx - w / 2 + 19;
+    const x0 = cx - w / 2, y0 = cy - h / 2;
+    const clipId = `c_${d.id.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+    out.push(`<clipPath id="${clipId}"><rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w}" height="${h}" rx="${S.radius}"/></clipPath>`);
+    out.push(`<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w}" height="${h}" rx="${S.radius}" fill="${S.cardFill}" stroke="${S.cardStroke}" stroke-width="${S.cardStrokeW}"${filt}/>`);
+    const gx = x0 + 19;
     const hasMgmt = S.showMgmt && !!d.mgmt;   // only managed gear carries one
+    const textMax = w - 38; // chrome: glyph + right pad
+    const label = fitInBox(d.label, textMax);
+    out.push(`<g clip-path="url(#${clipId})">`);
     out.push(GLYPH[d.kind](gx, cy - (hasMgmt ? 6 : 0), 15, S.chipStroke ?? kc, "none", 1.4));
     const ty = hasMgmt ? cy - 4 : cy + 1;
-    out.push(`<text x="${(gx + 15).toFixed(1)}" y="${ty.toFixed(1)}" font-size="11.5" fill="${S.text}" font-weight="600" dominant-baseline="middle">${esc(d.label)}</text>`);
-    if (hasMgmt) out.push(`<text x="${(gx + 15).toFixed(1)}" y="${(cy + 10).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(d.mgmt!)}</text>`);
+    out.push(`<text x="${(gx + 15).toFixed(1)}" y="${ty.toFixed(1)}" font-size="11.5" fill="${S.text}" font-weight="600" dominant-baseline="middle">${esc(label)}</text>`);
+    if (hasMgmt) {
+      const mgmt = fitInBox(d.mgmt!, textMax, 9);
+      out.push(`<text x="${(gx + 15).toFixed(1)}" y="${(cy + 10).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(mgmt)}</text>`);
+    }
+    out.push(`</g>`);
   }
 
   // ---- logical overlay: bond brackets (+ optional VLAN badges when no tubes) ----

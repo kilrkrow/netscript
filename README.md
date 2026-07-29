@@ -266,6 +266,7 @@ Labels are rotated to their segment, flipped to stay upright, and halo'd so they
 - [ ] Crossing minimisation in the traffic view (devices currently keep author order within a level)
 - [ ] Service rows drawn on the block face in isometric (today iso falls back to along-line labels)
 - [ ] Label de-confliction — along-line labels can still collide in dense scenes
+- [ ] **Visio Ethernet tube + port/IP callouts** — subnet drawn as a thick “tube” labelled with the class (e.g. `192.168.86.0/24`); each host drop meets a bracket callout (`----[`) with physical port + address (e.g. `eth0` / `.1`). See [`docs/use-cases.md`](docs/use-cases.md).
 - [ ] **Importers / discovery** — populate the model from real gear: UniFi → Proxmox → Portainer (the diagram that stays current)
 - [ ] SysML v2 export/import as an edge adapter (model interchange, not text parsing)
 

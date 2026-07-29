@@ -102,12 +102,24 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
 - Inbound/outbound is never stored; it's read off arrow geometry, because it's
   a point of view rather than a property of a flow.
 - **Direction is marked at BOTH ends, differently**: an open ring where the
-  connection is opened, a solid arrowhead where it lands, plus a chevron on the
-  line. Don't collapse these to one mark — "which end initiates" is the whole
-  question the view exists to answer, and a line's lean doesn't answer it.
+  connection is opened, a solid arrowhead where it lands, plus a *lighter*
+  chevron on the line. Don't collapse these to one mark — "which end initiates"
+  is the whole question the view exists to answer, and a line's lean doesn't
+  answer it. Terminal head size (`ARROW`) must stay heavier than the mid-line
+  chevron (`ARROW_MID`); tall multi-service hosts make small heads look weak.
+- **Along-line labels hug the wire.** Use `labelSegment` (path-mid, not pure
+  longest run) and a small `labelAlong` offset (~4). Large standoffs make
+  captions look free-floating. Halo stroke stays thin (~2.2).
+- **Final approach is a right-angle stub.** `ENTRY_STUB` (~ arrow + 2×corner
+  radius) is the minimum length of the last orthogonal run into a row/socket.
+  Short stubs get eaten by path rounding so the head looks diagonal. Collapse
+  mid-route jogs shorter than ~0.85×ENTRY_STUB. Arrow orientation uses
+  `approachRef` (walk back along the polyline), not just `pts[n-2]`.
 - **Don't repeat a fact the line already carries.** Iso labels state
   `use case · proto/port` along the line, so there is deliberately no port chip
   at the landing point. Flat states it on the row instead, for the same reason.
+- Upcoming documentation style: Visio **Ethernet tube + port/IP callout** —
+  see [`docs/use-cases.md`](docs/use-cases.md).
 - Geometry here does not show up in types OR in a glance at the SVG. When
   changing layout, verify: no card overlap, rows contained, flows terminating
   on their row/socket, and no route crossing a card it doesn't belong to.

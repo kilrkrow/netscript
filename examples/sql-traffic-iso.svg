@@ -1,63 +1,63 @@
-<svg viewBox="0 0 1007 749" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
-<rect width="1007" height="749" fill="#ffffff"/>
-<polyline points="152.0,231.7 200.5,203.7 436.1,339.7 510.5,296.7" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="152.0" cy="231.7" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-<polyline points="415.9,384.0 449.6,364.5 421.3,348.2 510.5,296.7" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="415.9" cy="384.0" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-<polyline points="651.4,520.0 729.4,475.0 465.5,322.7 510.5,296.7" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="651.4" cy="520.0" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
-<polyline points="208.6,264.3 271.8,227.8 507.4,363.8 567.1,329.3" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="208.6" cy="264.3" r="4" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
-<polyline points="566.0,264.7 635.2,224.7 545.8,173.0 590.8,147.0" fill="none" stroke="#db2777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="566.0" cy="264.7" r="4" fill="#ffffff" stroke="#db2777" stroke-width="2"/>
-<polyline points="622.5,297.3 677.1,265.8 766.6,317.5 826.4,283.0" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="622.5" cy="297.3" r="4" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
-<polygon points="505.9,98.0 675.7,196.0 675.7,170.0 505.9,72.0" fill="#342e97" stroke="#d7dbe2" stroke-width="1"/><polygon points="731.1,164.0 675.7,196.0 675.7,170.0 731.1,138.0" fill="#4139bc" stroke="#d7dbe2" stroke-width="1"/><polygon points="561.3,40.0 731.1,138.0 675.7,170.0 505.9,72.0" fill="#d8d6f9" stroke="#d7dbe2" stroke-width="1"/>
-<rect x="613.4" y="98.2" width="10.1" height="13.7" rx="3" fill="none" stroke="#4f46e5" stroke-width="1.3"/><line x1="615.3" y1="101.5" x2="620.3" y2="101.5" stroke="#4f46e5" stroke-width="1.3"/><circle cx="621.5" cy="101.5" r="1.3" fill="#4f46e5"/><line x1="615.3" y1="105.0" x2="620.3" y2="105.0" stroke="#4f46e5" stroke-width="1.3"/><circle cx="621.5" cy="105.0" r="1.3" fill="#4f46e5"/><line x1="615.3" y1="108.5" x2="620.3" y2="108.5" stroke="#4f46e5" stroke-width="1.3"/><circle cx="621.5" cy="108.5" r="1.3" fill="#4f46e5"/>
-<text x="675.7" y="211.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">dc-01</text>
-<polygon points="40.0,231.0 209.7,329.0 209.7,303.0 40.0,205.0" fill="#2f3845" stroke="#d7dbe2" stroke-width="1"/><polygon points="265.2,297.0 209.7,329.0 209.7,303.0 265.2,271.0" fill="#3a4656" stroke="#d7dbe2" stroke-width="1"/><polygon points="95.4,173.0 265.2,271.0 209.7,303.0 40.0,205.0" fill="#d7dade" stroke="#d7dbe2" stroke-width="1"/>
-<rect x="145.1" y="231.6" width="14.9" height="10.1" rx="3" fill="none" stroke="#475569" stroke-width="1.3"/><line x1="152.6" y1="241.8" x2="152.6" y2="244.6" stroke="#475569" stroke-width="1.3"/><line x1="148.8" y1="244.6" x2="156.3" y2="244.6" stroke="#475569" stroke-width="1.3"/>
-<text x="209.7" y="344.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">app-01</text>
-<polygon points="741.5,234.0 911.2,332.0 911.2,306.0 741.5,208.0" fill="#424d5c" stroke="#d7dbe2" stroke-width="1"/><polygon points="966.6,300.0 911.2,332.0 911.2,306.0 966.6,274.0" fill="#525f72" stroke="#d7dbe2" stroke-width="1"/><polygon points="796.9,176.0 966.6,274.0 911.2,306.0 741.5,208.0" fill="#dde0e5" stroke="#d7dbe2" stroke-width="1"/>
-<g transform="translate(843.7,234.5) scale(0.325)"><path d="M54,40 H14 C6.3,40 0,33.7 0,26 0,18.8 5.4,12.9 12.4,12.1 14.7,5.1 21.3,0 29,0 c8,0 14.7,5.5 16.6,12.9 C53.4,13.6 64,18.3 64,26 64,33.7 60.6,40 54,40 Z" fill="none" stroke="#64748b" stroke-width="4.00"/></g>
-<text x="911.2" y="347.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">Windows Update</text>
-<polygon points="454.0,264.0 623.7,362.0 623.7,336.0 454.0,238.0" fill="#342e97" stroke="#d7dbe2" stroke-width="1"/><polygon points="679.1,330.0 623.7,362.0 623.7,336.0 679.1,304.0" fill="#4139bc" stroke="#d7dbe2" stroke-width="1"/><polygon points="509.4,206.0 679.1,304.0 623.7,336.0 454.0,238.0" fill="#d8d6f9" stroke="#d7dbe2" stroke-width="1"/>
-<rect x="561.5" y="264.2" width="10.1" height="13.7" rx="3" fill="none" stroke="#4f46e5" stroke-width="1.3"/><line x1="563.3" y1="267.5" x2="568.4" y2="267.5" stroke="#4f46e5" stroke-width="1.3"/><circle cx="569.6" cy="267.5" r="1.3" fill="#4f46e5"/><line x1="563.3" y1="271.0" x2="568.4" y2="271.0" stroke="#4f46e5" stroke-width="1.3"/><circle cx="569.6" cy="271.0" r="1.3" fill="#4f46e5"/><line x1="563.3" y1="274.5" x2="568.4" y2="274.5" stroke="#4f46e5" stroke-width="1.3"/><circle cx="569.6" cy="274.5" r="1.3" fill="#4f46e5"/>
-<text x="623.7" y="377.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">sql-01</text>
-<polygon points="275.6,367.0 445.3,465.0 445.3,439.0 275.6,341.0" fill="#2f3845" stroke="#d7dbe2" stroke-width="1"/><polygon points="500.7,433.0 445.3,465.0 445.3,439.0 500.7,407.0" fill="#3a4656" stroke="#d7dbe2" stroke-width="1"/><polygon points="331.0,309.0 500.7,407.0 445.3,439.0 275.6,341.0" fill="#d7dade" stroke="#d7dbe2" stroke-width="1"/>
-<rect x="380.7" y="367.6" width="14.9" height="10.1" rx="3" fill="none" stroke="#475569" stroke-width="1.3"/><line x1="388.1" y1="377.8" x2="388.1" y2="380.6" stroke="#475569" stroke-width="1.3"/><line x1="384.4" y1="380.6" x2="391.9" y2="380.6" stroke="#475569" stroke-width="1.3"/>
-<text x="445.3" y="480.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">app-02</text>
-<polygon points="511.1,503.0 680.9,601.0 680.9,575.0 511.1,477.0" fill="#2f3845" stroke="#d7dbe2" stroke-width="1"/><polygon points="736.3,569.0 680.9,601.0 680.9,575.0 736.3,543.0" fill="#3a4656" stroke="#d7dbe2" stroke-width="1"/><polygon points="566.5,445.0 736.3,543.0 680.9,575.0 511.1,477.0" fill="#d7dade" stroke="#d7dbe2" stroke-width="1"/>
-<rect x="616.2" y="503.6" width="14.9" height="10.1" rx="3" fill="none" stroke="#475569" stroke-width="1.3"/><line x1="623.7" y1="513.8" x2="623.7" y2="516.6" stroke="#475569" stroke-width="1.3"/><line x1="620.0" y1="516.6" x2="627.4" y2="516.6" stroke="#475569" stroke-width="1.3"/>
-<text x="680.9" y="616.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">app-03</text>
-<path d="M 510.5,296.7 L 505.1,305.2 L 500.4,297.1 Z" fill="#2563eb"/>
-<path d="M 510.5,296.7 L 505.1,305.2 L 500.4,297.1 Z" fill="#2563eb"/>
-<path d="M 510.5,296.7 L 505.1,305.2 L 500.4,297.1 Z" fill="#2563eb"/>
-<path d="M 567.1,329.3 L 561.7,337.9 L 557.0,329.8 Z" fill="#16a34a"/>
-<path d="M 590.8,147.0 L 585.3,155.6 L 580.7,147.4 Z" fill="#db2777"/>
-<path d="M 826.4,283.0 L 820.9,291.6 L 816.2,283.4 Z" fill="#d97706"/>
-<path d="M 325.2,275.7 L 316.2,275.3 L 320.4,268.1 Z" fill="#2563eb"/>
-<text transform="rotate(30.0 318.3 271.7)" x="318.3" y="262.7" font-size="8.5" text-anchor="middle" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">SQL · tcp/1433</text>
-<path d="M 472.9,318.4 L 468.0,326.0 L 463.9,318.8 Z" fill="#2563eb"/>
-<text transform="rotate(-30.0 465.9 322.4)" x="465.9" y="313.4" font-size="8.5" text-anchor="middle" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">SQL · tcp/1433</text>
-<path d="M 590.5,394.8 L 599.5,395.2 L 595.4,402.4 Z" fill="#2563eb"/>
-<text transform="rotate(30.0 597.4 398.8)" x="597.4" y="389.8" font-size="8.5" text-anchor="middle" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">SQL · tcp/1433</text>
-<path d="M 396.5,299.8 L 387.5,299.4 L 391.7,292.2 Z" fill="#16a34a"/>
-<text transform="rotate(30.0 389.6 295.8)" x="389.6" y="286.8" font-size="8.5" text-anchor="middle" fill="#16a34a" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">RDP · tcp/3389</text>
-<path d="M 583.6,194.8 L 592.6,195.2 L 588.4,202.4 Z" fill="#db2777"/>
-<text transform="rotate(30.0 590.5 198.8)" x="590.5" y="189.8" font-size="8.5" text-anchor="middle" fill="#db2777" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">LDAPS · tcp/636</text>
-<path d="M 728.8,295.7 L 719.8,295.3 L 723.9,288.1 Z" fill="#d97706"/>
-<text transform="rotate(30.0 721.9 291.7)" x="721.9" y="282.7" font-size="8.5" text-anchor="middle" fill="#d97706" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">HTTPS · tcp/443</text>
-<text x="18" y="687.0" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="1">SERVICES</text>
-<line x1="100.0" y1="683.5" x2="120.0" y2="683.5" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round"/>
-<text x="126.0" y="687.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/1433 · SQL</text>
-<line x1="225.4" y1="683.5" x2="245.4" y2="683.5" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round"/>
-<text x="251.4" y="687.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/3389 · RDP</text>
-<line x1="350.8" y1="683.5" x2="370.8" y2="683.5" stroke="#db2777" stroke-width="3.2" stroke-linecap="round"/>
-<text x="376.8" y="687.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/636 · LDAPS</text>
-<line x1="482.3" y1="683.5" x2="502.3" y2="683.5" stroke="#d97706" stroke-width="3.2" stroke-linecap="round"/>
-<text x="508.3" y="687.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/443 · HTTPS</text>
-<text x="18" y="709.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">○ OPENS THE CONNECTION · ▶ DIRECTION OF TRAFFIC · ARROWHEAD LANDS ON THE LISTENING PORT</text>
+<svg viewBox="0 0 1009 751" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+<rect width="1009" height="751" fill="#ffffff"/>
+<polyline points="152.0,233.2 200.5,205.2 436.1,341.2 513.1,296.7" fill="none" stroke="#2563eb" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="152.0" cy="233.2" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.25"/>
+<polyline points="415.9,385.5 449.6,366.0 421.3,349.7 513.1,296.7" fill="none" stroke="#2563eb" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="415.9" cy="385.5" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.25"/>
+<polyline points="651.4,521.5 790.0,441.5 526.1,289.2 513.1,296.7" fill="none" stroke="#2563eb" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="651.4" cy="521.5" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.25"/>
+<polyline points="208.6,265.8 271.8,229.3 507.4,365.3 569.7,329.3" fill="none" stroke="#16a34a" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="208.6" cy="265.8" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2.25"/>
+<polyline points="568.6,264.7 695.9,191.2 606.4,139.5 593.4,147.0" fill="none" stroke="#db2777" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="568.6" cy="264.7" r="4.5" fill="#ffffff" stroke="#db2777" stroke-width="2.25"/>
+<polyline points="625.1,297.3 677.1,267.3 766.6,319.0 828.9,283.0" fill="none" stroke="#d97706" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="625.1" cy="297.3" r="4.5" fill="#ffffff" stroke="#d97706" stroke-width="2.25"/>
+<polygon points="508.5,98.0 678.3,196.0 678.3,170.0 508.5,72.0" fill="#342e97" stroke="#d7dbe2" stroke-width="1"/><polygon points="733.7,164.0 678.3,196.0 678.3,170.0 733.7,138.0" fill="#4139bc" stroke="#d7dbe2" stroke-width="1"/><polygon points="563.9,40.0 733.7,138.0 678.3,170.0 508.5,72.0" fill="#d8d6f9" stroke="#d7dbe2" stroke-width="1"/>
+<rect x="616.0" y="98.2" width="10.1" height="13.7" rx="3" fill="none" stroke="#4f46e5" stroke-width="1.3"/><line x1="617.9" y1="101.5" x2="622.9" y2="101.5" stroke="#4f46e5" stroke-width="1.3"/><circle cx="624.1" cy="101.5" r="1.3" fill="#4f46e5"/><line x1="617.9" y1="105.0" x2="622.9" y2="105.0" stroke="#4f46e5" stroke-width="1.3"/><circle cx="624.1" cy="105.0" r="1.3" fill="#4f46e5"/><line x1="617.9" y1="108.5" x2="622.9" y2="108.5" stroke="#4f46e5" stroke-width="1.3"/><circle cx="624.1" cy="108.5" r="1.3" fill="#4f46e5"/>
+<text x="678.3" y="211.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">dc-01</text>
+<polygon points="40.0,232.5 209.7,330.5 209.7,304.5 40.0,206.5" fill="#2f3845" stroke="#d7dbe2" stroke-width="1"/><polygon points="265.2,298.5 209.7,330.5 209.7,304.5 265.2,272.5" fill="#3a4656" stroke="#d7dbe2" stroke-width="1"/><polygon points="95.4,174.5 265.2,272.5 209.7,304.5 40.0,206.5" fill="#d7dade" stroke="#d7dbe2" stroke-width="1"/>
+<rect x="145.1" y="233.1" width="14.9" height="10.1" rx="3" fill="none" stroke="#475569" stroke-width="1.3"/><line x1="152.6" y1="243.3" x2="152.6" y2="246.1" stroke="#475569" stroke-width="1.3"/><line x1="148.8" y1="246.1" x2="156.3" y2="246.1" stroke="#475569" stroke-width="1.3"/>
+<text x="209.7" y="345.5" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">app-01</text>
+<polygon points="744.1,234.0 913.8,332.0 913.8,306.0 744.1,208.0" fill="#424d5c" stroke="#d7dbe2" stroke-width="1"/><polygon points="969.2,300.0 913.8,332.0 913.8,306.0 969.2,274.0" fill="#525f72" stroke="#d7dbe2" stroke-width="1"/><polygon points="799.5,176.0 969.2,274.0 913.8,306.0 744.1,208.0" fill="#dde0e5" stroke="#d7dbe2" stroke-width="1"/>
+<g transform="translate(846.3,234.5) scale(0.325)"><path d="M54,40 H14 C6.3,40 0,33.7 0,26 0,18.8 5.4,12.9 12.4,12.1 14.7,5.1 21.3,0 29,0 c8,0 14.7,5.5 16.6,12.9 C53.4,13.6 64,18.3 64,26 64,33.7 60.6,40 54,40 Z" fill="none" stroke="#64748b" stroke-width="4.00"/></g>
+<text x="913.8" y="347.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">Windows Update</text>
+<polygon points="456.6,264.0 626.3,362.0 626.3,336.0 456.6,238.0" fill="#342e97" stroke="#d7dbe2" stroke-width="1"/><polygon points="681.7,330.0 626.3,362.0 626.3,336.0 681.7,304.0" fill="#4139bc" stroke="#d7dbe2" stroke-width="1"/><polygon points="512.0,206.0 681.7,304.0 626.3,336.0 456.6,238.0" fill="#d8d6f9" stroke="#d7dbe2" stroke-width="1"/>
+<rect x="564.1" y="264.2" width="10.1" height="13.7" rx="3" fill="none" stroke="#4f46e5" stroke-width="1.3"/><line x1="565.9" y1="267.5" x2="571.0" y2="267.5" stroke="#4f46e5" stroke-width="1.3"/><circle cx="572.2" cy="267.5" r="1.3" fill="#4f46e5"/><line x1="565.9" y1="271.0" x2="571.0" y2="271.0" stroke="#4f46e5" stroke-width="1.3"/><circle cx="572.2" cy="271.0" r="1.3" fill="#4f46e5"/><line x1="565.9" y1="274.5" x2="571.0" y2="274.5" stroke="#4f46e5" stroke-width="1.3"/><circle cx="572.2" cy="274.5" r="1.3" fill="#4f46e5"/>
+<text x="626.3" y="377.0" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">sql-01</text>
+<polygon points="275.6,368.5 445.3,466.5 445.3,440.5 275.6,342.5" fill="#2f3845" stroke="#d7dbe2" stroke-width="1"/><polygon points="500.7,434.5 445.3,466.5 445.3,440.5 500.7,408.5" fill="#3a4656" stroke="#d7dbe2" stroke-width="1"/><polygon points="331.0,310.5 500.7,408.5 445.3,440.5 275.6,342.5" fill="#d7dade" stroke="#d7dbe2" stroke-width="1"/>
+<rect x="380.7" y="369.1" width="14.9" height="10.1" rx="3" fill="none" stroke="#475569" stroke-width="1.3"/><line x1="388.1" y1="379.3" x2="388.1" y2="382.1" stroke="#475569" stroke-width="1.3"/><line x1="384.4" y1="382.1" x2="391.9" y2="382.1" stroke="#475569" stroke-width="1.3"/>
+<text x="445.3" y="481.5" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">app-02</text>
+<polygon points="511.1,504.5 680.9,602.5 680.9,576.5 511.1,478.5" fill="#2f3845" stroke="#d7dbe2" stroke-width="1"/><polygon points="736.3,570.5 680.9,602.5 680.9,576.5 736.3,544.5" fill="#3a4656" stroke="#d7dbe2" stroke-width="1"/><polygon points="566.5,446.5 736.3,544.5 680.9,576.5 511.1,478.5" fill="#d7dade" stroke="#d7dbe2" stroke-width="1"/>
+<rect x="616.2" y="505.1" width="14.9" height="10.1" rx="3" fill="none" stroke="#475569" stroke-width="1.3"/><line x1="623.7" y1="515.3" x2="623.7" y2="518.1" stroke="#475569" stroke-width="1.3"/><line x1="620.0" y1="518.1" x2="627.4" y2="518.1" stroke="#475569" stroke-width="1.3"/>
+<text x="680.9" y="617.5" font-size="10" text-anchor="middle" fill="#1f2430" font-weight="600">app-03</text>
+<path d="M 513.1,296.7 L 506.2,308.7 L 499.3,296.6 Z" fill="#2563eb"/>
+<path d="M 513.1,296.7 L 506.2,308.7 L 499.3,296.6 Z" fill="#2563eb"/>
+<path d="M 513.1,296.7 L 522.7,286.7 L 526.6,300.0 Z" fill="#2563eb"/>
+<path d="M 569.7,329.3 L 562.8,341.4 L 555.8,329.3 Z" fill="#16a34a"/>
+<path d="M 593.4,147.0 L 603.0,137.0 L 606.8,150.4 Z" fill="#db2777"/>
+<path d="M 828.9,283.0 L 822.0,295.0 L 815.1,283.0 Z" fill="#d97706"/>
+<path d="M 323.5,276.2 L 316.5,276.2 L 320.0,270.2 Z" fill="#2563eb"/>
+<text transform="rotate(30.0 318.3 273.2)" x="318.3" y="269.2" font-size="8.5" text-anchor="middle" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">SQL · tcp/1433</text>
+<path d="M 472.4,320.2 L 469.0,326.2 L 465.5,320.2 Z" fill="#2563eb"/>
+<text transform="rotate(-30.0 467.2 323.2)" x="467.2" y="319.2" font-size="8.5" text-anchor="middle" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">SQL · tcp/1433</text>
+<path d="M 652.9,362.3 L 659.8,362.3 L 656.3,368.3 Z" fill="#2563eb"/>
+<text transform="rotate(30.0 658.1 365.3)" x="658.1" y="361.3" font-size="8.5" text-anchor="middle" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">SQL · tcp/1433</text>
+<path d="M 394.8,300.3 L 387.8,300.3 L 391.3,294.3 Z" fill="#16a34a"/>
+<text transform="rotate(30.0 389.6 297.3)" x="389.6" y="293.3" font-size="8.5" text-anchor="middle" fill="#16a34a" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">RDP · tcp/3389</text>
+<path d="M 637.4,224.9 L 634.0,230.9 L 630.5,224.9 Z" fill="#db2777"/>
+<text transform="rotate(-30.0 632.2 227.9)" x="632.2" y="223.9" font-size="8.5" text-anchor="middle" fill="#db2777" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">LDAPS · tcp/636</text>
+<path d="M 727.0,296.2 L 720.1,296.2 L 723.6,290.2 Z" fill="#d97706"/>
+<text transform="rotate(30.0 721.9 293.2)" x="721.9" y="289.2" font-size="8.5" text-anchor="middle" fill="#d97706" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round">HTTPS · tcp/443</text>
+<text x="18" y="688.5" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="1">SERVICES</text>
+<line x1="100.0" y1="685.0" x2="120.0" y2="685.0" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round"/>
+<text x="126.0" y="688.5" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/1433 · SQL</text>
+<line x1="225.4" y1="685.0" x2="245.4" y2="685.0" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round"/>
+<text x="251.4" y="688.5" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/3389 · RDP</text>
+<line x1="350.8" y1="685.0" x2="370.8" y2="685.0" stroke="#db2777" stroke-width="3.2" stroke-linecap="round"/>
+<text x="376.8" y="688.5" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/636 · LDAPS</text>
+<line x1="482.3" y1="685.0" x2="502.3" y2="685.0" stroke="#d97706" stroke-width="3.2" stroke-linecap="round"/>
+<text x="508.3" y="688.5" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/443 · HTTPS</text>
+<text x="18" y="710.5" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">○ OPENS THE CONNECTION · ▶ DIRECTION OF TRAFFIC · ARROWHEAD LANDS ON THE LISTENING PORT</text>
 <text x="18" y="24" font-size="12.5" fill="#1f2430" font-weight="700" letter-spacing="0.4">SQL Service — Traffic Flows</text>
 <text x="18" y="39" font-size="9.5" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="1">TRAFFIC · L4 FLOWS · 6 FLOWS · 4 SERVICES · ISOMETRIC</text>
 </svg>

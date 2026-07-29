@@ -17,13 +17,29 @@ import { resolveSegments, portOf } from "./logical.ts";
 
 const TUBE_H = 20;
 const BAND_GAP = 96;
-const TUBE_PITCH = 100;
+/** Vertical pitch between stacked tubes (second tube sits under the first). */
+const TUBE_PITCH = 88;
 const SIDE_PAD = 56;
 /** Leader sideways clearance from the interface to the flag bar. */
 const ARM_DX = 64;
 /** Leader drops this far so the flag sits under the stagger gap. */
 const ARM_DY = 32;
 const FLAG_HALF = 11;
+
+/**
+ * Tube already carries the class C (e.g. 192.168.86.0/24) — callouts only need
+ * the host part. Full IPv4 → ".198"; bare ".198" or "198" stays as ".198".
+ */
+export function hostOctet(addr?: string): string | undefined {
+  if (!addr) return undefined;
+  const s = addr.trim();
+  if (!s) return undefined;
+  if (s.startsWith(".")) return s;                     // already ".10"
+  const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (m) return `.${m[4]}`;                             // classful last octet
+  if (/^\d{1,3}$/.test(s)) return `.${s}`;              // bare number
+  return s;                                             // hostname / other
+}
 
 export interface TubeDrop {
   device: string;
@@ -96,7 +112,8 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
         device: mem.device,
         port: mem.port,
         portLabel: portObj?.name ?? mem.port,
-        addr: mem.addr,
+        // Class C lives on the tube — callout only needs the host octet.
+        addr: hostOctet(mem.addr),
         dx: d.x,
         yBottom: d.y + d.h / 2,
       });
@@ -113,6 +130,7 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
     for (const p of placed) totals.set(p.device, (totals.get(p.device) ?? 0) + 1);
     const seen = new Map<string, number>();
 
+    // Tubes stack top→bottom under all clients; each drop runs straight down.
     const tubeTop = bandY + 8;
     const y = tubeTop + TUBE_H / 2;
 
@@ -121,13 +139,10 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
       const nth = seen.get(p.device) ?? 0;
       seen.set(p.device, nth + 1);
       const total = totals.get(p.device) ?? 1;
-      // Fan only multi-port on ONE card — never invent a column away from the device.
       const fan = total > 1 ? (nth - (total - 1) / 2) * 12 : 0;
       const x = p.dx + fan;
-      // Interface point: bottom centre of the device (plus tiny multi-port fan).
       const iface: Pt = { x, y: p.yBottom };
       const path: Pt[] = [iface, { x, y: tubeTop }];
-      // Alternate flag side so neighbours don't collide; prefer outside of pack.
       const spurRight = i % 2 === 0;
 
       drops.push({
@@ -141,9 +156,10 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
       });
     });
 
-    const xs = drops.map((d) => d.spurRoot.x);
-    const x1 = Math.min(...xs) - SIDE_PAD;
-    const x2 = Math.max(...xs) + SIDE_PAD;
+    // Span full client field so stacked tubes read as parallel buses, not
+    // side-by-side islands under each rack.
+    const x1 = bounds.minX - SIDE_PAD;
+    const x2 = bounds.maxX + SIDE_PAD;
 
     tubes.push({
       id: seg.id,
@@ -155,7 +171,8 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
       x2,
       drops,
     });
-    bandY = y + TUBE_H / 2 + TUBE_PITCH * 0.55;
+    // Next tube sits cleanly beneath this one; lines continue down from clients.
+    bandY = y + TUBE_H / 2 + TUBE_PITCH;
   });
 
   if (tubes.length) {

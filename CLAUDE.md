@@ -125,9 +125,11 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
      interface) — not offset below the box, not mid-span, not at the bus.
   2. Leader from that point to a vertical **flag bar** ("|"); port + addr
      stack beside the bar — not a square-bracket "[" terminator.
-  3. Pure vertical drops; no doglegs through the rack. Hosts + edge gateways
-     drop; core/ToR fabric members do not (unless the segment has no hosts).
-  4. Ports already on a segment callout are **not** also L1 port chips.
+  3. Tube carries the class C CIDR; callouts show **last octet only** (`.198`).
+  4. Multiple tubes **stack vertically** under the clients; drops run straight down.
+  5. Pure vertical drops from device edge. Hosts + edge gateways drop; core/ToR
+     fabric members do not (unless the segment has no hosts).
+  6. Ports already on a segment callout are **not** also L1 port chips.
 - Geometry here does not show up in types OR in a glance at the SVG. When
   changing layout, verify: no card overlap, rows contained, flows terminating
   on their row/socket, and no route crossing a card it doesn't belong to.

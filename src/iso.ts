@@ -24,7 +24,7 @@ import { resolveTheme } from "./themes.ts";
 import { GLYPH, KIND_COLOR } from "./glyphs.ts";
 import { layoutModel, type Zone } from "./layout.ts";
 import { buildRoutes } from "./router.ts";
-import { layoutTraffic, arrowHead, labelAlong, longestSegment } from "./traffic.ts";
+import { layoutTraffic, arrowHead, approachRef, labelAlong, labelSegment, ARROW, ARROW_MID } from "./traffic.ts";
 
 const COS30 = Math.cos(Math.PI / 6);
 const SIN30 = 0.5;
@@ -247,11 +247,11 @@ export function renderTrafficIso(m: NetModel, themeName: string | Theme = "clean
   T.flows.forEach((f, i) => {
     const pts = shiftedRoutes[i];
     const col = T.color(f), dash = T.dash(f);
-    out.push(`<polyline points="${poly(pts)}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    out.push(`<polyline points="${poly(pts)}" fill="none" stroke="${col}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
     // OPEN ring = the end that opens the connection; the solid arrowhead at the
     // far end is where it lands. Two different marks, so the reader never has to
     // infer initiation from which way a line happens to lean.
-    out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4" fill="${S.bg}" stroke="${col}" stroke-width="2"/>`);
+    out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4.5" fill="${S.bg}" stroke="${col}" stroke-width="2.25"/>`);
   });
 
   out.push(...drawBlocks(m.devices, devBox, C, S));
@@ -260,26 +260,31 @@ export function renderTrafficIso(m: NetModel, themeName: string | Theme = "clean
   // can otherwise fall behind whatever block sits in front of it.
   T.flows.forEach((f, i) => {
     const pts = shiftedRoutes[i];
-    out.push(arrowHead(pts[pts.length - 1], pts[pts.length - 2], T.color(f)));
+    // Terminal head is the heavy mark (lands on the listening host). Orient from
+    // the final orthogonal stub so short post-bend runs still read square.
+    const tip = pts[pts.length - 1]!;
+    out.push(arrowHead(tip, approachRef(pts), T.color(f), ARROW));
   });
-  // The USE CASE, laid along each line, with a chevron ON the line showing
-  // which way the connection is opened. A projected block has no rows to read,
-  // so the line has to carry both facts itself: what the traffic is for, and
-  // which end initiates it. No port chip at the landing point — the label
-  // already states the port, and repeating it there is pure clutter.
+  // The USE CASE, laid along each line, with a small chevron ON the line
+  // showing direction. A projected block has no rows to read, so the line
+  // carries both facts itself: what the traffic is for, and which end
+  // initiates it. No port chip at the landing point — the label already
+  // states the port, and repeating it there is pure clutter.
   T.flows.forEach((f, i) => {
     const r = T.resolved.get(f)!;
     const pts = shiftedRoutes[i];
     const port = r.port === undefined ? r.proto : `${r.proto}/${r.port}`;
     const text = r.name ? `${r.name} · ${port}` : port;
-    const [p, q] = longestSegment(pts);
+    // Anchor near path mid (not pure longest run) so labels hug the flow
+    // rather than floating on a distant horizontal bus.
+    const [p, q] = labelSegment(pts);
     const col = T.color(f);
-    // chevron at the segment midpoint, pointing the way traffic travels
     const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy) || 1;
     const mid = { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 };
-    const tip = { x: mid.x + (dx / len) * 8, y: mid.y + (dy / len) * 8 };
-    out.push(arrowHead(tip, mid, col, 8));
-    out.push(labelAlong(p, q, text, col, S, 8.5, 9));
+    const tip = { x: mid.x + (dx / len) * ARROW_MID, y: mid.y + (dy / len) * ARROW_MID };
+    // Mid-line chevron stays lighter than the terminal head.
+    out.push(arrowHead(tip, mid, col, ARROW_MID));
+    out.push(labelAlong(p, q, text, col, S, 8.5, 4));
   });
 
   // service legend (wraps — a vendor port table can carry a lot of services)

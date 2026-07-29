@@ -60,10 +60,19 @@ const LANE_GAP = 17;
 // Socket geometry (hosts with no declared services), down from the card edge.
 const STUB = 7, CHIP_H = 16;
 const SOCKET_DROP = STUB + CHIP_H;
-const ARROW = 9;
+// Terminal heads need weight on multi-service / tall cards (a 9px head reads as
+// decoration on something like a federated app host). Mid-line chevrons stay smaller.
+const ARROW = 12;
+const ARROW_MID = 6;
+// Corner radius on the drawn polyline (see path()). The final orthogonal run into
+// a card must stay longer than radius+head, or the stroke is still mid-curve when
+// the arrowhead fires — reads as a diagonal stab instead of a right-angle entry.
+const PATH_CORNER_R = 8;
+const ENTRY_STUB = ARROW + PATH_CORNER_R * 2 + 10; // ~38px clear ortho before tip
 
 // Approach corridor beside a container card, for flows landing on rows.
-const APPROACH_BASE = 22, APPROACH_STEP = 11;
+// Innermost lane must leave room for ENTRY_STUB of horizontal into the edge.
+const APPROACH_BASE = ENTRY_STUB, APPROACH_STEP = 12;
 
 /**
  * Break cycles, then layer by longest path over inbound edges.
@@ -342,6 +351,35 @@ export function layoutTraffic(m: NetModel, S: Theme): TrafficLayout {
     channelX.set(f, toLeft ? leftMost - 40 - i * 16 : rightMost + 40 + i * 16);
   });
 
+  /** Append a point; drop near-zero runs; force one orthogonal bend if both axes change. */
+  const pushPt = (pts: Pt[], x: number, y: number): void => {
+    const L = pts[pts.length - 1];
+    if (!L) { pts.push({ x, y }); return; }
+    if (Math.hypot(x - L.x, y - L.y) < 1) return;
+    if (Math.abs(x - L.x) >= 1 && Math.abs(y - L.y) >= 1) {
+      // Horizontal then vertical so every corner is a true right angle (never a diagonal).
+      pts.push({ x, y: L.y });
+      if (Math.abs(y - L.y) >= 1) pts.push({ x, y });
+      return;
+    }
+    pts.push({ x, y });
+  };
+
+  /** Drop collinear midpoints so path() doesn't invent corners on a straight run. */
+  const simplifyOrtho = (pts: Pt[]): Pt[] => {
+    if (pts.length < 3) return pts;
+    const out: Pt[] = [pts[0]!];
+    for (let i = 1; i < pts.length - 1; i++) {
+      const a = out[out.length - 1]!, b = pts[i]!, c = pts[i + 1]!;
+      const abH = Math.abs(a.y - b.y) < 0.5, abV = Math.abs(a.x - b.x) < 0.5;
+      const bcH = Math.abs(b.y - c.y) < 0.5, bcV = Math.abs(b.x - c.x) < 0.5;
+      if ((abH && bcH) || (abV && bcV)) continue; // collinear — skip b
+      out.push(b);
+    }
+    out.push(pts[pts.length - 1]!);
+    return out;
+  };
+
   const routeOf = (f: Flow): Pt[] => {
     const a = id.get(f.from)!, b = id.get(f.to)!;
     const r = resolved.get(f)!;
@@ -355,21 +393,48 @@ export function layoutTraffic(m: NetModel, S: Theme): TrafficLayout {
 
     // level-skipping flows detour via an outer channel before climbing
     const chan = channelX.get(f);
-    const lead: Pt[] = chan === undefined
-      ? [{ x: ax, y: ay }]
-      : [{ x: ax, y: ay }, { x: ax, y: ay - 26 }, { x: chan, y: ay - 26 }];
+    const pts: Pt[] = [{ x: ax, y: ay }];
+    if (chan !== undefined) {
+      pushPt(pts, ax, ay - 26);
+      pushPt(pts, chan, ay - 26);
+    }
     const climbX = chan ?? ax;
 
     if (r.svcId) {
       const row = rowOf.get(`${f.to}.${r.svcId}`)!;
-      const apx = approachX.get(f)!;
+      const edgeX = b.x! - b.w! / 2;
+      // Final horizontal into the left edge must clear corner radius + arrowhead.
+      let apx = approachX.get(f)!;
+      if (edgeX - apx < ENTRY_STUB) apx = edgeX - ENTRY_STUB;
       const ly = flowLane.get(f) ?? (ay + row.y) / 2;
-      return [...lead, { x: climbX, y: ly }, { x: apx, y: ly }, { x: apx, y: row.y }, { x: b.x! - b.w! / 2, y: row.y }];
+      // Collapse short lane jogs (climbX ≈ apx): a 10–25px horizontal between two
+      // long verticals reads as a wiggle, not a deliberate bend.
+      if (Math.abs(climbX - apx) < ENTRY_STUB * 0.85) {
+        pushPt(pts, apx, ly);
+      } else {
+        pushPt(pts, climbX, ly);
+        pushPt(pts, apx, ly);
+      }
+      // Vertical approach to the service row, then guaranteed ortho entry stub.
+      pushPt(pts, apx, row.y);
+      pushPt(pts, edgeX, row.y);
+      return simplifyOrtho(pts);
     }
     const sock = socketPt(f.to, serviceKey(r));
-    const sy = sock.y + SOCKET_DROP;
-    const ly = flowLane.get(f) ?? (ay + sy) / 2;
-    return [...lead, { x: climbX, y: ly }, { x: sock.x, y: ly }, { x: sock.x, y: sy }];
+    const tipY = sock.y + SOCKET_DROP;
+    let ly = flowLane.get(f) ?? (ay + tipY) / 2;
+    // Guaranteed vertical stub into the socket (same idea as ENTRY_STUB on rows).
+    if (Math.abs(tipY - ly) < ENTRY_STUB) {
+      ly = tipY + (tipY >= ay ? ENTRY_STUB : -ENTRY_STUB);
+    }
+    if (Math.abs(climbX - sock.x) < ENTRY_STUB * 0.85) {
+      pushPt(pts, sock.x, ly);
+    } else {
+      pushPt(pts, climbX, ly);
+      pushPt(pts, sock.x, ly);
+    }
+    pushPt(pts, sock.x, tipY);
+    return simplifyOrtho(pts);
   };
   const routes = flows.map(routeOf);
 
@@ -384,7 +449,7 @@ export function layoutTraffic(m: NetModel, S: Theme): TrafficLayout {
   return { W, H, flows, resolved, routes, sockets, rows, color: svcColor, dash: svcDash, legend };
 }
 
-/** The longest segment of a polyline — the one with room to carry a label. */
+/** The longest segment of a polyline — kept for callers that want pure max length. */
 export function longestSegment(pts: Pt[]): [Pt, Pt] {
   let best = 0, bestLen = -1;
   for (let i = 0; i < pts.length - 1; i++) {
@@ -395,40 +460,109 @@ export function longestSegment(pts: Pt[]): [Pt, Pt] {
 }
 
 /**
+ * Segment best suited to carry a flow label.
+ *
+ * Pure "longest segment" orphans labels onto long horizontal buses far from the
+ * path's centre of mass. Prefer the segment that contains ~55% of the path
+ * length (slightly toward the listener), and only fall back to a longer nearby
+ * run if that segment is too short to hold text.
+ */
+export function labelSegment(pts: Pt[], minLen = 28): [Pt, Pt] {
+  if (pts.length < 2) return [pts[0] ?? { x: 0, y: 0 }, pts[0] ?? { x: 0, y: 0 }];
+  type Seg = { i: number; len: number; cum0: number; cum1: number };
+  const segs: Seg[] = [];
+  let total = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const len = Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y);
+    segs.push({ i, len, cum0: total, cum1: total + len });
+    total += len;
+  }
+  if (total <= 0) return [pts[0], pts[1]];
+  const target = total * 0.55;
+  let pick = segs[0]!;
+  for (const s of segs) {
+    if (target >= s.cum0 && target <= s.cum1) { pick = s; break; }
+    if (s.cum1 <= target) pick = s;
+  }
+  if (pick.len < minLen) {
+    let best = pick;
+    for (const s of segs) {
+      const mid = (s.cum0 + s.cum1) / 2;
+      const dist = Math.abs(mid - target);
+      const bestMid = (best.cum0 + best.cum1) / 2;
+      const bestDist = Math.abs(bestMid - target);
+      // Prefer a longer run still near the path mid; ignore distant trunks.
+      if (dist > total * 0.4) continue;
+      if (s.len > best.len + 4 || (s.len >= minLen && dist < bestDist - 2)) best = s;
+    }
+    pick = best;
+  }
+  return [pts[pick.i], pts[pick.i + 1]];
+}
+
+/**
  * Text laid ALONG a segment, rotated to match it and offset just clear of the
  * line. Always rendered upright — past ±90° the angle is flipped rather than
  * letting the label read upside-down, which is the whole reason to rotate to
  * the segment's axis rather than its direction of travel.
  *
  * The background-coloured stroke under the fill (`paint-order`) punches a halo
- * so the label stays readable where it crosses other flows.
+ * so the label stays readable where it crosses other flows. Keep `off` small
+ * (~4): a large standoff makes the caption look free-floating.
  */
-export function labelAlong(p: Pt, q: Pt, text: string, col: string, S: Theme, size = 8.5, off = 6): string {
+export function labelAlong(p: Pt, q: Pt, text: string, col: string, S: Theme, size = 8.5, off = 4): string {
   let ang = (Math.atan2(q.y - p.y, q.x - p.x) * 180) / Math.PI;
   if (ang > 90) ang -= 180;
   else if (ang < -90) ang += 180;
   const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2;
   return `<text transform="rotate(${ang.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})" x="${mx.toFixed(1)}" y="${(my - off).toFixed(1)}"`
     + ` font-size="${size}" text-anchor="middle" fill="${col}" font-weight="600" font-family="${S.mono}"`
-    + ` paint-order="stroke" stroke="${S.bg}" stroke-width="3.2" stroke-linejoin="round">${esc(text)}</text>`;
+    + ` paint-order="stroke" stroke="${S.bg}" stroke-width="2.2" stroke-linejoin="round">${esc(text)}</text>`;
+}
+
+/**
+ * Point at least `back` along the polyline behind the tip — used so arrowheads
+ * orient on the final orthogonal stub even when the previous vertex is a bend.
+ */
+export function approachRef(pts: Pt[], back = ARROW + PATH_CORNER_R): Pt {
+  if (pts.length < 2) return pts[0] ?? { x: 0, y: 0 };
+  let remain = back;
+  for (let i = pts.length - 1; i > 0; i--) {
+    const a = pts[i], b = pts[i - 1];
+    const len = Math.hypot(a.x - b.x, a.y - b.y);
+    if (len < 1e-6) continue;
+    if (len >= remain) {
+      const t = remain / len;
+      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    }
+    remain -= len;
+  }
+  return pts[0]!;
 }
 
 /** Triangle at `tip`, oriented along the direction of travel from `from`. */
 export function arrowHead(tip: Pt, from: Pt, col: string, size = ARROW): string {
   const dx = tip.x - from.x, dy = tip.y - from.y, len = Math.hypot(dx, dy) || 1;
   const ux = dx / len, uy = dy / len, px = -uy, py = ux;
-  const bx = tip.x - ux * size, by = tip.y - uy * size, hw = size * 0.52;
+  const bx = tip.x - ux * size, by = tip.y - uy * size, hw = size * 0.58;
   return `<path d="M ${tip.x.toFixed(1)},${tip.y.toFixed(1)} L ${(bx + px * hw).toFixed(1)},${(by + py * hw).toFixed(1)} L ${(bx - px * hw).toFixed(1)},${(by - py * hw).toFixed(1)} Z" fill="${col}"/>`;
 }
 
-/** Rounded orthogonal polyline. */
-function path(pts: Pt[], r = 8): string {
+export { ARROW, ARROW_MID, ENTRY_STUB, PATH_CORNER_R };
+
+/** Rounded orthogonal polyline. Cap radius so the final stub stays mostly straight. */
+function path(pts: Pt[], r = PATH_CORNER_R): string {
   let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
   for (let i = 1; i < pts.length - 1; i++) {
     const p = pts[i], prev = pts[i - 1], next = pts[i + 1];
     const inD = { x: Math.sign(p.x - prev.x), y: Math.sign(p.y - prev.y) };
     const outD = { x: Math.sign(next.x - p.x), y: Math.sign(next.y - p.y) };
-    const rr = Math.min(r, Math.hypot(p.x - prev.x, p.y - prev.y) / 2, Math.hypot(next.x - p.x, next.y - p.y) / 2);
+    // On the last corner, leave at least ARROW of straight run after the curve.
+    const outLen = Math.hypot(next.x - p.x, next.y - p.y);
+    const inLen = Math.hypot(p.x - prev.x, p.y - prev.y);
+    const isLastCorner = i === pts.length - 2;
+    const maxOutR = isLastCorner ? Math.max(0, (outLen - ARROW) / 2) : outLen / 2;
+    const rr = Math.min(r, inLen / 2, maxOutR);
     d += ` L ${(p.x - inD.x * rr).toFixed(1)},${(p.y - inD.y * rr).toFixed(1)}`;
     d += ` Q ${p.x.toFixed(1)},${p.y.toFixed(1)} ${(p.x + outD.x * rr).toFixed(1)},${(p.y + outD.y * rr).toFixed(1)}`;
   }
@@ -451,9 +585,9 @@ export function renderModelTraffic(m: NetModel, themeName: string | Theme = "cle
   // flows, under the cards
   flows.forEach((f, i) => {
     const col = svcColor(f), pts = routes[i], dash = T.dash(f);
-    out.push(`<path d="${path(pts)}" fill="none" stroke="${col}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    out.push(`<path d="${path(pts)}" fill="none" stroke="${col}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
     // OPEN ring = the end that opens the connection (see iso.ts for the rationale)
-    out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4" fill="${S.bg}" stroke="${col}" stroke-width="2"/>`);
+    out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4.5" fill="${S.bg}" stroke="${col}" stroke-width="2.25"/>`);
   });
 
   // socket chips (hosts with no declared services)
@@ -490,10 +624,13 @@ export function renderModelTraffic(m: NetModel, themeName: string | Theme = "cle
     out.push(`<text x="${(r.x + r.w - 6).toFixed(1)}" y="${r.y.toFixed(1)}" font-size="9.5" text-anchor="end" fill="${r.color}" font-weight="700" font-family="${S.mono}" dominant-baseline="middle">${esc(r.svcKey)}</text>`);
   }
 
-  // arrowheads last, so they sit above the cards they point into
+  // arrowheads last, so they sit above the cards they point into.
+  // Orient from a point walked back along the final stub (not just the previous
+  // vertex), so a short post-bend segment still reads as a square approach.
   flows.forEach((f, i) => {
     const pts = routes[i];
-    out.push(arrowHead(pts[pts.length - 1], pts[pts.length - 2], svcColor(f)));
+    const tip = pts[pts.length - 1]!;
+    out.push(arrowHead(tip, approachRef(pts), svcColor(f)));
   });
 
   // ---- legend ----

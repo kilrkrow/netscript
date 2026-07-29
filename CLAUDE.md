@@ -119,11 +119,10 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
 - **Don't repeat a fact the line already carries.** Iso labels state
   `use case · proto/port` along the line, so there is deliberately no port chip
   at the landing point. Flat states it on the row instead, for the same reason.
-- **Ethernet tubes** (`segment` DSL, `src/tube.ts`): dedicated band *below*
-  topology (infinite paper — grow the canvas, never spear cards). Drops take
-  side risers outside the rack, land on unique bus columns. Port/IP callouts
-  sit in the clear shelf above the tube at the attachment — not under device
-  cards where they collide with port chips.
+- **Ethernet tubes** (`segment` DSL, `src/tube.ts`): Visio geometry — tube under
+  topology; simple object→tube drop; callout is a short spur whose root
+  *intersects the drop* (port + addr in a bracket). Unique bus columns; paper
+  grows. Do not put free-floating labels only at the tube attachment.
 - Geometry here does not show up in types OR in a glance at the SVG. When
   changing layout, verify: no card overlap, rows contained, flows terminating
   on their row/socket, and no route crossing a card it doesn't belong to.

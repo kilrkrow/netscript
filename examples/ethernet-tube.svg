@@ -1,7 +1,7 @@
-<svg viewBox="0 0 1140 1037" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+<svg viewBox="0 0 840 1001" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
 <defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#0f172a" flood-opacity="0.16"/></filter></defs>
-<rect width="1140" height="1037" fill="#ffffff"/>
-<g transform="translate(242,0)">
+<rect width="840" height="1001" fill="#ffffff"/>
+<g transform="translate(40,0)">
 <rect x="66.0" y="385.0" width="408.0" height="341.0" rx="13" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2"/>
 <text x="72.0" y="378.0" font-size="11.5" fill="#64748b" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">WIRED HOSTS</text>
 <path d="M 270.0,177.0 L 270.0,200.0 L 270.0,200.0 L 270.0,252.0" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
@@ -49,68 +49,78 @@
 <text x="325.0" y="443.5" font-size="8" text-anchor="middle" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">g4</text>
 <rect x="367.6" y="661.0" width="32.8" height="13" rx="3" fill="#ffffff" stroke="#6b7280" stroke-width="1"/>
 <text x="384.0" y="670.5" font-size="8" text-anchor="middle" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">eth0</text>
-<text x="270.0" y="751.0" font-size="12" text-anchor="middle" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">192.168.86.0/24</text>
-<text x="270.0" y="833.0" font-size="10" text-anchor="middle" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">Home LAN</text>
-<rect x="-86.0" y="801.0" width="712.0" height="16" rx="8" fill="#2563eb" fill-opacity="0.16" stroke="#2563eb" stroke-width="2.2"/>
-<line x1="-74.0" y1="809.0" x2="614.0" y2="809.0" stroke="#2563eb" stroke-width="1.2" stroke-opacity="0.5"/>
-<path d="M 156.0,584.0 L 156.0,595.0 Q 156.0,602.0 149.0,602.0 L 47.0,602.0 Q 40.0,602.0 40.0,609.0 L 40.0,730.0 Q 40.0,737.0 33.0,737.0 L -23.0,737.0 Q -30.0,737.0 -30.0,744.0 L -30.0,801.0" fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="156.0" cy="584.0" r="2.4" fill="#2563eb"/>
-<circle cx="-30.0" cy="801.0" r="2.8" fill="#2563eb"/>
-<line x1="-30.0" y1="785.0" x2="-16.0" y2="785.0" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round"/>
-<path d="M -16.0,774.0 L -13.0,774.0 M -16.0,774.0 L -16.0,796.0 M -16.0,796.0 L -13.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="-8.0" y="781.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">eth0</text>
-<text x="-8.0" y="793.0" font-size="10" text-anchor="start" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">.10</text>
-<path d="M 232.0,702.0 L 232.0,713.0 Q 232.0,720.0 225.0,720.0 L 21.0,720.0 Q 14.0,720.0 14.0,727.0 L 14.0,730.0 Q 14.0,737.0 21.0,737.0 L 63.0,737.0 Q 70.0,737.0 70.0,744.0 L 70.0,801.0" fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="232.0" cy="702.0" r="2.4" fill="#2563eb"/>
-<circle cx="70.0" cy="801.0" r="2.8" fill="#2563eb"/>
-<line x1="70.0" y1="785.0" x2="56.0" y2="785.0" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round"/>
-<path d="M 56.0,774.0 L 53.0,774.0 M 56.0,774.0 L 56.0,796.0 M 56.0,796.0 L 53.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="48.0" y="781.0" font-size="10" text-anchor="end" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">eth0</text>
-<text x="48.0" y="793.0" font-size="10" text-anchor="end" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">.40</text>
-<path d="M 270.0,177.0 L 270.0,188.0 Q 270.0,195.0 263.0,195.0 L -5.0,195.0 Q -12.0,195.0 -12.0,202.0 L -12.0,730.0 Q -12.0,737.0 -5.0,737.0 L 163.0,737.0 Q 170.0,737.0 170.0,744.0 L 170.0,801.0" fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="270.0" cy="177.0" r="2.4" fill="#2563eb"/>
-<circle cx="170.0" cy="801.0" r="2.8" fill="#2563eb"/>
-<line x1="170.0" y1="785.0" x2="184.0" y2="785.0" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round"/>
-<path d="M 184.0,774.0 L 187.0,774.0 M 184.0,774.0 L 184.0,796.0 M 184.0,796.0 L 187.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="192.0" y="781.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">lan0</text>
-<text x="192.0" y="793.0" font-size="10" text-anchor="start" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">.1</text>
-<path d="M 270.0,304.0 L 270.0,315.0 Q 270.0,322.0 263.0,322.0 L -31.0,322.0 Q -38.0,322.0 -38.0,329.0 L -38.0,730.0 Q -38.0,737.0 -31.0,737.0 L 263.0,737.0 Q 270.0,737.0 270.0,744.0 L 270.0,801.0" fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="270.0" cy="304.0" r="2.4" fill="#2563eb"/>
-<circle cx="270.0" cy="801.0" r="2.8" fill="#2563eb"/>
-<line x1="270.0" y1="785.0" x2="256.0" y2="785.0" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round"/>
-<path d="M 256.0,774.0 L 253.0,774.0 M 256.0,774.0 L 256.0,796.0 M 256.0,796.0 L 253.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="248.0" y="781.0" font-size="10" text-anchor="end" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">te1</text>
-<path d="M 270.0,455.0 L 270.0,466.0 Q 270.0,473.0 263.0,473.0 L -57.0,473.0 Q -64.0,473.0 -64.0,480.0 L -64.0,730.0 Q -64.0,737.0 -57.0,737.0 L 363.0,737.0 Q 370.0,737.0 370.0,744.0 L 370.0,801.0" fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="270.0" cy="455.0" r="2.4" fill="#2563eb"/>
-<circle cx="370.0" cy="801.0" r="2.8" fill="#2563eb"/>
-<line x1="370.0" y1="785.0" x2="384.0" y2="785.0" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round"/>
-<path d="M 384.0,774.0 L 387.0,774.0 M 384.0,774.0 L 384.0,796.0 M 384.0,796.0 L 387.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="392.0" y="781.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">g1</text>
-<path d="M 308.0,584.0 L 308.0,595.0 Q 308.0,602.0 315.0,602.0 L 493.0,602.0 Q 500.0,602.0 500.0,609.0 L 500.0,730.0 Q 500.0,737.0 493.0,737.0 L 477.0,737.0 Q 470.0,737.0 470.0,744.0 L 470.0,801.0" fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="308.0" cy="584.0" r="2.4" fill="#2563eb"/>
-<circle cx="470.0" cy="801.0" r="2.8" fill="#2563eb"/>
-<line x1="470.0" y1="785.0" x2="456.0" y2="785.0" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round"/>
-<path d="M 456.0,774.0 L 453.0,774.0 M 456.0,774.0 L 456.0,796.0 M 456.0,796.0 L 453.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="448.0" y="781.0" font-size="10" text-anchor="end" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">eth0</text>
-<text x="448.0" y="793.0" font-size="10" text-anchor="end" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">.20</text>
-<path d="M 384.0,702.0 L 384.0,713.0 Q 384.0,720.0 391.0,720.0 L 519.0,720.0 Q 526.0,720.0 526.0,727.0 L 526.0,730.0 Q 526.0,737.0 533.0,737.0 L 563.0,737.0 Q 570.0,737.0 570.0,744.0 L 570.0,801.0" fill="none" stroke="#2563eb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="384.0" cy="702.0" r="2.4" fill="#2563eb"/>
-<circle cx="570.0" cy="801.0" r="2.8" fill="#2563eb"/>
-<line x1="570.0" y1="785.0" x2="584.0" y2="785.0" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round"/>
-<path d="M 584.0,774.0 L 587.0,774.0 M 584.0,774.0 L 584.0,796.0 M 584.0,796.0 L 587.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-linecap="square"/>
-<text x="592.0" y="781.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">eth0</text>
-<text x="592.0" y="793.0" font-size="10" text-anchor="start" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">.2</text>
-<text x="270.0" y="867.0" font-size="12" text-anchor="middle" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">192.168.50.0/24</text>
-<text x="270.0" y="949.0" font-size="10" text-anchor="middle" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">IoT</text>
-<rect x="48.0" y="917.0" width="444.0" height="16" rx="8" fill="#16a34a" fill-opacity="0.16" stroke="#16a34a" stroke-width="2.2"/>
-<line x1="60.0" y1="925.0" x2="480.0" y2="925.0" stroke="#16a34a" stroke-width="1.2" stroke-opacity="0.5"/>
-<path d="M 270.0,177.0 L 270.0,188.0 Q 270.0,195.0 263.0,195.0 L -83.0,195.0 Q -90.0,195.0 -90.0,202.0 L -90.0,748.0 Q -90.0,755.0 -83.0,755.0 L 263.0,755.0 Q 270.0,755.0 270.0,762.0 L 270.0,917.0" fill="none" stroke="#16a34a" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="270.0" cy="177.0" r="2.4" fill="#16a34a"/>
-<circle cx="270.0" cy="917.0" r="2.8" fill="#16a34a"/>
-<line x1="270.0" y1="901.0" x2="284.0" y2="901.0" stroke="#16a34a" stroke-width="1.3" stroke-linecap="round"/>
-<path d="M 284.0,890.0 L 287.0,890.0 M 284.0,890.0 L 284.0,912.0 M 284.0,912.0 L 287.0,912.0" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="square"/>
-<text x="292.0" y="897.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">iot0</text>
-<text x="292.0" y="909.0" font-size="10" text-anchor="start" fill="#16a34a" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">.1</text>
+<rect x="-66.0" y="796.0" width="672.0" height="18" rx="9" fill="#2563eb" fill-opacity="0.10" stroke="#2563eb" stroke-width="1.8"/>
+<ellipse cx="-66.0" cy="805.0" rx="5.0" ry="9.0" fill="#ffffff" stroke="#2563eb" stroke-width="1.6"/>
+<ellipse cx="606.0" cy="805.0" rx="5.0" ry="9.0" fill="none" stroke="#2563eb" stroke-width="1.6"/>
+<text x="270.0" y="809.0" font-size="11.5" text-anchor="middle" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">192.168.86.0/24</text>
+<text x="270.0" y="828.0" font-size="9.5" text-anchor="middle" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">Home LAN</text>
+<path d="M 156.0,584.0 L 156.0,599.0 Q 156.0,604.0 151.0,604.0 L -13.0,604.0 Q -18.0,604.0 -18.0,609.0 L -18.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="156.0" cy="584.0" r="2.2" fill="#2563eb"/>
+<circle cx="-18.0" cy="796.0" r="2.4" fill="#2563eb"/>
+<line x1="156.0" y1="600.0" x2="184.0" y2="600.0" stroke="#2563eb" stroke-width="1.25" stroke-linecap="round"/>
+<circle cx="156.0" cy="600.0" r="2" fill="#ffffff" stroke="#2563eb" stroke-width="1.3"/>
+<path d="M 184.0,590.0 L 187.5,590.0 M 184.0,590.0 L 184.0,610.0 M 184.0,610.0 L 187.5,610.0" fill="none" stroke="#2563eb" stroke-width="1.45" stroke-linecap="square"/>
+<text x="191.0" y="598.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">eth0</text>
+<text x="191.0" y="611.0" font-size="10" text-anchor="start" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.10</text>
+<path d="M 232.0,702.0 L 232.0,717.0 Q 232.0,722.0 227.0,722.0 L 83.0,722.0 Q 78.0,722.0 78.0,727.0 L 78.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="232.0" cy="702.0" r="2.2" fill="#2563eb"/>
+<circle cx="78.0" cy="796.0" r="2.4" fill="#2563eb"/>
+<line x1="232.0" y1="718.0" x2="260.0" y2="718.0" stroke="#2563eb" stroke-width="1.25" stroke-linecap="round"/>
+<circle cx="232.0" cy="718.0" r="2" fill="#ffffff" stroke="#2563eb" stroke-width="1.3"/>
+<path d="M 260.0,708.0 L 263.5,708.0 M 260.0,708.0 L 260.0,728.0 M 260.0,728.0 L 263.5,728.0" fill="none" stroke="#2563eb" stroke-width="1.45" stroke-linecap="square"/>
+<text x="267.0" y="716.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">eth0</text>
+<text x="267.0" y="729.0" font-size="10" text-anchor="start" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.40</text>
+<path d="M 270.0,177.0 L 270.0,192.0 Q 270.0,197.0 265.0,197.0 L 179.0,197.0 Q 174.0,197.0 174.0,202.0 L 174.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="270.0" cy="177.0" r="2.2" fill="#2563eb"/>
+<circle cx="174.0" cy="796.0" r="2.4" fill="#2563eb"/>
+<line x1="270.0" y1="193.0" x2="298.0" y2="193.0" stroke="#2563eb" stroke-width="1.25" stroke-linecap="round"/>
+<circle cx="270.0" cy="193.0" r="2" fill="#ffffff" stroke="#2563eb" stroke-width="1.3"/>
+<path d="M 298.0,183.0 L 301.5,183.0 M 298.0,183.0 L 298.0,203.0 M 298.0,203.0 L 301.5,203.0" fill="none" stroke="#2563eb" stroke-width="1.45" stroke-linecap="square"/>
+<text x="305.0" y="191.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">lan0</text>
+<text x="305.0" y="204.0" font-size="10" text-anchor="start" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.1</text>
+<path d="M 270.0,304.0 L 270.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="270.0" cy="304.0" r="2.2" fill="#2563eb"/>
+<circle cx="270.0" cy="796.0" r="2.4" fill="#2563eb"/>
+<line x1="270.0" y1="441.8" x2="298.0" y2="441.8" stroke="#2563eb" stroke-width="1.25" stroke-linecap="round"/>
+<circle cx="270.0" cy="441.8" r="2" fill="#ffffff" stroke="#2563eb" stroke-width="1.3"/>
+<path d="M 298.0,431.8 L 301.5,431.8 M 298.0,431.8 L 298.0,451.8 M 298.0,451.8 L 301.5,451.8" fill="none" stroke="#2563eb" stroke-width="1.45" stroke-linecap="square"/>
+<text x="305.0" y="439.8" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">te1</text>
+<path d="M 270.0,455.0 L 270.0,470.0 Q 270.0,475.0 275.0,475.0 L 361.0,475.0 Q 366.0,475.0 366.0,480.0 L 366.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="270.0" cy="455.0" r="2.2" fill="#2563eb"/>
+<circle cx="366.0" cy="796.0" r="2.4" fill="#2563eb"/>
+<line x1="270.0" y1="471.0" x2="298.0" y2="471.0" stroke="#2563eb" stroke-width="1.25" stroke-linecap="round"/>
+<circle cx="270.0" cy="471.0" r="2" fill="#ffffff" stroke="#2563eb" stroke-width="1.3"/>
+<path d="M 298.0,461.0 L 301.5,461.0 M 298.0,461.0 L 298.0,481.0 M 298.0,481.0 L 301.5,481.0" fill="none" stroke="#2563eb" stroke-width="1.45" stroke-linecap="square"/>
+<text x="305.0" y="469.0" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">g1</text>
+<path d="M 308.0,584.0 L 308.0,599.0 Q 308.0,604.0 313.0,604.0 L 457.0,604.0 Q 462.0,604.0 462.0,609.0 L 462.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="308.0" cy="584.0" r="2.2" fill="#2563eb"/>
+<circle cx="462.0" cy="796.0" r="2.4" fill="#2563eb"/>
+<line x1="308.0" y1="600.0" x2="280.0" y2="600.0" stroke="#2563eb" stroke-width="1.25" stroke-linecap="round"/>
+<circle cx="308.0" cy="600.0" r="2" fill="#ffffff" stroke="#2563eb" stroke-width="1.3"/>
+<path d="M 280.0,590.0 L 276.5,590.0 M 280.0,590.0 L 280.0,610.0 M 280.0,610.0 L 276.5,610.0" fill="none" stroke="#2563eb" stroke-width="1.45" stroke-linecap="square"/>
+<text x="273.0" y="598.0" font-size="10" text-anchor="end" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">eth0</text>
+<text x="273.0" y="611.0" font-size="10" text-anchor="end" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.20</text>
+<path d="M 384.0,702.0 L 384.0,717.0 Q 384.0,722.0 389.0,722.0 L 553.0,722.0 Q 558.0,722.0 558.0,727.0 L 558.0,796.0" fill="none" stroke="#2563eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="384.0" cy="702.0" r="2.2" fill="#2563eb"/>
+<circle cx="558.0" cy="796.0" r="2.4" fill="#2563eb"/>
+<line x1="384.0" y1="718.0" x2="356.0" y2="718.0" stroke="#2563eb" stroke-width="1.25" stroke-linecap="round"/>
+<circle cx="384.0" cy="718.0" r="2" fill="#ffffff" stroke="#2563eb" stroke-width="1.3"/>
+<path d="M 356.0,708.0 L 352.5,708.0 M 356.0,708.0 L 356.0,728.0 M 356.0,728.0 L 352.5,728.0" fill="none" stroke="#2563eb" stroke-width="1.45" stroke-linecap="square"/>
+<text x="349.0" y="716.0" font-size="10" text-anchor="end" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">eth0</text>
+<text x="349.0" y="729.0" font-size="10" text-anchor="end" fill="#2563eb" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.2</text>
+<rect x="222.0" y="891.0" width="96.0" height="18" rx="9" fill="#16a34a" fill-opacity="0.10" stroke="#16a34a" stroke-width="1.8"/>
+<ellipse cx="222.0" cy="900.0" rx="5.0" ry="9.0" fill="#ffffff" stroke="#16a34a" stroke-width="1.6"/>
+<ellipse cx="318.0" cy="900.0" rx="5.0" ry="9.0" fill="none" stroke="#16a34a" stroke-width="1.6"/>
+<text x="270.0" y="904.0" font-size="11.5" text-anchor="middle" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">192.168.50.0/24</text>
+<text x="270.0" y="923.0" font-size="9.5" text-anchor="middle" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">IoT</text>
+<path d="M 270.0,177.0 L 270.0,891.0" fill="none" stroke="#16a34a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="270.0" cy="177.0" r="2.2" fill="#16a34a"/>
+<circle cx="270.0" cy="891.0" r="2.4" fill="#16a34a"/>
+<line x1="270.0" y1="376.9" x2="298.0" y2="376.9" stroke="#16a34a" stroke-width="1.25" stroke-linecap="round"/>
+<circle cx="270.0" cy="376.9" r="2" fill="#ffffff" stroke="#16a34a" stroke-width="1.3"/>
+<path d="M 298.0,366.9 L 301.5,366.9 M 298.0,366.9 L 298.0,386.9 M 298.0,386.9 L 301.5,386.9" fill="none" stroke="#16a34a" stroke-width="1.45" stroke-linecap="square"/>
+<text x="305.0" y="374.9" font-size="10" text-anchor="start" fill="#1f2430" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">iot0</text>
+<text x="305.0" y="387.9" font-size="10" text-anchor="start" fill="#16a34a" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" paint-order="stroke" stroke="#ffffff" stroke-width="3.2" stroke-linejoin="round">.1</text>
 <rect x="195.0" y="123.0" width="150" height="54" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
 <rect x="205.0" y="143.3" width="18.0" height="13.5" rx="2" fill="none" stroke="#b91c1c" stroke-width="1.4"/><line x1="205.0" y1="150.0" x2="223.0" y2="150.0" stroke="#b91c1c" stroke-width="1.4"/><line x1="214.0" y1="143.3" x2="214.0" y2="150.0" stroke="#b91c1c" stroke-width="1.4"/><line x1="209.5" y1="150.0" x2="209.5" y2="156.8" stroke="#b91c1c" stroke-width="1.4"/><line x1="218.5" y1="150.0" x2="218.5" y2="156.8" stroke="#b91c1c" stroke-width="1.4"/>
 <text x="229.0" y="151.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">edge-router</text>
@@ -132,10 +142,10 @@
 <rect x="332.0" y="654.0" width="104" height="48" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
 <rect x="344.3" y="681.8" width="13.5" height="6.0" rx="3" fill="none" stroke="#ea580c" stroke-width="1.4"/><path d="M 347.7,681.1 A 3.3,3.3 0 0 1 354.3,681.1" fill="none" stroke="#ea580c" stroke-width="1.4"/><path d="M 344.4,681.1 A 6.6,6.6 0 0 1 357.6,681.1" fill="none" stroke="#ea580c" stroke-width="1.4"/><path d="M 341.1,681.1 A 9.9,9.9 0 0 1 360.9,681.1" fill="none" stroke="#ea580c" stroke-width="1.4"/>
 <text x="366.0" y="679.0" font-size="11.5" fill="#1f2430" font-weight="600" dominant-baseline="middle">ap-living</text>
-<text x="110" y="1002" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LINK SPEED</text>
-<line x1="202" y1="999" x2="226" y2="999" stroke="#94a3b8" stroke-width="3.2" stroke-linecap="round"/>
-<text x="232" y="1002" font-size="10.5" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">1G</text>
-<line x1="294" y1="999" x2="318" y2="999" stroke="#3b82f6" stroke-width="3.2" stroke-linecap="round"/>
-<text x="324" y="1002" font-size="10.5" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10G</text>
+<text x="110" y="966" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LINK SPEED</text>
+<line x1="202" y1="963" x2="226" y2="963" stroke="#94a3b8" stroke-width="3.2" stroke-linecap="round"/>
+<text x="232" y="966" font-size="10.5" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">1G</text>
+<line x1="294" y1="963" x2="318" y2="963" stroke="#3b82f6" stroke-width="3.2" stroke-linecap="round"/>
+<text x="324" y="966" font-size="10.5" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10G</text>
 </g>
 </svg>

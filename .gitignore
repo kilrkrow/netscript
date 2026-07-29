@@ -5,5 +5,8 @@ dist/
 .env
 examples/_check_*.png
 
-# Local working examples (client/vendor-derived) — never published
+# Examples are local working material — author selects what to publish.
+# Keep the directory; ignore generated/authored diagrams.
+examples/**/*.net
+examples/**/*.svg
 examples/local/

@@ -20,9 +20,13 @@ import type { NetModel, Device, Segment } from "./model.ts";
 const SIZE: Record<string, [number, number]> = {
   wan: [120, 46], edge: [150, 54], core: [150, 52], tor: [150, 50], host: [104, 48],
 };
+/** Max card width before render ellipsizes (matches glyph + pad chrome in render). */
+const MAX_CARD_W: Record<string, number> = {
+  wan: 180, edge: 220, core: 220, tor: 220, host: 200,
+};
 const LEFT = 92, RIGHT = 92, GAP = 80;
 const Y = { wan: 44, edge: 150, core: 278, tor: 400, host0: 520 };
-const HOST_SLOT = 148;
+const HOST_GAP = 24;
 const HOST_STAGGER = 40;
 const RACK_MIN_W = 280;
 /** Room under a host band for its tube (hosts-above pattern). */
@@ -30,23 +34,44 @@ export const TUBE_BAND_RESERVE = 100;
 /** Room above a host band for its tube (hosts-below pattern). */
 export const TUBE_ABOVE_RESERVE = 100;
 const BETWEEN = 48;
+/** Horizontal chrome inside a card (glyph + side pad) — keep in sync with render. */
+const CARD_CHROME = 38;
 
 export interface Zone { x: number; y: number; w: number; h: number; label: string; }
 export interface Layout { W: number; H: number; zones: Zone[]; }
 
+/** Approximate text width for layout (matches render fitInBox char width). */
+export function approxLabelW(label: string, px = 11.5): number {
+  return label.length * px * 0.58;
+}
+
+/** Card size so the label (and optional mgmt) fits, up to MAX_CARD_W. */
+export function cardSize(d: Device): [number, number] {
+  const base = SIZE[d.tier] ?? SIZE.host;
+  const maxW = MAX_CARD_W[d.tier] ?? MAX_CARD_W.host;
+  const labelNeed = approxLabelW(d.label) + CARD_CHROME;
+  const mgmtNeed = d.mgmt ? approxLabelW(d.mgmt, 9) + CARD_CHROME : 0;
+  const w = Math.min(maxW, Math.max(base[0], Math.ceil(labelNeed), Math.ceil(mgmtNeed)));
+  return [w, base[1]];
+}
+
 function placeHostsLR(hosts: Device[], left: number, y0: number): number {
   if (!hosts.length) return RACK_MIN_W;
+  let cursor = left;
   hosts.forEach((d, i) => {
-    d.w = d.w ?? SIZE.host[0];
-    d.h = d.h ?? SIZE.host[1];
-    d.x = left + HOST_SLOT / 2 + i * HOST_SLOT;
+    const [w, h] = cardSize(d);
+    d.w = w;
+    d.h = h;
+    d.x = cursor + w / 2;
     d.y = y0 + (i % 2 === 0 ? 0 : HOST_STAGGER);
+    cursor += w + HOST_GAP;
   });
-  return Math.max(RACK_MIN_W, hosts.length * HOST_SLOT);
+  // Drop trailing gap; ensure a minimum rack width.
+  return Math.max(RACK_MIN_W, cursor - left - HOST_GAP);
 }
 
 function sizeDevices(m: NetModel): void {
-  for (const d of m.devices) [d.w, d.h] = SIZE[d.tier] ?? SIZE.host;
+  for (const d of m.devices) [d.w, d.h] = cardSize(d);
 }
 
 function contentWidth(m: NetModel): number {

@@ -84,12 +84,35 @@ export interface Rack { id: string; label: string; role: string; }
  * (trunk vs. access). A Bond/LAG is a LOGICAL INTERFACE built from physical
  * member ports on one device — the bridge between the two layers.
  */
-export interface VlanMember { device: string; port: string; tagged?: boolean; }
+export interface VlanMember {
+  device: string;
+  port: string;
+  tagged?: boolean;
+  /** Optional host address on this segment (e.g. ".1" or "10.0.20.5"). */
+  addr?: string;
+}
 export interface Vlan {
   id: number;               // 802.1Q VLAN id
   name: string;
   subnet?: string;          // optional CIDR, e.g. "10.20.0.0/24"
   members: VlanMember[];
+}
+
+/**
+ * An L2 segment drawn as a Visio-style Ethernet *tube* (bus) with per-host
+ * drops and port/IP callouts. Can be authored directly, or derived from a
+ * VLAN that carries a subnet (see resolveSegments in logical.ts).
+ */
+export interface SegmentMember {
+  device: string;
+  port?: string;            // physical port id on the device
+  addr?: string;            // host address on the segment
+}
+export interface Segment {
+  id: string;
+  name: string;             // short label (shown with the class when useful)
+  subnet?: string;          // CIDR drawn on the tube, e.g. "192.168.86.0/24"
+  members: SegmentMember[];
 }
 export interface Bond {
   id: string;               // logical interface name, e.g. "lag1", "bond0"
@@ -171,6 +194,11 @@ export interface NetModel {
   /** logical-layer overlays (additive; physical models omit these) */
   vlans?: Vlan[];
   bonds?: Bond[];
+  /**
+   * Ethernet tubes (segment buses). When omitted, tubes may still be derived
+   * from VLANs that declare a subnet — see resolveSegments().
+   */
+  segments?: Segment[];
   /** flow-layer overlay (additive; topology-only models omit this) */
   flows?: Flow[];
 }

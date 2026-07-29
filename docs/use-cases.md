@@ -1,8 +1,10 @@
-# NetScript — upcoming use cases
+# NetScript — use cases
 
-Captured so they survive between sessions. Not scheduled work unless picked up.
+Captured so they survive between sessions.
 
-## Visio-style Ethernet tube + port callouts (next)
+## Visio-style Ethernet tube + port callouts
+
+**Status: implemented** (issue #2) — `segment` blocks, `layoutTubes` / `drawTubesSvg`, example `examples/ethernet-tube.net`.
 
 **Source:** operator practice (kilrkrow) — how subnet membership used to be drawn in Visio.
 
@@ -49,6 +51,17 @@ Captured so they survive between sessions. Not scheduled work unless picked up.
 
   at the touch point between drop and object (or drop and tube — pick one convention and stick to it; Visio often put the flag on the device side of the drop).
 
-### Priority
+### Authoring
 
-Next distinct documentation style after traffic label/arrow polish (2026-07-29). Do not block physical/traffic bugs on this; implement as its own view or hybrid mode when picked up.
+```
+segment home "Home LAN" subnet 192.168.86.0/24 {
+  member pc.eth0 addr .10
+  member nas.eth0 addr .20
+}
+```
+
+Also: `member <device>.<port> [tagged] [addr <addr>]` on VLANs. When no `segment` blocks exist, hybrid/logical views derive tubes from VLANs that declare a `subnet`.
+
+### Convention chosen
+
+Callout flag sits on the **device side** of the drop (near the host), not on the tube.

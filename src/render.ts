@@ -9,6 +9,7 @@ import { buildRoutes, segments, offsetPts, pathD } from "./router.ts";
 import {
   vlanColorIndex, vlansOnLink, bondKey, portOf, bondForPort,
 } from "./logical.ts";
+import { layoutTubes, drawTubesSvg, expandHeightForTubes, hasTubes } from "./tube.ts";
 
 const SPEED_ORDER: Speed[] = ["1G", "10G", "25G", "40G", "100G", "LAG"];
 
@@ -24,16 +25,32 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
   const mode = S.mode ?? "physical";
   const logical = mode === "logical" || mode === "hybrid";
   const showCables = mode !== "logical"; // logical hides raw cabling; hybrid keeps it
-  const { W, H, zones } = layoutModel(m);
+  const laid = layoutModel(m);
+  let { W, H, zones } = laid;
   const id = new Map(m.devices.map((d) => [d.id, d]));
   const routes = buildRoutes(m);
   const allSegs = routes.map((p) => segments(p));
-  const out: string[] = [`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
 
   // logical projection (only computed when needed)
   const vlanIdx = logical ? vlanColorIndex(m) : new Map<number, number>();
   const vpal = S.vlanPalette ?? ["#2563eb"];
   const vlanColor = (vid: number) => vpal[(vlanIdx.get(vid) ?? 0) % vpal.length];
+
+  // Ethernet tubes: explicit segments, or derived from VLANs-with-subnet in
+  // logical/hybrid. Physical-only models still draw tubes if authored.
+  const drawTubeLayer = hasTubes(m) && (logical || !!m.segments?.length);
+  const tubeColor = (i: number) => vpal[i % vpal.length];
+  const tubePack = drawTubeLayer ? layoutTubes(m, tubeColor) : { tubes: [], bottom: 0 };
+  if (tubePack.tubes.length) {
+    H = expandHeightForTubes(H, tubePack);
+    const minX = Math.min(...tubePack.tubes.map((t) => t.x1));
+    const maxX = Math.max(...tubePack.tubes.map((t) => t.x2));
+    // Tubes may stick past device bounds — grow the canvas, not the layout.
+    if (minX < 24) W += 24 - minX;
+    if (maxX > W - 24) W = maxX + 24;
+  }
+
+  const out: string[] = [`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
 
   if (S.shadow)
     out.push('<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#0f172a" flood-opacity="0.16"/></filter></defs>');
@@ -127,6 +144,9 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
     });
   }
 
+  // ---- Ethernet tubes (under cards so drops tuck under device bottoms) ----
+  if (tubePack.tubes.length) out.push(...drawTubesSvg(tubePack.tubes, S));
+
   // ---- nodes ----
   for (const d of m.devices) {
     const cx = d.x!, cy = d.y!, w = d.w!, h = d.h!, kc = KIND_COLOR[d.kind];
@@ -140,7 +160,7 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
     if (hasMgmt) out.push(`<text x="${(gx + 15).toFixed(1)}" y="${(cy + 10).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(d.mgmt!)}</text>`);
   }
 
-  // ---- logical overlay: bond brackets + subnet/CIDR badges ----
+  // ---- logical overlay: bond brackets (+ optional VLAN badges when no tubes) ----
   if (logical) {
     // Bond bracket + logical interface name at the owning device.
     for (const bnd of m.bonds ?? []) {
@@ -154,22 +174,25 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
       out.push(`<text x="${(bx - 10 - tw / 2).toFixed(1)}" y="${(by + 3.5).toFixed(1)}" font-size="9" text-anchor="middle" fill="${S.speedColor.LAG}" font-weight="700" font-family="${S.mono}">${esc(lbl)}</text>`);
     }
 
-    // Subnet/CIDR badge per VLAN, anchored at the centroid of its member ports.
-    for (const v of m.vlans ?? []) {
-      const col = vlanColor(v.id);
-      const pts: Pt[] = [];
-      for (const mem of v.members) {
-        const dev = id.get(mem.device);
-        if (dev) pts.push({ x: dev.x!, y: dev.y! });
+    // When tubes are drawn, the bus *is* the subnet badge — skip floating
+    // VLAN pills so we don't double-label the same segment.
+    if (!tubePack.tubes.length) {
+      for (const v of m.vlans ?? []) {
+        const col = vlanColor(v.id);
+        const pts: Pt[] = [];
+        for (const mem of v.members) {
+          const dev = id.get(mem.device);
+          if (dev) pts.push({ x: dev.x!, y: dev.y! });
+        }
+        if (!pts.length) continue;
+        const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+        const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+        const lbl = v.subnet ? `VLAN ${v.id} · ${v.subnet}` : `VLAN ${v.id} · ${v.name}`;
+        const tw = 6.4 * lbl.length + 16;
+        out.push(`<rect x="${(cx - tw / 2).toFixed(1)}" y="${(cy - 9).toFixed(1)}" width="${tw.toFixed(1)}" height="18" rx="9" fill="${S.bg}" stroke="${col}" stroke-width="1.3" fill-opacity="0.96"/>`);
+        out.push(`<circle cx="${(cx - tw / 2 + 11).toFixed(1)}" cy="${cy.toFixed(1)}" r="3.4" fill="${col}"/>`);
+        out.push(`<text x="${(cx + 6).toFixed(1)}" y="${(cy + 3.5).toFixed(1)}" font-size="9.5" text-anchor="middle" fill="${S.text}" font-weight="600" font-family="${S.mono}">${esc(lbl)}</text>`);
       }
-      if (!pts.length) continue;
-      const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
-      const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
-      const lbl = v.subnet ? `VLAN ${v.id} · ${v.subnet}` : `VLAN ${v.id} · ${v.name}`;
-      const tw = 6.4 * lbl.length + 16;
-      out.push(`<rect x="${(cx - tw / 2).toFixed(1)}" y="${(cy - 9).toFixed(1)}" width="${tw.toFixed(1)}" height="18" rx="9" fill="${S.bg}" stroke="${col}" stroke-width="1.3" fill-opacity="0.96"/>`);
-      out.push(`<circle cx="${(cx - tw / 2 + 11).toFixed(1)}" cy="${cy.toFixed(1)}" r="3.4" fill="${col}"/>`);
-      out.push(`<text x="${(cx + 6).toFixed(1)}" y="${(cy + 3.5).toFixed(1)}" font-size="9.5" text-anchor="middle" fill="${S.text}" font-weight="600" font-family="${S.mono}">${esc(lbl)}</text>`);
     }
   }
 
@@ -202,11 +225,13 @@ export function renderModel(m: NetModel, themeName: string | Theme = "clean"): s
 
   if (S.titleBlock) {
     const nodes = m.devices.length, links = m.links.length;
+    const tubesN = tubePack.tubes.length;
     const layerTag = mode === "logical" ? "LOGICAL L2/L3" : mode === "hybrid" ? "HYBRID L1+L2/L3" : "PHYSICAL L1";
+    const tubeTag = tubesN ? ` · ${tubesN} TUBE${tubesN === 1 ? "" : "S"}` : "";
     out.push(`<rect x="${W - 252}" y="${H - 70}" width="236" height="54" fill="none" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
     out.push(`<line x1="${W - 252}" y1="${H - 50}" x2="${W - 16}" y2="${H - 50}" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
     out.push(`<text x="${W - 244}" y="${H - 55}" font-size="9.5" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">${esc(m.title.toUpperCase())} · ${layerTag}</text>`);
-    out.push(`<text x="${W - 244}" y="${H - 34}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${nodes} NODES · ${links} LINKS · REV A · NTS</text>`);
+    out.push(`<text x="${W - 244}" y="${H - 34}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${nodes} NODES · ${links} LINKS${tubeTag} · REV A · NTS</text>`);
   }
 
   out.push("</svg>");

@@ -8,7 +8,7 @@
  * "what colour is VLAN 20?") so render.ts stays a thin view. The model remains
  * the single source of truth; this is a derived projection, never stored back.
  */
-import type { NetModel, Link, Vlan, Bond, Port } from "./model.ts";
+import type { NetModel, Link, Vlan, Bond, Port, Segment, SegmentMember } from "./model.ts";
 
 /** Stable VLAN-id → palette-index map (sorted by id, so colours are deterministic). */
 export function vlanColorIndex(m: NetModel): Map<number, number> {
@@ -70,5 +70,28 @@ export function bondKey(m: NetModel, l: Link): string | null {
 
 /** True when the model carries any logical content worth overlaying. */
 export const hasLogical = (m: NetModel): boolean =>
-  !!(m.vlans?.length || m.bonds?.length ||
+  !!(m.vlans?.length || m.bonds?.length || m.segments?.length ||
      m.devices.some((d) => d.ports?.some((p) => p.addr)));
+
+/**
+ * Segments to draw as Ethernet tubes.
+ *
+ * Prefer explicitly authored `m.segments`. When none are given, derive one
+ * tube per VLAN that has a subnet — so existing logical models get buses for
+ * free. Port.addr fills in when the member itself has no addr.
+ */
+export function resolveSegments(m: NetModel): Segment[] {
+  if (m.segments?.length) return m.segments;
+  const out: Segment[] = [];
+  for (const v of m.vlans ?? []) {
+    if (!v.subnet || !v.members.length) continue;
+    const members: SegmentMember[] = v.members.map((mem) => {
+      const portAddr = portOf(m, mem.device, mem.port)?.addr;
+      // Prefer host address on the segment; fall back to interface addr (may be CIDR).
+      const addr = mem.addr ?? (portAddr && !portAddr.includes("/") ? portAddr : portAddr?.split("/")[0]);
+      return { device: mem.device, port: mem.port, ...(addr ? { addr } : {}) };
+    });
+    out.push({ id: `vlan${v.id}`, name: v.name, subnet: v.subnet, members });
+  }
+  return out;
+}

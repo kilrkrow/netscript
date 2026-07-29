@@ -39,7 +39,8 @@ src/render.ts          topology, flat: positioned model + theme -> SVG
 src/traffic.ts         L4 flow layer: layoutTraffic() geometry + flat renderer
 src/iso.ts               isometric PROJECTION of either scene (topology or traffic)
 src/views.ts            view x projection dispatcher — renderView()
-src/logical.ts        VLAN/bond/port projection helpers consumed by render.ts
+src/logical.ts        VLAN/bond/port/segment projection helpers consumed by render.ts
+src/tube.ts            Ethernet tube layout + Visio-style port/IP callout SVG
 src/themes.ts          palette/typography tokens (clean, blueprint, *-logical, *-hybrid)
 src/glyphs.ts           vendor-neutral device glyphs + per-kind colours
 src/parser.ts            `.net` text DSL -> NetModel (mode-stack based block parser)
@@ -118,8 +119,10 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
 - **Don't repeat a fact the line already carries.** Iso labels state
   `use case · proto/port` along the line, so there is deliberately no port chip
   at the landing point. Flat states it on the row instead, for the same reason.
-- Upcoming documentation style: Visio **Ethernet tube + port/IP callout** —
-  see [`docs/use-cases.md`](docs/use-cases.md).
+- **Ethernet tubes** (`segment` DSL, `src/tube.ts`): drawn under cards in
+  logical/hybrid (or when explicit segments exist). Callouts sit on the
+  *device side* of the drop. Prefer `addr .10` on members; derive from
+  VLAN+subnet when no segments are authored.
 - Geometry here does not show up in types OR in a glance at the SVG. When
   changing layout, verify: no card overlap, rows contained, flows terminating
   on their row/socket, and no route crossing a card it doesn't belong to.

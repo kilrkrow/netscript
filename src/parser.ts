@@ -15,7 +15,10 @@
  *   }
  *   rack <id> "role" { <device>... }                     # group (members default tier host)
  *   vlan <id> "name" [subnet <cidr>] {                    # VLAN (logical layer)
- *     member <device>.<port> [tagged]
+ *     member <device>.<port> [tagged] [addr <addr>]
+ *   }
+ *   segment <id> "name" [subnet <cidr>] {                 # Ethernet tube (L2 bus)
+ *     member <device>[.<port>] [addr <addr>]
  *   }
  *   bond <id> on <device> [mode <mode>] {                 # LAG/bond (logical layer)
  *     member <port>
@@ -32,7 +35,7 @@
  * optional where it can be inferred from kind (cloud→wan, firewall/router→edge,
  * host kinds→host, a switch→core at top level / tor inside a rack).
  */
-import type { NetModel, Device, Link, Kind, Tier, Speed, Port, Vlan, Bond, Flow, Proto } from "./model.ts";
+import type { NetModel, Device, Link, Kind, Tier, Speed, Port, Vlan, Bond, Flow, Proto, Segment } from "./model.ts";
 
 const KINDS = new Set<string>(["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop", "camera"]);
 const TIERS = new Set<string>(["wan", "edge", "core", "tor", "host"]);
@@ -66,6 +69,7 @@ type Frame =
   | { kind: "rack"; id: string }
   | { kind: "device"; dev: Device }
   | { kind: "vlan"; vlan: Vlan }
+  | { kind: "segment"; segment: Segment }
   | { kind: "bond"; bond: Bond };
 
 export function parseNet(src: string): NetModel {
@@ -137,11 +141,27 @@ export function parseNet(src: string): NetModel {
       continue;
     }
     if (tf?.kind === "vlan") {
-      const m = header.match(/^member\s+(\S+)(\s+tagged)?$/);
-      if (!m) throw new Error(`line ${ln}: expected "member <device>.<port> [tagged]" inside vlan block → ${header}`);
+      const m = header.match(/^member\s+(\S+)((?:\s+tagged)?)(?:\s+addr\s+(\S+))?$/);
+      if (!m) throw new Error(`line ${ln}: expected "member <device>.<port> [tagged] [addr <addr>]" inside vlan block → ${header}`);
       const [dev, port] = splitPort(m[1]);
       if (!port) throw new Error(`line ${ln}: vlan member must be "device.port" → ${header}`);
-      tf.vlan.members.push({ device: dev, port, ...(m[2] ? { tagged: true } : {}) });
+      tf.vlan.members.push({
+        device: dev,
+        port,
+        ...(m[2]?.includes("tagged") ? { tagged: true } : {}),
+        ...(m[3] ? { addr: m[3] } : {}),
+      });
+      continue;
+    }
+    if (tf?.kind === "segment") {
+      const m = header.match(/^member\s+(\S+)(?:\s+addr\s+(\S+))?$/);
+      if (!m) throw new Error(`line ${ln}: expected "member <device>[.<port>] [addr <addr>]" inside segment block → ${header}`);
+      const [dev, port] = splitPort(m[1]);
+      tf.segment.members.push({
+        device: dev,
+        ...(port ? { port } : {}),
+        ...(m[2] ? { addr: m[2] } : {}),
+      });
       continue;
     }
     if (tf?.kind === "bond") {
@@ -151,7 +171,7 @@ export function parseNet(src: string): NetModel {
       continue;
     }
     if (header.startsWith("port ")) throw new Error(`line ${ln}: "port" is only valid inside a device block`);
-    if (header.startsWith("member ")) throw new Error(`line ${ln}: "member" is only valid inside a vlan or bond block`);
+    if (header.startsWith("member ")) throw new Error(`line ${ln}: "member" is only valid inside a vlan, segment, or bond block`);
 
     // ---- top-level / rack-level lines ----
 
@@ -175,6 +195,18 @@ export function parseNet(src: string): NetModel {
       const vlan: Vlan = { id, name: m[2], members: [], ...(m[3] ? { subnet: m[3] } : {}) };
       model.vlans.push(vlan);
       stack.push({ kind: "vlan", vlan });
+      continue;
+    }
+
+    // segment <id> "name" [subnet <cidr>] {
+    m = header.match(/^segment\s+(\S+)\s+"([^"]*)"(?:\s+subnet\s+(\S+))?$/);
+    if (blockOpen && m && !stack.length) {
+      const id = m[1];
+      model.segments ??= [];
+      if (model.segments.some((s) => s.id === id)) throw new Error(`line ${ln}: duplicate segment "${id}"`);
+      const segment: Segment = { id, name: m[2], members: [], ...(m[3] ? { subnet: m[3] } : {}) };
+      model.segments.push(segment);
+      stack.push({ kind: "segment", segment });
       continue;
     }
 
@@ -283,6 +315,12 @@ export function validateModel(model: NetModel): void {
     for (const mem of v.members) {
       if (!devById.has(mem.device)) throw new Error(`vlan ${v.id}: unknown device "${mem.device}"`);
       if (!hasPort(mem.device, mem.port)) throw new Error(`vlan ${v.id}: unknown port "${mem.device}.${mem.port}"`);
+    }
+  }
+  for (const s of model.segments ?? []) {
+    for (const mem of s.members) {
+      if (!devById.has(mem.device)) throw new Error(`segment "${s.id}": unknown device "${mem.device}"`);
+      if (!hasPort(mem.device, mem.port)) throw new Error(`segment "${s.id}": unknown port "${mem.device}.${mem.port}"`);
     }
   }
   for (const b of model.bonds ?? []) {

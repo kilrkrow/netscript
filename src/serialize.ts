@@ -73,9 +73,28 @@ export function serializeNet(m: NetModel): string {
     m.vlans.forEach((v, i) => {
       const head = `vlan ${v.id} ${q(v.name)}` + (v.subnet ? ` subnet ${v.subnet}` : "");
       out.push(`${head} {`);
-      for (const mem of v.members) out.push(`  member ${mem.device}.${mem.port}${mem.tagged ? " tagged" : ""}`);
+      for (const mem of v.members) {
+        const bits = [`  member ${mem.device}.${mem.port}`];
+        if (mem.tagged) bits.push("tagged");
+        if (mem.addr) bits.push(`addr ${mem.addr}`);
+        out.push(bits.join(" "));
+      }
       out.push("}");
       if (i < m.vlans!.length - 1) out.push("");
+    });
+  }
+
+  if (m.segments?.length) {
+    out.push("");
+    m.segments.forEach((s, i) => {
+      const head = `segment ${s.id} ${q(s.name)}` + (s.subnet ? ` subnet ${s.subnet}` : "");
+      out.push(`${head} {`);
+      for (const mem of s.members) {
+        const ep = mem.port ? `${mem.device}.${mem.port}` : mem.device;
+        out.push(`  member ${ep}${mem.addr ? ` addr ${mem.addr}` : ""}`);
+      }
+      out.push("}");
+      if (i < m.segments!.length - 1) out.push("");
     });
   }
 

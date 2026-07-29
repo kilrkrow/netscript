@@ -147,6 +147,27 @@ flow app1 -> sql01.db
 
 See [`examples/homelab-logical.net`](examples/homelab-logical.net), [`examples/sql-traffic.net`](examples/sql-traffic.net) and [`examples/service-stack.net`](examples/service-stack.net) for full examples, and the grammar comment atop [`src/parser.ts`](src/parser.ts) for the complete syntax. `serializeNet(model)` ([`src/serialize.ts`](src/serialize.ts)) is the inverse — NetModel → `.net` text — used by `compile_net` to hand back editable source. Render a VLAN-coloured view with the `*-logical` / `*-hybrid` themes (`--theme blueprint-hybrid`).
 
+### Ethernet tubes (Visio-style L2 buses)
+
+An optional **segment** is drawn as a thick horizontal tube labelled with the subnet class, plus vertical drops from each member and a device-side bracket callout for port + address:
+
+```
+segment home "Home LAN" subnet 192.168.86.0/24 {
+  member pc.eth0  addr .10
+  member nas.eth0 addr .20
+}
+```
+
+![Home LAN ethernet tubes](examples/ethernet-tube.svg)
+
+Tubes appear in **logical/hybrid** themes (and whenever explicit `segment` blocks are present). If you only declare VLANs with a `subnet`, tubes are **derived** automatically. VLAN members may also take `addr`:
+
+```
+member srv1.eth0 tagged addr 10.0.20.5
+```
+
+See [`examples/ethernet-tube.net`](examples/ethernet-tube.net) and [`docs/use-cases.md`](docs/use-cases.md).
+
 ## How it works
 
 ```
@@ -266,7 +287,7 @@ Labels are rotated to their segment, flipped to stay upright, and halo'd so they
 - [ ] Crossing minimisation in the traffic view (devices currently keep author order within a level)
 - [ ] Service rows drawn on the block face in isometric (today iso falls back to along-line labels)
 - [ ] Label de-confliction — along-line labels can still collide in dense scenes
-- [ ] **Visio Ethernet tube + port/IP callouts** — subnet drawn as a thick “tube” labelled with the class (e.g. `192.168.86.0/24`); each host drop meets a bracket callout (`----[`) with physical port + address (e.g. `eth0` / `.1`). See [`docs/use-cases.md`](docs/use-cases.md).
+- [x] **Visio Ethernet tube + port/IP callouts** — `segment` DSL + derived tubes from VLANs-with-subnet; bus labelled with class/CIDR; device-side bracket callouts (`eth0` / `.1`). See [`examples/ethernet-tube.net`](examples/ethernet-tube.net) and [`docs/use-cases.md`](docs/use-cases.md).
 - [ ] **Importers / discovery** — populate the model from real gear: UniFi → Proxmox → Portainer (the diagram that stays current)
 - [ ] SysML v2 export/import as an edge adapter (model interchange, not text parsing)
 

@@ -1,14 +1,17 @@
 /**
  * NetScript Ethernet tubes — Visio-style L2 buses.
  *
- * Critical design rules:
+ * Multi-segment geometry (with layoutBusBands):
  *
- * 1. Callout documents an attachment on a device. Spur root = exact point
- *    where the drop meets the device bottom-centre (d.x, bottom) — never a
- *    fanned column x that floats off the card.
- * 2. Pure vertical drop from that point to the tube.
- * 3. Leader → vertical flag bar ("|"); port and/or addr beside it.
- * 4. Hosts are laid L→R by layout.ts so drops stay short and rooted.
+ *     [Default hosts]     spur root on host bottom, drop down
+ *            |
+ *     ══ Default 192.168.86.0/24 ══
+ *
+ *     ══ iot 192.168.86.0/24 ══
+ *            |
+ *     [iot hosts]         spur root on host top, drop down from tube
+ *
+ * Callout = last octet only (class C is on the tube). Flag bar "|".
  */
 import type { NetModel, Pt } from "./model.ts";
 import { escapeXml as esc } from "./model.ts";
@@ -16,30 +19,11 @@ import type { Theme } from "./themes.ts";
 import { resolveSegments, portOf } from "./logical.ts";
 
 const TUBE_H = 20;
-const BAND_GAP = 96;
-/** Vertical pitch between stacked tubes (second tube sits under the first). */
-const TUBE_PITCH = 88;
+const BAND_GAP = 52;
 const SIDE_PAD = 56;
-/** Leader sideways clearance from the interface to the flag bar. */
 const ARM_DX = 64;
-/** Leader drops this far so the flag sits under the stagger gap. */
-const ARM_DY = 32;
+const ARM_DY = 28;
 const FLAG_HALF = 11;
-
-/**
- * Tube already carries the class C (e.g. 192.168.86.0/24) — callouts only need
- * the host part. Full IPv4 → ".198"; bare ".198" or "198" stays as ".198".
- */
-export function hostOctet(addr?: string): string | undefined {
-  if (!addr) return undefined;
-  const s = addr.trim();
-  if (!s) return undefined;
-  if (s.startsWith(".")) return s;                     // already ".10"
-  const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
-  if (m) return `.${m[4]}`;                             // classful last octet
-  if (/^\d{1,3}$/.test(s)) return `.${s}`;              // bare number
-  return s;                                             // hostname / other
-}
 
 export interface TubeDrop {
   device: string;
@@ -49,6 +33,8 @@ export interface TubeDrop {
   path: Pt[];
   spurRoot: Pt;
   spurRight: boolean;
+  /** Hosts above tube (drop down) vs hosts below (drop down from tube). */
+  hostsAbove: boolean;
 }
 
 export interface TubeLayout {
@@ -69,16 +55,16 @@ export interface TubesResult {
   padR: number;
 }
 
-function topologyBounds(m: NetModel): { minX: number; maxX: number; maxY: number } {
-  let minX = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const d of m.devices) {
-    if (d.x == null || d.y == null || d.w == null || d.h == null) continue;
-    minX = Math.min(minX, d.x - d.w / 2);
-    maxX = Math.max(maxX, d.x + d.w / 2);
-    maxY = Math.max(maxY, d.y + d.h / 2);
-  }
-  if (!Number.isFinite(minX)) return { minX: 0, maxX: 400, maxY: 400 };
-  return { minX, maxX, maxY };
+/** Class C on tube → callout last octet only. */
+export function hostOctet(addr?: string): string | undefined {
+  if (!addr) return undefined;
+  const s = addr.trim();
+  if (!s) return undefined;
+  if (s.startsWith(".")) return s;
+  const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (m) return `.${m[4]}`;
+  if (/^\d{1,3}$/.test(s)) return `.${s}`;
+  return s;
 }
 
 function shouldDrop(m: NetModel, deviceId: string, segmentHasHost: boolean): boolean {
@@ -93,15 +79,25 @@ function shouldDrop(m: NetModel, deviceId: string, segmentHasHost: boolean): boo
 export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesResult {
   const segs = resolveSegments(m);
   const byId = new Map(m.devices.map((d) => [d.id, d]));
-  const bounds = topologyBounds(m);
   const tubes: TubeLayout[] = [];
   let padL = 48, padR = 100;
-  let bandY = bounds.maxY + BAND_GAP;
+  let globalMinX = Infinity, globalMaxX = -Infinity;
 
-  segs.forEach((seg) => {
+  for (const d of m.devices) {
+    if (d.x == null || d.w == null) continue;
+    globalMinX = Math.min(globalMinX, d.x - d.w / 2);
+    globalMaxX = Math.max(globalMaxX, d.x + d.w / 2);
+  }
+  if (!Number.isFinite(globalMinX)) { globalMinX = 0; globalMaxX = 400; }
+
+  // Track the bottom of the previous tube so later tubes stack cleanly
+  // when host bands leave a shared gap.
+  let prevTubeBottom = -Infinity;
+
+  segs.forEach((seg, si) => {
     type PM = {
       device: string; port?: string; portLabel?: string; addr?: string;
-      dx: number; yBottom: number;
+      dx: number; yTop: number; yBottom: number;
     };
     const raw: PM[] = [];
     for (const mem of seg.members) {
@@ -112,9 +108,9 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
         device: mem.device,
         port: mem.port,
         portLabel: portObj?.name ?? mem.port,
-        // Class C lives on the tube — callout only needs the host octet.
         addr: hostOctet(mem.addr),
         dx: d.x,
+        yTop: d.y - d.h / 2,
         yBottom: d.y + d.h / 2,
       });
     }
@@ -122,17 +118,41 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
     const placed = raw.filter((p) => shouldDrop(m, p.device, hasHost));
     if (!placed.length) return;
 
-    // Stable L→R by device position (layout already placed hosts L→R).
     placed.sort((a, b) => a.dx - b.dx || a.yBottom - b.yBottom || (a.port ?? "").localeCompare(b.port ?? ""));
 
-    // Multi-port fan: only offset when the *same device* has multiple members.
+    const maxBottom = Math.max(...placed.map((p) => p.yBottom));
+    const minTop = Math.min(...placed.map((p) => p.yTop));
+
+    // First segment (or hosts above mid): tube under hosts.
+    // Later segments with hosts below previous content: tube above those hosts.
+    const hostsAbove = si === 0 || maxBottom < prevTubeBottom + 200;
+    // More reliable: if host centres sit above where we'd place a stacked tube
+    // after prevTubeBottom, treat as hosts-above; else hosts-below.
+    const midY = placed.reduce((s, p) => s + (p.yTop + p.yBottom) / 2, 0) / placed.length;
+    const hostsAreAbove = si === 0 || midY < (prevTubeBottom > 0 ? prevTubeBottom + 80 : Infinity);
+
+    let tubeTop: number;
+    let tubeBottom: number;
+    if (hostsAreAbove) {
+      tubeTop = Math.max(maxBottom + BAND_GAP, prevTubeBottom + BAND_GAP);
+      tubeBottom = tubeTop + TUBE_H;
+    } else {
+      // Tube sits above this segment's hosts; drops run down to clients.
+      tubeBottom = minTop - BAND_GAP;
+      tubeTop = tubeBottom - TUBE_H;
+      // Keep stacked under previous tube
+      if (tubeTop < prevTubeBottom + 24) {
+        const shift = prevTubeBottom + 24 - tubeTop;
+        tubeTop += shift;
+        tubeBottom += shift;
+      }
+    }
+    const y = (tubeTop + tubeBottom) / 2;
+    prevTubeBottom = tubeBottom;
+
     const totals = new Map<string, number>();
     for (const p of placed) totals.set(p.device, (totals.get(p.device) ?? 0) + 1);
     const seen = new Map<string, number>();
-
-    // Tubes stack top→bottom under all clients; each drop runs straight down.
-    const tubeTop = bandY + 8;
-    const y = tubeTop + TUBE_H / 2;
 
     const drops: TubeDrop[] = [];
     placed.forEach((p, i) => {
@@ -141,9 +161,16 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
       const total = totals.get(p.device) ?? 1;
       const fan = total > 1 ? (nth - (total - 1) / 2) * 12 : 0;
       const x = p.dx + fan;
-      const iface: Pt = { x, y: p.yBottom };
-      const path: Pt[] = [iface, { x, y: tubeTop }];
-      const spurRight = i % 2 === 0;
+
+      // Spur root always on the device where the drop attaches.
+      const iface: Pt = hostsAreAbove
+        ? { x, y: p.yBottom }
+        : { x, y: p.yTop };
+      const tubeAttach: Pt = hostsAreAbove
+        ? { x, y: tubeTop }
+        : { x, y: tubeBottom };
+      // Path: device → tube (renderer doesn't care about direction for stroke)
+      const path: Pt[] = [iface, tubeAttach];
 
       drops.push({
         device: p.device,
@@ -152,41 +179,37 @@ export function layoutTubes(m: NetModel, colorAt: (i: number) => string): TubesR
         addr: p.addr,
         path,
         spurRoot: iface,
-        spurRight,
+        spurRight: i % 2 === 0,
+        hostsAbove: hostsAreAbove,
       });
     });
-
-    // Span full client field so stacked tubes read as parallel buses, not
-    // side-by-side islands under each rack.
-    const x1 = bounds.minX - SIDE_PAD;
-    const x2 = bounds.maxX + SIDE_PAD;
 
     tubes.push({
       id: seg.id,
       name: seg.name,
       subnet: seg.subnet,
-      color: colorAt(tubes.length),
+      color: colorAt(si),
       y,
-      x1,
-      x2,
+      x1: globalMinX - SIDE_PAD,
+      x2: globalMaxX + SIDE_PAD,
       drops,
     });
-    // Next tube sits cleanly beneath this one; lines continue down from clients.
-    bandY = y + TUBE_H / 2 + TUBE_PITCH;
   });
+
+  tubes.sort((a, b) => a.y - b.y);
 
   if (tubes.length) {
     for (const t of tubes) {
       for (const d of t.drops) {
         const armEnd = d.spurRoot.x + (d.spurRight ? ARM_DX : -ARM_DX);
-        padL = Math.max(padL, bounds.minX - Math.min(d.spurRoot.x, armEnd) + 80);
-        padR = Math.max(padR, Math.max(d.spurRoot.x, armEnd) - bounds.maxX + 80);
+        padL = Math.max(padL, globalMinX - Math.min(d.spurRoot.x, armEnd) + 80);
+        padR = Math.max(padR, Math.max(d.spurRoot.x, armEnd) - globalMaxX + 80);
       }
     }
   }
 
   const bottom = tubes.length
-    ? Math.max(...tubes.map((t) => t.y + TUBE_H / 2 + 40))
+    ? Math.max(...tubes.map((t) => t.y + TUBE_H / 2 + 40), ...m.devices.map((d) => (d.y ?? 0) + (d.h ?? 0) / 2 + 40))
     : 0;
   return { tubes, bottom, padL, padR };
 }
@@ -247,7 +270,6 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
         `stroke="${col}" stroke-width="1.7" stroke-linecap="round"/>`,
       );
       out.push(`<circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="2.5" fill="${col}"/>`);
-      // Interface / attachment point on the device
       out.push(
         `<circle cx="${a.x.toFixed(1)}" cy="${a.y.toFixed(1)}" r="2.8" fill="${S.bg}" stroke="${col}" stroke-width="1.6"/>`,
       );
@@ -255,10 +277,11 @@ export function drawTubesSvg(tubes: TubeLayout[], S: Theme): string[] {
       const lines = [d.portLabel, d.addr].filter(Boolean) as string[];
       if (!lines.length) continue;
 
-      const root = d.spurRoot; // === device bottom centre
+      const root = d.spurRoot;
       const dir = d.spurRight ? 1 : -1;
       const barX = root.x + dir * ARM_DX;
-      const barMidY = root.y + ARM_DY;
+      // Flag opens into free air: below host when hosts above tube, above host when below.
+      const barMidY = root.y + (d.hostsAbove ? ARM_DY : -ARM_DY);
       out.push(
         `<line x1="${root.x.toFixed(1)}" y1="${root.y.toFixed(1)}" ` +
         `x2="${barX.toFixed(1)}" y2="${barMidY.toFixed(1)}" ` +

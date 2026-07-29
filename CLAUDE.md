@@ -126,7 +126,8 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
   2. Leader from that point to a vertical **flag bar** ("|"); port + addr
      stack beside the bar — not a square-bracket "[" terminator.
   3. Tube carries the class C CIDR; callouts show **last octet only** (`.198`).
-  4. Multiple tubes **stack vertically** under the clients; drops run straight down.
+  4. Multi-segment **bus bands**: hosts(seg0) → tube0 → hosts(seg1) → tube1
+     so drops never cross another tube (iot clients sit *under* the iot bus).
   5. Pure vertical drops from device edge. Hosts + edge gateways drop; core/ToR
      fabric members do not (unless the segment has no hosts).
   6. Ports already on a segment callout are **not** also L1 port chips.

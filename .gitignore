@@ -4,6 +4,7 @@ dist/
 .DS_Store
 .env
 examples/_check_*.png
+/netscript.svg          # default CLI output path when -o is omitted
 
 # Examples are local working material — author selects what to publish.
 # Keep the directory; ignore generated/authored diagrams.

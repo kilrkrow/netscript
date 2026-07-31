@@ -12,15 +12,22 @@ Network diagrams rot. You draw them once in Visio/draw.io, the lab changes, and 
 
 ## Preview
 
-Same model, two themes — a three-rack leaf-spine (WAN edge → redundant core pair → top-of-rack switches → servers/storage, with dual-homed uplinks and LAG bonds):
+Rendered diagrams are not committed — `examples/**` is gitignored so working
+diagrams stay local until intentionally published (see
+[`examples/README.md`](examples/README.md)). Generate the full set in one go:
 
-**Blueprint**
+```bash
+npm run render:examples     # writes examples/*.svg
+```
 
-![Three-rack leaf-spine, blueprint theme](examples/three-rack-blueprint.svg)
+The bundled three-rack leaf-spine (WAN edge → redundant core pair → top-of-rack
+switches → servers/storage, with dual-homed uplinks and LAG bonds) renders in
+either theme:
 
-**Clean**
-
-![Three-rack leaf-spine, clean theme](examples/three-rack-clean.svg)
+```bash
+node src/cli.ts --example three-rack --theme blueprint -o diagram.svg
+node src/cli.ts --example three-rack --theme clean     -o diagram.svg
+```
 
 ## Quickstart
 
@@ -145,7 +152,7 @@ sql01 server "sql-01" {
 flow app1 -> sql01.db
 ```
 
-See [`examples/homelab-logical.net`](examples/homelab-logical.net), [`examples/sql-traffic.net`](examples/sql-traffic.net) and [`examples/service-stack.net`](examples/service-stack.net) for full examples, and the grammar comment atop [`src/parser.ts`](src/parser.ts) for the complete syntax. `serializeNet(model)` ([`src/serialize.ts`](src/serialize.ts)) is the inverse — NetModel → `.net` text — used by `compile_net` to hand back editable source. Render a VLAN-coloured view with the `*-logical` / `*-hybrid` themes (`--theme blueprint-hybrid`).
+See `examples/homelab-logical.net`, `examples/sql-traffic.net` and `examples/service-stack.net` for full examples, and the grammar comment atop [`src/parser.ts`](src/parser.ts) for the complete syntax. `serializeNet(model)` ([`src/serialize.ts`](src/serialize.ts)) is the inverse — NetModel → `.net` text — used by `compile_net` to hand back editable source. Render a VLAN-coloured view with the `*-logical` / `*-hybrid` themes (`--theme blueprint-hybrid`).
 
 ### Ethernet tubes (Visio-style L2 buses)
 
@@ -158,7 +165,7 @@ segment home "Home LAN" subnet 192.168.86.0/24 {
 }
 ```
 
-![Home LAN ethernet tubes](examples/ethernet-tube.svg)
+> Render it: `node src/cli.ts examples/ethernet-tube.net --theme clean-hybrid -o out.svg`
 
 **Interfaces are optional.** A member is `device` plus optional `.port` and optional `addr`. Callouts show whatever you know (port, IP, or both). That keeps Angry IP / host-list imports honest.
 
@@ -169,7 +176,7 @@ member srv1.eth0 tagged addr 10.0.20.5   # full as-built
 member pc addr 192.168.86.10             # scan import
 ```
 
-See [`examples/ethernet-tube.net`](examples/ethernet-tube.net), [`examples/scan-lan.net`](examples/scan-lan.net), and [`docs/use-cases.md`](docs/use-cases.md).
+See `examples/ethernet-tube.net`, `examples/scan-lan.net`, and [`docs/use-cases.md`](docs/use-cases.md).
 
 ## How it works
 
@@ -213,7 +220,7 @@ From code, one entry point covers the grid — `renderView(model, { theme, view,
 
 ### Isometric
 
-![Three-rack leaf-spine, isometric](examples/three-rack-iso.svg)
+> Render it: `node src/cli.ts --example three-rack --projection iso -o out.svg`
 
 [`src/iso.ts`](src/iso.ts) reuses each scene's layout completely unchanged — it projects the *existing* positions and routed polylines through a true isometric transform, so an orthogonal run becomes the classic two-diagonal isometric cable look for free. Devices draw as extruded blocks with the kind glyph billboarded flat on the top face (readable, not skewed); racks become shallow platforms underneath.
 
@@ -223,7 +230,7 @@ Scope: fixed extrusion heights, no light/shadow model, no VLAN colouring yet —
 
 Where the physical view answers *"what is cabled to what"* and the logical view answers *"what segment is this on"*, the traffic view answers **"what talks to what, on which service, and in which direction"** — the question a firewall rule set is made of.
 
-![SQL service traffic flows](examples/sql-traffic.svg)
+> Render it: `node src/cli.ts examples/sql-traffic.net --view traffic -o out.svg`
 
 ```
 flow app1 -> sql01 : tcp/1433 "SQL"      # inbound to sql01, from the client's point of view outbound
@@ -258,9 +265,11 @@ flow client -> ccserver : icmp      # ad-hoc form, for traffic with no declared 
 
 A host that declares services renders as a **container with one row per service**, and flows land on the row. Hosts without them keep the simpler socket chip on their bottom edge.
 
-![App platform service flows](examples/service-stack.svg)
-
-*Above: 7 hosts, 13 services, 13 flows. All nine of app-01's listeners are rows on one card, not nine fake machines. This shape is what a vendor port appendix actually looks like.*
+> Render it: `node src/cli.ts examples/service-stack.net --view traffic -o out.svg`
+>
+> 7 hosts, 13 services, 13 flows — all nine of app-01's listeners are rows on one
+> card, not nine fake machines. This shape is what a vendor port appendix
+> actually looks like.
 
 In **isometric** the same scene projects, but a block has no rows to read, so the line has to carry every fact itself:
 
@@ -273,7 +282,7 @@ In **isometric** the same scene projects, but a block has no rows to read, so th
 
 Labels are rotated to their segment, flipped to stay upright, and halo'd so they survive crossings. No port chip at the landing point: the label already states the port, and repeating it is clutter.
 
-![App platform service flows, isometric](examples/service-stack-iso.svg)
+> Render it: `node src/cli.ts examples/service-stack.net --view traffic --projection iso -o out.svg`
 
 ## Roadmap
 
@@ -290,7 +299,7 @@ Labels are rotated to their segment, flipped to stay upright, and halo'd so they
 - [ ] Crossing minimisation in the traffic view (devices currently keep author order within a level)
 - [ ] Service rows drawn on the block face in isometric (today iso falls back to along-line labels)
 - [ ] Label de-confliction — along-line labels can still collide in dense scenes
-- [x] **Visio Ethernet tube + port/IP callouts** — `segment` DSL + derived tubes from VLANs-with-subnet; bus labelled with class/CIDR; device-side bracket callouts (`eth0` / `.1`). See [`examples/ethernet-tube.net`](examples/ethernet-tube.net) and [`docs/use-cases.md`](docs/use-cases.md).
+- [x] **Visio Ethernet tube + port/IP callouts** — `segment` DSL + derived tubes from VLANs-with-subnet; bus labelled with class/CIDR; device-side bracket callouts (`eth0` / `.1`). See `examples/ethernet-tube.net` and [`docs/use-cases.md`](docs/use-cases.md).
 - [ ] **Importers / discovery** — populate the model from real gear: UniFi → Proxmox → Portainer (the diagram that stays current)
 - [ ] SysML v2 export/import as an edge adapter (model interchange, not text parsing)
 

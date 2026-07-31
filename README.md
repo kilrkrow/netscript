@@ -226,6 +226,45 @@ From code, one entry point covers the grid — `renderView(model, { theme, view,
 
 Scope: fixed extrusion heights, no light/shadow model, no VLAN colouring yet — a documentation-grade projection, not a photorealistic renderer.
 
+#### Which projection suits which diagram
+
+Both projections render any model, and NetScript will never second-guess the
+one you asked for. But they are good at different things, and the difference is
+measurable rather than a matter of taste.
+
+In flat, a crossing can be resolved two ways: the **line jump** shows which
+line is continuous, and the line lands in a **labelled service row** you can
+read at the destination. Isometric has neither — there are no rows on a
+projected block, so **colour is the only identity a line carries**. Colour
+encodes the service, so:
+
+|  | favours **iso** | favours **flat** |
+|---|---|---|
+| distinct services ÷ flows | near 1.0 — every line its own colour | well under 1 — colours repeat |
+| distinct initiators ÷ targets | low — a star, few sources many sinks | near or above 1 — a mesh |
+| direction | mostly one-way | bidirectional, cyclic |
+| the reader is | appreciating the shape | auditing or counting |
+
+Measured across the bundled examples — crossings a reader *cannot* resolve on
+colour alone:
+
+| example | services ÷ flows | initiators ÷ targets | iso crossings | ambiguous |
+|---|---|---|---|---|
+| `prometheus-scrape.net` | 1.00 | 0.20 | 38 | **0** |
+| `k8s-cluster.net` | 0.27 | 1.40 | 39 | **11** |
+
+Note the counterintuitive part: **crossing count barely matters**. One scene
+survives 234 iso crossings comfortably because no two lines share a colour;
+another is unreadable at 39 because fifteen flows share four services. So a
+one-scraper-to-ten-targets fan is exactly what isometric is for, and a
+control-plane mesh is exactly what it isn't.
+
+Line jumps are deliberately **not** added to the isometric path. A jump is a
+two-dimensional depth claim ("this passes over that"), and an isometric scene
+already carries its own depth model in the projection — the two would
+contradict each other. The correct fix for an isometric crossing is elevation
+(routing flows at different heights, like cable trays), not notation.
+
 ### Traffic — the flow layer (L4)
 
 Where the physical view answers *"what is cabled to what"* and the logical view answers *"what segment is this on"*, the traffic view answers **"what talks to what, on which service, and in which direction"** — the question a firewall rule set is made of.

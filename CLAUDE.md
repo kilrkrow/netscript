@@ -66,6 +66,15 @@ Rendering has two INDEPENDENT axes, dispatched by `renderView()` in
 - `view` — WHAT: `topology` | `traffic`
 - `projection` — HOW: `flat` | `iso`
 
+**The renderer does not editorialise about the author's choice.** Both
+projections render any model; there is deliberately NO fit warning, no "you
+should have used flat" hint, no auto-switching. NetScript renders what it was
+asked for, the way FlowScript does — guidance on which projection suits which
+diagram lives in the README, where it informs a choice instead of overriding
+one. If a future change wants to surface model statistics, do it the way
+FlowScript's `lint` does: a separate opt-in command that reports facts and
+offers no advice.
+
 Isometric is a *projection of a scene*, not a kind of scene. Any scene reduced
 to "positioned devices + polylines in flat space" can be projected, which is
 why `iso.ts` consumes `layoutModel`/`buildRoutes` and `layoutTraffic` through
@@ -102,6 +111,12 @@ hybrid is a *third*, separate selector carried by the theme's `mode`.
   added as a second channel; colour alone silently aliases beyond ~16 services.
 - Inbound/outbound is never stored; it's read off arrow geometry, because it's
   a point of view rather than a property of a flow.
+- **No line jumps in the isometric path, on purpose.** A jump is a 2D depth
+  claim ("this passes over that"); an isometric scene already carries depth in
+  the projection, so the two notations contradict. The correct fix for an iso
+  crossing is elevation (routing at different heights), not notation. Iso reads
+  well when colour alone resolves crossings — i.e. when distinct services ÷
+  flows is near 1 and the scene is a star rather than a mesh. See README.
 - **Direction is marked at BOTH ends, differently**: an open ring where the
   connection is opened, a solid arrowhead where it lands, plus a *lighter*
   chevron on the line. Don't collapse these to one mark — "which end initiates"

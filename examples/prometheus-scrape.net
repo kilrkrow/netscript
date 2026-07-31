@@ -1,0 +1,78 @@
+---
+title: Prometheus — Scrape Topology
+theme: clean
+---
+
+# Port numbers from the Prometheus project's public default port allocations:
+#   https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+#
+# This is the shape isometric is FOR: one scraper reaching a lot of surface.
+# A single initiator fans out to ten targets, and because every exporter owns a
+# distinct port, every line is a distinct colour — so crossings resolve on
+# colour alone and never need tracing. Contrast examples/k8s-cluster.net, where
+# fifteen flows share four services and the same picture stops being readable.
+#
+# (In a real estate node_exporter runs on every host; it is kept on one here so
+# the example stays a clean one-port-per-target fan.)
+
+graf desktop "Grafana" {
+  service ui "Grafana UI" tcp/3000
+}
+
+prom server "prometheus-01" {
+  service api "Prometheus HTTP API" tcp/9090
+}
+
+alert server "alertmanager-01" {
+  service am "Alertmanager" tcp/9093
+}
+
+app server "app-01" {
+  service node     "node_exporter"    tcp/9100
+  service cadvisor "cAdvisor"         tcp/8080
+}
+
+db storage "postgres-01" {
+  service pg "postgres_exporter" tcp/9187
+}
+
+mysql storage "mysql-01" {
+  service mysqld "mysqld_exporter" tcp/9104
+}
+
+cache server "redis-01" {
+  service redis "redis_exporter" tcp/9121
+}
+
+web server "nginx-01" {
+  service nginx "nginx_exporter" tcp/9113
+}
+
+sw switch "core-switch" {
+  service snmp "snmp_exporter" tcp/9116
+}
+
+probe server "blackbox-probe" {
+  service bb "blackbox_exporter" tcp/9115
+}
+
+batch server "batch-runner" {
+  service push "Pushgateway" tcp/9091
+}
+
+# ---- one scraper, ten targets: the fan that isometric renders well ----
+flow prom -> app.node
+flow prom -> app.cadvisor
+flow prom -> db.pg
+flow prom -> mysql.mysqld
+flow prom -> cache.redis
+flow prom -> web.nginx
+flow prom -> sw.snmp
+flow prom -> probe.bb
+flow prom -> batch.push
+
+# ---- Prometheus pushes firing alerts onward ----
+flow prom -> alert.am
+
+# ---- and the only inbound: Grafana queries the API ----
+flow graf -> prom.api

@@ -337,13 +337,16 @@ export function layoutTraffic(m: NetModel, S: Theme): TrafficLayout {
   for (const f of flows) outTotal.set(f.from, (outTotal.get(f.from) ?? 0) + 1);
   const outIdx = new Map<string, number>();
 
-  // A flow that skips a level would otherwise drive a long vertical run
-  // straight through whatever card sits between its endpoints. Send those out
-  // to a channel beyond every card instead, on whichever side is nearer. The
-  // detour's horizontal legs sit in inter-level gaps, so they stay clear too.
+  // Lane banks sit BELOW the level they serve, so a flow is only safe to route
+  // straight up when its target is exactly one level above: anything else has
+  // to drive a long vertical run past whatever card sits between the endpoints.
+  // That covers level-skippers AND every downward flow (a back-edge such as
+  // etcd peer replication, whose riser would otherwise spear its own target).
+  // Those detour to a channel beyond every card, on whichever side is nearer;
+  // the detour's horizontal legs sit in inter-level gaps, so they stay clear.
   const leftMost = Math.min(...m.devices.map((d) => d.x! - d.w! / 2));
   const rightMost = Math.max(...m.devices.map((d) => d.x! + d.w! / 2));
-  const skipFlows = flows.filter((f) => Math.abs(level.get(f.to)! - level.get(f.from)!) > 1);
+  const skipFlows = flows.filter((f) => level.get(f.to)! - level.get(f.from)! !== 1);
   const channelX = new Map<Flow, number>();
   skipFlows.forEach((f, i) => {
     const a = id.get(f.from)!;
@@ -395,8 +398,11 @@ export function layoutTraffic(m: NetModel, S: Theme): TrafficLayout {
     const chan = channelX.get(f);
     const pts: Pt[] = [{ x: ax, y: ay }];
     if (chan !== undefined) {
-      pushPt(pts, ax, ay - 26);
-      pushPt(pts, chan, ay - 26);
+      // Step AWAY from whichever edge we left. Hardcoding "up" here sent every
+      // downward flow back through its own card before turning.
+      const off = upward ? -26 : 26;
+      pushPt(pts, ax, ay + off);
+      pushPt(pts, chan, ay + off);
     }
     const climbX = chan ?? ax;
 
@@ -410,6 +416,10 @@ export function layoutTraffic(m: NetModel, S: Theme): TrafficLayout {
       // Collapse short lane jogs (climbX ≈ apx): a 10–25px horizontal between two
       // long verticals reads as a wiggle, not a deliberate bend.
       if (Math.abs(climbX - apx) < ENTRY_STUB * 0.85) {
+        // Collapsing the jog leaves a stub a few px wide at the card edge, which
+        // parks the origin ring off-axis from the riser it supposedly starts.
+        // Snap the exit onto the riser instead so the two are concentric.
+        if (chan === undefined) pts[0] = { x: apx, y: ay };
         pushPt(pts, apx, ly);
       } else {
         pushPt(pts, climbX, ly);
@@ -428,6 +438,7 @@ export function layoutTraffic(m: NetModel, S: Theme): TrafficLayout {
       ly = tipY + (tipY >= ay ? ENTRY_STUB : -ENTRY_STUB);
     }
     if (Math.abs(climbX - sock.x) < ENTRY_STUB * 0.85) {
+      if (chan === undefined) pts[0] = { x: sock.x, y: ay };
       pushPt(pts, sock.x, ly);
     } else {
       pushPt(pts, climbX, ly);
@@ -550,9 +561,55 @@ export function arrowHead(tip: Pt, from: Pt, col: string, size = ARROW): string 
 
 export { ARROW, ARROW_MID, ENTRY_STUB, PATH_CORNER_R };
 
-/** Rounded orthogonal polyline. Cap radius so the final stub stays mostly straight. */
-function path(pts: Pt[], r = PATH_CORNER_R): string {
+/** A vertical run of some other flow — what a horizontal run has to hop over. */
+export interface VRun { x: number; y1: number; y2: number; }
+
+/** Vertical runs of each route, indexed alongside `routes`. */
+export function verticalRuns(routes: Pt[][]): VRun[][] {
+  return routes.map((pts) => {
+    const out: VRun[] = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p = pts[i], q = pts[i + 1];
+      if (Math.abs(p.x - q.x) < 0.5 && Math.abs(p.y - q.y) > 0.5)
+        out.push({ x: p.x, y1: Math.min(p.y, q.y), y2: Math.max(p.y, q.y) });
+    }
+    return out;
+  });
+}
+
+const JUMP_R = 5;
+
+/**
+ * Rounded orthogonal polyline. Cap radius so the final stub stays mostly
+ * straight, and hop foreign verticals with a small arc.
+ *
+ * The jumps are not decoration. Colour identifies the SERVICE, so two flows of
+ * one service are the same colour by design — at a plain crossing there is then
+ * nothing to say which line continues where, and the diagram stops being
+ * traceable exactly where a reader is trying to follow a rule. Keep them sparse
+ * (horizontals hop verticals, never the reverse) — jump noise was the failure
+ * mode of the original router.
+ */
+function path(pts: Pt[], r = PATH_CORNER_R, foreignV: VRun[] = []): string {
+  let cur = pts[0];
   let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  const lineTo = (to: Pt): void => {
+    if (Math.abs(to.y - cur.y) < 0.5 && Math.abs(to.x - cur.x) > 1 && foreignV.length) {
+      const y = cur.y, l2r = to.x > cur.x;
+      const lo = Math.min(cur.x, to.x), hi = Math.max(cur.x, to.x);
+      const xs = [...new Set(
+        foreignV.filter((v) => v.x > lo + JUMP_R && v.x < hi - JUMP_R && v.y1 + 1 < y && y < v.y2 - 1)
+                .map((v) => v.x),
+      )].sort((a, b) => (l2r ? a - b : b - a));
+      for (const x of xs) {
+        const back = l2r ? -JUMP_R : JUMP_R;
+        d += ` L ${(x + back).toFixed(1)},${y.toFixed(1)}`;
+        d += ` A ${JUMP_R},${JUMP_R} 0 0 ${l2r ? 1 : 0} ${(x - back).toFixed(1)},${y.toFixed(1)}`;
+      }
+    }
+    d += ` L ${to.x.toFixed(1)},${to.y.toFixed(1)}`;
+    cur = to;
+  };
   for (let i = 1; i < pts.length - 1; i++) {
     const p = pts[i], prev = pts[i - 1], next = pts[i + 1];
     const inD = { x: Math.sign(p.x - prev.x), y: Math.sign(p.y - prev.y) };
@@ -563,11 +620,12 @@ function path(pts: Pt[], r = PATH_CORNER_R): string {
     const isLastCorner = i === pts.length - 2;
     const maxOutR = isLastCorner ? Math.max(0, (outLen - ARROW) / 2) : outLen / 2;
     const rr = Math.min(r, inLen / 2, maxOutR);
-    d += ` L ${(p.x - inD.x * rr).toFixed(1)},${(p.y - inD.y * rr).toFixed(1)}`;
+    lineTo({ x: p.x - inD.x * rr, y: p.y - inD.y * rr });
     d += ` Q ${p.x.toFixed(1)},${p.y.toFixed(1)} ${(p.x + outD.x * rr).toFixed(1)},${(p.y + outD.y * rr).toFixed(1)}`;
+    cur = { x: p.x + outD.x * rr, y: p.y + outD.y * rr };
   }
-  const last = pts[pts.length - 1];
-  return d + ` L ${last.x.toFixed(1)},${last.y.toFixed(1)}`;
+  lineTo(pts[pts.length - 1]);
+  return d;
 }
 
 export function renderModelTraffic(m: NetModel, themeName: string | Theme = "clean"): string {
@@ -582,10 +640,15 @@ export function renderModelTraffic(m: NetModel, themeName: string | Theme = "cle
   if (S.grid)
     out.push(`<defs><pattern id="grd" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="${S.grid}" stroke-width="1"/></pattern></defs><rect width="${W.toFixed(0)}" height="${H.toFixed(0)}" fill="url(#grd)"/>`);
 
+  // Each flow hops the OTHER flows' verticals, so a crossing always shows which
+  // line is continuous — the only cue available when both are the same service.
+  const allV = verticalRuns(routes);
+  const foreignV = routes.map((_, i) => allV.flatMap((v, j) => (j === i ? [] : v)));
+
   // flows, under the cards
   flows.forEach((f, i) => {
     const col = svcColor(f), pts = routes[i], dash = T.dash(f);
-    out.push(`<path d="${path(pts)}" fill="none" stroke="${col}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    out.push(`<path d="${path(pts, PATH_CORNER_R, foreignV[i])}" fill="none" stroke="${col}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
     // OPEN ring = the end that opens the connection (see iso.ts for the rationale)
     out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4.5" fill="${S.bg}" stroke="${col}" stroke-width="2.25"/>`);
   });

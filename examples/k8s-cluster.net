@@ -1,0 +1,75 @@
+---
+title: Kubernetes Cluster — Firewall Flows
+theme: clean
+---
+
+# Port data from the Kubernetes documentation, "Ports and Protocols":
+#   https://kubernetes.io/docs/reference/networking/ports-and-protocols/
+#   © The Kubernetes Authors, distributed under CC BY 4.0.
+# Topology (stacked-etcd HA: 2 control-plane nodes behind an API load
+# balancer, 2 workers) is a conventional deployment, not from that page.
+#
+# Note the rows with NO arrow landing on them: kube-scheduler, controller-
+# manager and the etcd CLIENT port are listed "Used By: Self" — they listen,
+# but nothing off-box should reach them. That is a firewall fact worth seeing,
+# not a gap in the drawing.
+
+admin desktop "Admin · kubectl"
+users desktop "Application Users"
+
+lb router "API Load Balancer" {
+  service api "Kubernetes API (VIP)" tcp/6443
+}
+
+cp1 server "control-plane-1" {
+  service api      "kube-apiserver"          tcp/6443
+  service etcdcli  "etcd client API"         tcp/2379
+  service etcdpeer "etcd peer API"           tcp/2380
+  service ctrl     "kube-controller-manager" tcp/10257
+  service sched    "kube-scheduler"          tcp/10259
+  service kubelet  "Kubelet API"             tcp/10250
+}
+
+cp2 server "control-plane-2" {
+  service api      "kube-apiserver"          tcp/6443
+  service etcdcli  "etcd client API"         tcp/2379
+  service etcdpeer "etcd peer API"           tcp/2380
+  service ctrl     "kube-controller-manager" tcp/10257
+  service sched    "kube-scheduler"          tcp/10259
+  service kubelet  "Kubelet API"             tcp/10250
+}
+
+w1 server "worker-1" {
+  service kubelet  "Kubelet API"                 tcp/10250
+  service proxy    "kube-proxy health"           tcp/10256
+  service nodeport "NodePort Services 30000-32767" tcp/30000
+}
+
+w2 server "worker-2" {
+  service kubelet  "Kubelet API"                 tcp/10250
+  service proxy    "kube-proxy health"           tcp/10256
+  service nodeport "NodePort Services 30000-32767" tcp/30000
+}
+
+# ---- everything reaches the API through one front door ----
+flow admin -> lb.api
+flow w1 -> lb.api
+flow w2 -> lb.api
+flow lb -> cp1.api
+flow lb -> cp2.api
+
+# ---- etcd peers replicate to each other (a deliberate 2-cycle) ----
+flow cp1 -> cp2.etcdpeer
+flow cp2 -> cp1.etcdpeer
+
+# ---- the control plane INITIATES to every kubelet (logs, exec, metrics) ----
+flow cp1 -> w1.kubelet
+flow cp1 -> w2.kubelet
+flow cp2 -> w1.kubelet
+flow cp2 -> w2.kubelet
+flow cp1 -> cp2.kubelet          # control-plane nodes run kubelets too
+flow cp2 -> cp1.kubelet
+
+# ---- application traffic enters on NodePort ----
+flow users -> w1.nodeport
+flow users -> w2.nodeport

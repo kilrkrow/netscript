@@ -1,0 +1,168 @@
+<svg viewBox="0 0 948 1358" xmlns="http://www.w3.org/2000/svg" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#0f172a" flood-opacity="0.16"/></filter></defs>
+<rect width="948" height="1358" fill="#ffffff"/>
+<path d="M 344.3,1162.0 L 344.3,1019.5 Q 344.3,1011.5 352.3,1011.5 L 406.3,1011.5" fill="none" stroke="#2563eb" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="344.3" cy="1162.0" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.25"/>
+<path d="M 301.1,199.0 L 301.1,217.0 Q 301.1,225.0 293.1,225.0 L 134.0,225.0 Q 126.0,225.0 126.0,233.0 L 126.0,1094.0 Q 126.0,1102.0 134.0,1102.0 L 348.3,1102.0 Q 356.3,1102.0 356.3,1094.0 L 356.3,1019.5 Q 356.3,1011.5 364.3,1011.5 L 406.3,1011.5" fill="none" stroke="#2563eb" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="301.1" cy="199.0" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.25"/>
+<path d="M 721.3,199.0 L 721.3,217.0 Q 721.3,225.0 729.3,225.0 L 904.4,225.0 Q 912.4,225.0 912.4,233.0 L 912.4,1077.0 Q 912.4,1085.0 904.4,1085.0 L 376.3,1085.0 Q 368.3,1085.0 368.3,1077.0 L 368.3,1019.5 Q 368.3,1011.5 376.3,1011.5 L 406.3,1011.5" fill="none" stroke="#2563eb" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="721.3" cy="199.0" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.25"/>
+<path d="M 476.2,965.0 L 476.2,896.0 Q 476.2,888.0 468.2,888.0 L 361.4,888.0 A 5,5 0 0 0 351.4,888.0 L 340.4,888.0 Q 332.4,888.0 332.4,880.0 L 332.4,717.5 Q 332.4,709.5 340.4,709.5 L 394.4,709.5" fill="none" stroke="#2563eb" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="476.2" cy="965.0" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.25"/>
+<path d="M 546.2,965.0 L 546.2,947.0 Q 546.2,939.0 538.2,939.0 L 481.2,939.0 A 5,5 0 0 0 471.2,939.0 L 131.0,939.0 A 5,5 0 0 0 121.0,939.0 L 102.0,939.0 Q 94.0,939.0 94.0,931.0 L 94.0,594.0 Q 94.0,586.0 102.0,586.0 L 121.0,586.0 A 5,5 0 0 1 131.0,586.0 L 324.4,586.0 Q 332.4,586.0 332.4,578.0 L 332.4,415.5 Q 332.4,407.5 340.4,407.5 L 394.4,407.5" fill="none" stroke="#2563eb" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="546.2" cy="965.0" r="4.5" fill="#ffffff" stroke="#2563eb" stroke-width="2.25"/>
+<path d="M 441.1,663.0 L 441.1,611.0 Q 441.1,603.0 433.1,603.0 L 352.4,603.0 Q 344.4,603.0 344.4,595.0 L 344.4,457.5 Q 344.4,449.5 352.4,449.5 L 394.4,449.5" fill="none" stroke="#16a34a" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="441.1" cy="663.0" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2.25"/>
+<path d="M 441.1,531.0 L 441.1,549.0 Q 441.1,557.0 433.1,557.0 L 361.4,557.0 A 5,5 0 0 0 351.4,557.0 L 349.4,557.0 A 5,5 0 0 0 339.4,557.0 L 337.4,557.0 A 5,5 0 0 0 327.4,557.0 L 131.0,557.0 A 5,5 0 0 0 121.0,557.0 L 86.0,557.0 Q 78.0,557.0 78.0,565.0 L 78.0,897.0 Q 78.0,905.0 86.0,905.0 L 89.0,905.0 A 5,5 0 0 1 99.0,905.0 L 121.0,905.0 A 5,5 0 0 1 131.0,905.0 L 336.4,905.0 Q 344.4,905.0 344.4,897.0 L 344.4,759.5 Q 344.4,751.5 352.4,751.5 L 394.4,751.5" fill="none" stroke="#16a34a" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="441.1" cy="531.0" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2.25"/>
+<path d="M 487.8,663.0 L 487.8,645.0 Q 487.8,637.0 479.8,637.0 L 446.1,637.0 A 5,5 0 0 0 436.1,637.0 L 131.0,637.0 A 5,5 0 0 0 121.0,637.0 L 99.0,637.0 A 5,5 0 0 0 89.0,637.0 L 83.0,637.0 A 5,5 0 0 0 73.0,637.0 L 70.0,637.0 Q 62.0,637.0 62.0,629.0 L 62.0,279.0 Q 62.0,271.0 70.0,271.0 L 96.0,271.0 Q 104.0,271.0 104.0,263.0 L 104.0,146.5 Q 104.0,138.5 112.0,138.5 L 166.0,138.5" fill="none" stroke="#db2777" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="487.8" cy="663.0" r="4.5" fill="#ffffff" stroke="#db2777" stroke-width="2.25"/>
+<path d="M 534.6,663.0 L 534.6,645.0 Q 534.6,637.0 526.6,637.0 L 446.1,637.0 A 5,5 0 0 0 436.1,637.0 L 131.0,637.0 A 5,5 0 0 0 121.0,637.0 L 99.0,637.0 A 5,5 0 0 0 89.0,637.0 L 83.0,637.0 A 5,5 0 0 0 73.0,637.0 L 54.0,637.0 Q 46.0,637.0 46.0,629.0 L 46.0,330.0 Q 46.0,322.0 54.0,322.0 L 57.0,322.0 A 5,5 0 0 1 67.0,322.0 L 121.0,322.0 A 5,5 0 0 1 131.0,322.0 L 482.8,322.0 A 5,5 0 0 1 492.8,322.0 L 516.2,322.0 Q 524.2,322.0 524.2,314.0 L 524.2,146.5 Q 524.2,138.5 532.2,138.5 L 586.2,138.5" fill="none" stroke="#db2777" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="534.6" cy="663.0" r="4.5" fill="#ffffff" stroke="#db2777" stroke-width="2.25"/>
+<path d="M 487.8,361.0 L 487.8,296.0 Q 487.8,288.0 479.8,288.0 L 124.0,288.0 Q 116.0,288.0 116.0,280.0 L 116.0,146.5 Q 116.0,138.5 124.0,138.5 L 166.0,138.5" fill="none" stroke="#db2777" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="487.8" cy="361.0" r="4.5" fill="#ffffff" stroke="#db2777" stroke-width="2.25"/>
+<path d="M 536.2,361.0 L 536.2,146.5 Q 536.2,138.5 544.2,138.5 L 586.2,138.5" fill="none" stroke="#db2777" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="536.2" cy="361.0" r="4.5" fill="#ffffff" stroke="#db2777" stroke-width="2.25"/>
+<path d="M 581.3,663.0 L 581.3,628.0 Q 581.3,620.0 573.3,620.0 L 446.1,620.0 A 5,5 0 0 0 436.1,620.0 L 364.4,620.0 Q 356.4,620.0 356.4,612.0 L 356.4,520.5 Q 356.4,512.5 364.4,512.5 L 394.4,512.5" fill="none" stroke="#db2777" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="581.3" cy="663.0" r="4.5" fill="#ffffff" stroke="#db2777" stroke-width="2.25"/>
+<path d="M 581.3,531.0 L 581.3,549.0 Q 581.3,557.0 573.3,557.0 L 361.4,557.0 A 5,5 0 0 0 351.4,557.0 L 349.4,557.0 A 5,5 0 0 0 339.4,557.0 L 337.4,557.0 A 5,5 0 0 0 327.4,557.0 L 131.0,557.0 A 5,5 0 0 0 121.0,557.0 L 67.0,557.0 A 5,5 0 0 0 57.0,557.0 L 51.0,557.0 A 5,5 0 0 0 41.0,557.0 L 38.0,557.0 Q 30.0,557.0 30.0,565.0 L 30.0,914.0 Q 30.0,922.0 38.0,922.0 L 89.0,922.0 A 5,5 0 0 1 99.0,922.0 L 121.0,922.0 A 5,5 0 0 1 131.0,922.0 L 348.4,922.0 Q 356.4,922.0 356.4,914.0 L 356.4,822.5 Q 356.4,814.5 364.4,814.5 L 394.4,814.5" fill="none" stroke="#db2777" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="581.3" cy="531.0" r="4.5" fill="#ffffff" stroke="#db2777" stroke-width="2.25"/>
+<path d="M 577.5,1162.0 L 577.5,1144.0 Q 577.5,1136.0 585.5,1136.0 L 1000.4,1136.0 Q 1008.4,1136.0 1008.4,1128.0 L 1008.4,262.0 Q 1008.4,254.0 1000.4,254.0 L 917.4,254.0 A 5,5 0 0 0 907.4,254.0 L 553.2,254.0 A 5,5 0 0 0 543.2,254.0 L 541.2,254.0 A 5,5 0 0 0 531.2,254.0 L 529.2,254.0 A 5,5 0 0 0 519.2,254.0 L 136.0,254.0 Q 128.0,254.0 128.0,246.0 L 128.0,188.5 Q 128.0,180.5 136.0,180.5 L 166.0,180.5" fill="none" stroke="#d97706" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="577.5" cy="1162.0" r="4.5" fill="#ffffff" stroke="#d97706" stroke-width="2.25"/>
+<path d="M 642.9,1162.0 L 642.9,1144.0 Q 642.9,1136.0 650.9,1136.0 L 1016.4,1136.0 Q 1024.4,1136.0 1024.4,1128.0 L 1024.4,279.0 Q 1024.4,271.0 1016.4,271.0 L 1013.4,271.0 A 5,5 0 0 0 1003.4,271.0 L 917.4,271.0 A 5,5 0 0 0 907.4,271.0 L 556.2,271.0 Q 548.2,271.0 548.2,263.0 L 548.2,188.5 Q 548.2,180.5 556.2,180.5 L 586.2,180.5" fill="none" stroke="#d97706" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="642.9" cy="1162.0" r="4.5" fill="#ffffff" stroke="#d97706" stroke-width="2.25"/>
+<rect x="240.2" y="1162.0" width="196" height="64" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="253.0" y="1186.2" width="18.4" height="12.5" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="262.2" y1="1198.6" x2="262.2" y2="1202.2" stroke="#475569" stroke-width="1.4"/><line x1="257.6" y1="1202.2" x2="266.8" y2="1202.2" stroke="#475569" stroke-width="1.4"/>
+<text x="282.2" y="1194.0" font-size="12" fill="#1f2430" font-weight="700" dominant-baseline="middle">Admin · kubectl</text>
+<rect x="512.2" y="1162.0" width="196" height="64" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="525.0" y="1186.2" width="18.4" height="12.5" rx="3" fill="none" stroke="#475569" stroke-width="1.4"/><line x1="534.2" y1="1198.6" x2="534.2" y2="1202.2" stroke="#475569" stroke-width="1.4"/><line x1="529.6" y1="1202.2" x2="538.8" y2="1202.2" stroke="#475569" stroke-width="1.4"/>
+<text x="554.2" y="1194.0" font-size="12" fill="#1f2430" font-weight="700" dominant-baseline="middle">Application Users</text>
+<rect x="406.3" y="965.0" width="209.88" height="65" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<circle cx="428.26" cy="983" r="8.0" fill="none" stroke="#2563eb" stroke-width="1.4"/><line x1="427.3" y1="983.0" x2="423.5" y2="983.0" stroke="#2563eb" stroke-width="1.4"/><path d="M 423.5,983.0 l -1.9,-1.3 M 423.5,983.0 l -1.9,1.3" stroke="#2563eb" stroke-width="1.4" fill="none"/><line x1="429.2" y1="983.0" x2="433.1" y2="983.0" stroke="#2563eb" stroke-width="1.4"/><path d="M 433.1,983.0 l 1.9,1.3 M 433.1,983.0 l 1.9,-1.3" stroke="#2563eb" stroke-width="1.4" fill="none"/><line x1="428.3" y1="982.0" x2="428.3" y2="978.2" stroke="#2563eb" stroke-width="1.4"/><path d="M 428.3,978.2 l -1.3,-1.9 M 428.3,978.2 l 1.3,-1.9" stroke="#2563eb" stroke-width="1.4" fill="none"/><line x1="428.3" y1="984.0" x2="428.3" y2="987.8" stroke="#2563eb" stroke-width="1.4"/><path d="M 428.3,987.8 l 1.3,1.9 M 428.3,987.8 l -1.3,1.9" stroke="#2563eb" stroke-width="1.4" fill="none"/>
+<text x="448.3" y="983.0" font-size="12" fill="#1f2430" font-weight="700" dominant-baseline="middle">API Load Balancer</text>
+<line x1="406.3" y1="1001.0" x2="616.1" y2="1001.0" stroke="#d7dbe2" stroke-width="1"/>
+<text x="606.1" y="983.0" font-size="8.5" text-anchor="end" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">1 SERVICES</text>
+<rect x="394.4" y="663.0" width="233.66" height="170" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="410.1" y="672.6" width="12.5" height="16.8" rx="3" fill="none" stroke="#4f46e5" stroke-width="1.4"/><line x1="412.4" y1="676.6" x2="418.6" y2="676.6" stroke="#4f46e5" stroke-width="1.4"/><circle cx="420.1" cy="676.6" r="1.4" fill="#4f46e5"/><line x1="412.4" y1="681.0" x2="418.6" y2="681.0" stroke="#4f46e5" stroke-width="1.4"/><circle cx="420.1" cy="681.0" r="1.4" fill="#4f46e5"/><line x1="412.4" y1="685.4" x2="418.6" y2="685.4" stroke="#4f46e5" stroke-width="1.4"/><circle cx="420.1" cy="685.4" r="1.4" fill="#4f46e5"/>
+<text x="436.4" y="681.0" font-size="12" fill="#1f2430" font-weight="700" dominant-baseline="middle">control-plane-1</text>
+<line x1="394.4" y1="699.0" x2="628.0" y2="699.0" stroke="#d7dbe2" stroke-width="1"/>
+<text x="618.0" y="681.0" font-size="8.5" text-anchor="end" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">6 SERVICES</text>
+<rect x="394.4" y="361.0" width="233.66" height="170" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="410.1" y="370.6" width="12.5" height="16.8" rx="3" fill="none" stroke="#4f46e5" stroke-width="1.4"/><line x1="412.4" y1="374.6" x2="418.6" y2="374.6" stroke="#4f46e5" stroke-width="1.4"/><circle cx="420.1" cy="374.6" r="1.4" fill="#4f46e5"/><line x1="412.4" y1="379.0" x2="418.6" y2="379.0" stroke="#4f46e5" stroke-width="1.4"/><circle cx="420.1" cy="379.0" r="1.4" fill="#4f46e5"/><line x1="412.4" y1="383.4" x2="418.6" y2="383.4" stroke="#4f46e5" stroke-width="1.4"/><circle cx="420.1" cy="383.4" r="1.4" fill="#4f46e5"/>
+<text x="436.4" y="379.0" font-size="12" fill="#1f2430" font-weight="700" dominant-baseline="middle">control-plane-2</text>
+<line x1="394.4" y1="397.0" x2="628.0" y2="397.0" stroke="#d7dbe2" stroke-width="1"/>
+<text x="618.0" y="379.0" font-size="8.5" text-anchor="end" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">6 SERVICES</text>
+<rect x="166.0" y="92.0" width="270.2" height="107" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="181.8" y="101.6" width="12.5" height="16.8" rx="3" fill="none" stroke="#4f46e5" stroke-width="1.4"/><line x1="184.0" y1="105.6" x2="190.2" y2="105.6" stroke="#4f46e5" stroke-width="1.4"/><circle cx="191.7" cy="105.6" r="1.4" fill="#4f46e5"/><line x1="184.0" y1="110.0" x2="190.2" y2="110.0" stroke="#4f46e5" stroke-width="1.4"/><circle cx="191.7" cy="110.0" r="1.4" fill="#4f46e5"/><line x1="184.0" y1="114.4" x2="190.2" y2="114.4" stroke="#4f46e5" stroke-width="1.4"/><circle cx="191.7" cy="114.4" r="1.4" fill="#4f46e5"/>
+<text x="208.0" y="110.0" font-size="12" fill="#1f2430" font-weight="700" dominant-baseline="middle">worker-1</text>
+<line x1="166.0" y1="128.0" x2="436.2" y2="128.0" stroke="#d7dbe2" stroke-width="1"/>
+<text x="426.2" y="110.0" font-size="8.5" text-anchor="end" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">3 SERVICES</text>
+<rect x="586.2" y="92.0" width="270.2" height="107" rx="8" fill="#ffffff" stroke="#d7dbe2" stroke-width="1.2" filter="url(#sh)"/>
+<rect x="602.0" y="101.6" width="12.5" height="16.8" rx="3" fill="none" stroke="#4f46e5" stroke-width="1.4"/><line x1="604.2" y1="105.6" x2="610.4" y2="105.6" stroke="#4f46e5" stroke-width="1.4"/><circle cx="611.9" cy="105.6" r="1.4" fill="#4f46e5"/><line x1="604.2" y1="110.0" x2="610.4" y2="110.0" stroke="#4f46e5" stroke-width="1.4"/><circle cx="611.9" cy="110.0" r="1.4" fill="#4f46e5"/><line x1="604.2" y1="114.4" x2="610.4" y2="114.4" stroke="#4f46e5" stroke-width="1.4"/><circle cx="611.9" cy="114.4" r="1.4" fill="#4f46e5"/>
+<text x="628.2" y="110.0" font-size="12" fill="#1f2430" font-weight="700" dominant-baseline="middle">worker-2</text>
+<line x1="586.2" y1="128.0" x2="856.4" y2="128.0" stroke="#d7dbe2" stroke-width="1"/>
+<text x="846.4" y="110.0" font-size="8.5" text-anchor="end" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">3 SERVICES</text>
+<rect x="414.3" y="1002.0" width="193.9" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="414.3" y="1002.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="424.3" y="1011.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">Kubernetes API (VIP)</text>
+<text x="602.1" y="1011.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/6443</text>
+<rect x="402.4" y="700.0" width="217.7" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="402.4" y="700.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="412.4" y="709.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">kube-apiserver</text>
+<text x="614.0" y="709.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/6443</text>
+<rect x="402.4" y="721.0" width="217.7" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="402.4" y="721.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="412.4" y="730.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">etcd client API</text>
+<text x="614.0" y="730.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/2379</text>
+<rect x="402.4" y="742.0" width="217.7" height="19.0" rx="3" fill="#16a34a" fill-opacity="0.09"/>
+<rect x="402.4" y="742.0" width="3" height="19.0" rx="1.5" fill="#16a34a"/>
+<text x="412.4" y="751.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">etcd peer API</text>
+<text x="614.0" y="751.5" font-size="9.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/2380</text>
+<rect x="402.4" y="763.0" width="217.7" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="402.4" y="763.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="412.4" y="772.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">kube-controller-manager</text>
+<text x="614.0" y="772.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10257</text>
+<rect x="402.4" y="784.0" width="217.7" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="402.4" y="784.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="412.4" y="793.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">kube-scheduler</text>
+<text x="614.0" y="793.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10259</text>
+<rect x="402.4" y="805.0" width="217.7" height="19.0" rx="3" fill="#db2777" fill-opacity="0.09"/>
+<rect x="402.4" y="805.0" width="3" height="19.0" rx="1.5" fill="#db2777"/>
+<text x="412.4" y="814.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">Kubelet API</text>
+<text x="614.0" y="814.5" font-size="9.5" text-anchor="end" fill="#db2777" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10250</text>
+<rect x="402.4" y="398.0" width="217.7" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="402.4" y="398.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="412.4" y="407.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">kube-apiserver</text>
+<text x="614.0" y="407.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/6443</text>
+<rect x="402.4" y="419.0" width="217.7" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="402.4" y="419.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="412.4" y="428.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">etcd client API</text>
+<text x="614.0" y="428.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/2379</text>
+<rect x="402.4" y="440.0" width="217.7" height="19.0" rx="3" fill="#16a34a" fill-opacity="0.09"/>
+<rect x="402.4" y="440.0" width="3" height="19.0" rx="1.5" fill="#16a34a"/>
+<text x="412.4" y="449.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">etcd peer API</text>
+<text x="614.0" y="449.5" font-size="9.5" text-anchor="end" fill="#16a34a" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/2380</text>
+<rect x="402.4" y="461.0" width="217.7" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="402.4" y="461.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="412.4" y="470.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">kube-controller-manager</text>
+<text x="614.0" y="470.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10257</text>
+<rect x="402.4" y="482.0" width="217.7" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="402.4" y="482.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="412.4" y="491.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">kube-scheduler</text>
+<text x="614.0" y="491.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10259</text>
+<rect x="402.4" y="503.0" width="217.7" height="19.0" rx="3" fill="#db2777" fill-opacity="0.09"/>
+<rect x="402.4" y="503.0" width="3" height="19.0" rx="1.5" fill="#db2777"/>
+<text x="412.4" y="512.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">Kubelet API</text>
+<text x="614.0" y="512.5" font-size="9.5" text-anchor="end" fill="#db2777" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10250</text>
+<rect x="174.0" y="129.0" width="254.2" height="19.0" rx="3" fill="#db2777" fill-opacity="0.09"/>
+<rect x="174.0" y="129.0" width="3" height="19.0" rx="1.5" fill="#db2777"/>
+<text x="184.0" y="138.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">Kubelet API</text>
+<text x="422.2" y="138.5" font-size="9.5" text-anchor="end" fill="#db2777" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10250</text>
+<rect x="174.0" y="150.0" width="254.2" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="174.0" y="150.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="184.0" y="159.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">kube-proxy health</text>
+<text x="422.2" y="159.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10256</text>
+<rect x="174.0" y="171.0" width="254.2" height="19.0" rx="3" fill="#d97706" fill-opacity="0.09"/>
+<rect x="174.0" y="171.0" width="3" height="19.0" rx="1.5" fill="#d97706"/>
+<text x="184.0" y="180.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">NodePort Services 30000-32767</text>
+<text x="422.2" y="180.5" font-size="9.5" text-anchor="end" fill="#d97706" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/30000</text>
+<rect x="594.2" y="129.0" width="254.2" height="19.0" rx="3" fill="#db2777" fill-opacity="0.09"/>
+<rect x="594.2" y="129.0" width="3" height="19.0" rx="1.5" fill="#db2777"/>
+<text x="604.2" y="138.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">Kubelet API</text>
+<text x="842.4" y="138.5" font-size="9.5" text-anchor="end" fill="#db2777" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10250</text>
+<rect x="594.2" y="150.0" width="254.2" height="19.0" rx="3" fill="#2563eb" fill-opacity="0.09"/>
+<rect x="594.2" y="150.0" width="3" height="19.0" rx="1.5" fill="#2563eb"/>
+<text x="604.2" y="159.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">kube-proxy health</text>
+<text x="842.4" y="159.5" font-size="9.5" text-anchor="end" fill="#2563eb" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/10256</text>
+<rect x="594.2" y="171.0" width="254.2" height="19.0" rx="3" fill="#d97706" fill-opacity="0.09"/>
+<rect x="594.2" y="171.0" width="3" height="19.0" rx="1.5" fill="#d97706"/>
+<text x="604.2" y="180.5" font-size="10.5" fill="#1f2430" dominant-baseline="middle">NodePort Services 30000-32767</text>
+<text x="842.4" y="180.5" font-size="9.5" text-anchor="end" fill="#d97706" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" dominant-baseline="middle">tcp/30000</text>
+<path d="M 406.3,1011.5 L 394.3,1018.5 L 394.3,1004.5 Z" fill="#2563eb"/>
+<path d="M 406.3,1011.5 L 394.3,1018.5 L 394.3,1004.5 Z" fill="#2563eb"/>
+<path d="M 406.3,1011.5 L 394.3,1018.5 L 394.3,1004.5 Z" fill="#2563eb"/>
+<path d="M 394.4,709.5 L 382.4,716.5 L 382.4,702.5 Z" fill="#2563eb"/>
+<path d="M 394.4,407.5 L 382.4,414.5 L 382.4,400.5 Z" fill="#2563eb"/>
+<path d="M 394.4,449.5 L 382.4,456.5 L 382.4,442.5 Z" fill="#16a34a"/>
+<path d="M 394.4,751.5 L 382.4,758.5 L 382.4,744.5 Z" fill="#16a34a"/>
+<path d="M 166.0,138.5 L 154.0,145.5 L 154.0,131.5 Z" fill="#db2777"/>
+<path d="M 586.2,138.5 L 574.2,145.5 L 574.2,131.5 Z" fill="#db2777"/>
+<path d="M 166.0,138.5 L 154.0,145.5 L 154.0,131.5 Z" fill="#db2777"/>
+<path d="M 586.2,138.5 L 574.2,145.5 L 574.2,131.5 Z" fill="#db2777"/>
+<path d="M 394.4,512.5 L 382.4,519.5 L 382.4,505.5 Z" fill="#db2777"/>
+<path d="M 394.4,814.5 L 382.4,821.5 L 382.4,807.5 Z" fill="#db2777"/>
+<path d="M 166.0,180.5 L 154.0,187.5 L 154.0,173.5 Z" fill="#d97706"/>
+<path d="M 586.2,180.5 L 574.2,187.5 L 574.2,173.5 Z" fill="#d97706"/>
+<text x="92" y="1296" font-size="11" fill="#6b7280" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="1">SERVICES</text>
+<line x1="180.0" y1="1292.5" x2="200.0" y2="1292.5" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round"/>
+<text x="206.0" y="1296.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/6443 · Kubernetes API (VIP)</text>
+<line x1="408.8" y1="1292.5" x2="428.8" y2="1292.5" stroke="#16a34a" stroke-width="3.2" stroke-linecap="round"/>
+<text x="434.8" y="1296.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/2380 · etcd peer API</text>
+<line x1="594.9" y1="1292.5" x2="614.9" y2="1292.5" stroke="#db2777" stroke-width="3.2" stroke-linecap="round"/>
+<text x="620.9" y="1296.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/10250 · Kubelet API</text>
+<line x1="180.0" y1="1307.5" x2="200.0" y2="1307.5" stroke="#d97706" stroke-width="3.2" stroke-linecap="round"/>
+<text x="206.0" y="1311.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">tcp/30000 · NodePort Services 30000-32767</text>
+<text x="92" y="1335.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">○ OPENS THE CONNECTION · ARROWHEAD LANDS ON THE LISTENING ROW/PORT · SO INBOUND AND OUTBOUND ARE BOTH READABLE FROM ONE LINE</text>
+<text x="92" y="46.0" font-size="14" fill="#1f2430" font-weight="700" letter-spacing="0.4">Kubernetes Cluster — Firewall Flows</text>
+<text x="92" y="64.0" font-size="10" fill="#6b7280" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="1">TRAFFIC · L4 FLOWS · 7 HOSTS · 15 FLOWS · 4 SERVICES</text>
+</svg>

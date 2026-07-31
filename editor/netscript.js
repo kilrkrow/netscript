@@ -89,12 +89,38 @@
  * (trunk vs. access). A Bond/LAG is a LOGICAL INTERFACE built from physical
  * member ports on one device — the bridge between the two layers.
  */
-                                                                               
+                             
+                 
+                                                                             
+                
+                   
+                                                                          
+                
+ 
                        
                                              
                
                                                                  
                         
+ 
+
+/**
+ * An L2 segment drawn as a Visio-style Ethernet *tube* (bus) with per-host
+ * drops and port/IP callouts. Can be authored directly, or derived from a
+ * VLAN that carries a subnet (see resolveSegments in logical.ts).
+ */
+                                
+                 
+                                                       
+                
+                                                                 
+                
+ 
+                          
+             
+                                                                             
+                                                                             
+                           
  
                        
                                                                            
@@ -381,91 +407,313 @@ const cloud          = (cx, cy, s, st, fill, sw) => {
 };
 
 
+// ---- logical.ts ----
+/**
+ * NetScript logical layer — helpers that project the LOGICAL overlay
+ * (VLANs / subnets / bonds / interface addresses) over the same positioned
+ * model the physical renderer uses.
+ *
+ * This module owns NO geometry and NO SVG. It answers questions the renderer
+ * asks ("what VLANs does this link carry?", "is this link a bond member?",
+ * "what colour is VLAN 20?") so render.ts stays a thin view. The model remains
+ * the single source of truth; this is a derived projection, never stored back.
+ */
+                                                                                           
+
+/** Stable VLAN-id → palette-index map (sorted by id, so colours are deterministic). */function vlanColorIndex(m          )                      {
+  const ids = [...new Set((m.vlans ?? []).map((v) => v.id))].sort((a, b) => a - b);
+  return new Map(ids.map((id, i) => [id, i]));
+}
+
+/** device id → its Bond list (a device may own several). */function bondsByDevice(m          )                      {
+  const out = new Map                ();
+  for (const b of m.bonds ?? []) {
+    const arr = out.get(b.device) ?? [];
+    arr.push(b);
+    out.set(b.device, arr);
+  }
+  return out;
+}
+
+/** Find the bond (if any) that a given `{device, port}` is a member of. */function bondForPort(m          , device        , port         )                   {
+  if (!port) return undefined;
+  return (m.bonds ?? []).find((b) => b.device === device && b.memberPorts.includes(port));
+}
+
+/**
+ * For a link, the set of VLAN ids it carries. A link carries a VLAN when EITHER
+ * endpoint's attached port is a member of that VLAN. Used to colour the link
+ * and badge it in the logical view.
+ */function vlansOnLink(m          , l      )         {
+  const hits         = [];
+  for (const v of m.vlans ?? []) {
+    const onEnd = (dev        , port         ) =>
+      v.members.some((mem) =>
+        mem.device === dev && (!mem.port || !port || mem.port === port));
+    if (onEnd(l.a, l.aPort) || onEnd(l.b, l.bPort)) hits.push(v);
+  }
+  return hits;
+}
+
+/** Resolve a port object on a device by id (for callouts / addresses). */function portOf(m          , device        , port         )                   {
+  if (!port) return undefined;
+  return m.devices.find((d) => d.id === device)?.ports?.find((p) => p.id === port);
+}
+
+/**
+ * Links that represent a bond should be COLLAPSED to a single logical link in
+ * the logical view (the physical view still draws the offset pair). We treat a
+ * link as bond-collapsible when it is `bond: true` OR both endpoints' ports are
+ * bond members. Returns a key so callers can de-dupe parallel members.
+ */function bondKey(m          , l      )                {
+  if (l.bond) return `${l.a}~${l.b}~bond`;
+  const ba = bondForPort(m, l.a, l.aPort);
+  const bb = bondForPort(m, l.b, l.bPort);
+  if (ba || bb) return `${l.a}~${l.b}~${ba?.id ?? ""}~${bb?.id ?? ""}`;
+  return null;
+}
+
+/** True when the model carries any logical content worth overlaying. */const hasLogical = (m          )          =>
+  !!(m.vlans?.length || m.bonds?.length || m.segments?.length ||
+     m.devices.some((d) => d.ports?.some((p) => p.addr)));
+
+/**
+ * Segments to draw as Ethernet tubes.
+ *
+ * Prefer explicitly authored `m.segments`. When none are given, derive one
+ * tube per VLAN that has a subnet — so existing logical models get buses for
+ * free. Port.addr fills in when the member itself has no addr.
+ */function resolveSegments(m          )            {
+  if (m.segments?.length) return m.segments;
+  const out            = [];
+  for (const v of m.vlans ?? []) {
+    if (!v.subnet || !v.members.length) continue;
+    const members                  = v.members.map((mem) => {
+      const portAddr = portOf(m, mem.device, mem.port)?.addr;
+      // Prefer host address on the segment; fall back to interface addr (may be CIDR).
+      const addr = mem.addr ?? (portAddr && !portAddr.includes("/") ? portAddr : portAddr?.split("/")[0]);
+      return {
+        device: mem.device,
+        ...(mem.port ? { port: mem.port } : {}),
+        ...(addr ? { addr } : {}),
+      };
+    });
+    out.push({ id: `vlan${v.id}`, name: v.name, subnet: v.subnet, members });
+  }
+  return out;
+}
+
+
 // ---- layout.ts ----
 /**
  * NetScript layout — assigns x/y/w/h to a declarative model and derives zone
- * boxes. v0.1 is a deterministic tiered/rack layout (edge → core pair → rack
- * columns with a ToR over staggered hosts). A real crossing-minimising layered
- * placer is roadmap.
+ * boxes.
+ *
+ * Multi-segment bus layout (no wan/edge/core fabric):
+ *
+ *     [Default clients L→R]
+ *            ↓ drops
+ *     ═══ Default tube ═══
+ *
+ *     ═══ iot tube ═══
+ *            ↓ drops
+ *     [iot clients L→R]
+ *
+ * First segment: hosts above its tube. Later segments: tube above hosts so
+ * lines run down from that tube to its clients without crossing the tube above.
  */
-                                                   
+                                                            
 
 const SIZE                                   = {
   wan: [120, 46], edge: [150, 54], core: [150, 52], tor: [150, 50], host: [104, 48],
 };
-const LEFT = 92, RIGHT = 92, ZW = 356, GAP = 116;
-const Y = { wan: 44, edge: 150, core: 278, tor: 430, host0: 560, hostStep: 118 };
-const ROW_EVEN = [-114, 38], ROW_ODD = [-38, 114];   // staggered host x-offsets
+/** Max card width before render ellipsizes (matches glyph + pad chrome in render). */
+const MAX_CARD_W                         = {
+  wan: 180, edge: 220, core: 220, tor: 220, host: 200,
+};
+const LEFT = 92, RIGHT = 92, GAP = 80;
+const Y = { wan: 44, edge: 150, core: 278, tor: 400, host0: 520 };
+const HOST_GAP = 24;
+const HOST_STAGGER = 40;
+const RACK_MIN_W = 280;
+/** Room under a host band for its tube (hosts-above pattern). */const TUBE_BAND_RESERVE = 100;
+/** Room above a host band for its tube (hosts-below pattern). */const TUBE_ABOVE_RESERVE = 100;
+const BETWEEN = 48;
+/** Horizontal chrome inside a card (glyph + side pad) — keep in sync with render. */
+const CARD_CHROME = 38;
 
                                                                                     
                                                                 
 
-const SLOT = 140;   // width reserved per rackless tor/host in the fallback rowfunction layoutModel(m          )         {
-  const n = m.racks.length;
-  // Devices that belong to no rack still need a home. Without this they keep
-  // undefined x/y and every downstream measurement turns to NaN — which is
-  // reachable from ordinary input: a flow-only model, or a flat lab with no
-  // racks declared at all.
-  const rackless = m.devices.filter((d) => !d.rack && (d.tier === "tor" || d.tier === "host"));
-  const rackW = n ? LEFT + n * ZW + (n - 1) * GAP + RIGHT : 0;
-  const looseW = rackless.length ? LEFT + rackless.length * SLOT + RIGHT : 0;
-  const W = Math.max(rackW, looseW) || 560;   // the 560 floor applies only to an empty model
-  const cx0 = W / 2;
-  const rackCenter                         = {};
-  m.racks.forEach((r, i) => { rackCenter[r.id] = LEFT + ZW / 2 + i * (ZW + GAP); });
+/** Approximate text width for layout (matches render fitInBox char width). */function approxLabelW(label        , px = 11.5)         {
+  return label.length * px * 0.58;
+}
 
-  for (const d of m.devices) [d.w, d.h] = SIZE[d.tier];
+/** Card size so the label (and optional mgmt) fits, up to MAX_CARD_W. */function cardSize(d        )                   {
+  const base = SIZE[d.tier] ?? SIZE.host;
+  const maxW = MAX_CARD_W[d.tier] ?? MAX_CARD_W.host;
+  const labelNeed = approxLabelW(d.label) + CARD_CHROME;
+  const mgmtNeed = d.mgmt ? approxLabelW(d.mgmt, 9) + CARD_CHROME : 0;
+  const w = Math.min(maxW, Math.max(base[0], Math.ceil(labelNeed), Math.ceil(mgmtNeed)));
+  return [w, base[1]];
+}
 
+function placeHostsLR(hosts          , left        , y0        )         {
+  if (!hosts.length) return RACK_MIN_W;
+  let cursor = left;
+  hosts.forEach((d, i) => {
+    const [w, h] = cardSize(d);
+    d.w = w;
+    d.h = h;
+    d.x = cursor + w / 2;
+    d.y = y0 + (i % 2 === 0 ? 0 : HOST_STAGGER);
+    cursor += w + HOST_GAP;
+  });
+  // Drop trailing gap; ensure a minimum rack width.
+  return Math.max(RACK_MIN_W, cursor - left - HOST_GAP);
+}
+
+function sizeDevices(m          )       {
+  for (const d of m.devices) [d.w, d.h] = cardSize(d);
+}
+
+function contentWidth(m          )         {
+  let maxRight = LEFT;
   for (const d of m.devices) {
-    if (d.tier === "wan") { d.x = cx0; d.y = Y.wan; }
-    else if (d.tier === "edge") { d.x = cx0; d.y = Y.edge; }
+    if (d.x != null && d.w != null) maxRight = Math.max(maxRight, d.x + d.w / 2);
   }
-  const cores = m.devices.filter((d) => d.tier === "core");
-  const cgap = 240;
-  cores.forEach((d, i) => { d.x = cx0 - (cores.length - 1) * cgap / 2 + i * cgap; d.y = Y.core; });
+  return Math.max(maxRight + RIGHT, 560);
+}
 
-  for (const r of m.racks) {
-    const cx = rackCenter[r.id];
-    const tor = m.devices.find((d) => d.tier === "tor" && d.rack === r.id);
-    if (tor) { tor.x = cx; tor.y = Y.tor; }
-    const hosts = m.devices.filter((d) => d.tier === "host" && d.rack === r.id);
-    hosts.forEach((d, i) => {
-      const row = Math.floor(i / 2), col = i % 2;
-      d.x = cx + (row % 2 === 0 ? ROW_EVEN : ROW_ODD)[col];
-      d.y = Y.host0 + row * Y.hostStep;
-    });
-  }
-
-  // rackless tor/host devices: one centred row per tier, below the fabric
-  for (const [tier, y] of [["tor", Y.tor], ["host", Y.host0]]         ) {
-    const row = rackless.filter((d) => d.tier === tier);
-    row.forEach((d, i) => {
-      d.x = cx0 - ((row.length - 1) * SLOT) / 2 + i * SLOT;
-      d.y = y;
-    });
-  }
-
-  const pad = { l: 38, r: 38, t: 20, b: 24 };
+function makeZones(m          )         {
+  const pad = { l: 38, r: 38, t: 20, b: 28 };
   const bbox = (ds          ) => {
-    const x1 = Math.min(...ds.map((d) => d.x  - d.w  / 2)), x2 = Math.max(...ds.map((d) => d.x  + d.w  / 2));
-    const y1 = Math.min(...ds.map((d) => d.y  - d.h  / 2)), y2 = Math.max(...ds.map((d) => d.y  + d.h  / 2));
+    const x1 = Math.min(...ds.map((d) => d.x  - d.w  / 2));
+    const x2 = Math.max(...ds.map((d) => d.x  + d.w  / 2));
+    const y1 = Math.min(...ds.map((d) => d.y  - d.h  / 2));
+    const y2 = Math.max(...ds.map((d) => d.y  + d.h  / 2));
     return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
   };
   const zones         = [];
-  // Only draw a CORE container when there's a core *pair* to group; a lone
-  // core switch doesn't need a box around it.
-  if (cores.length >= 2) { const b = bbox(cores); zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: "CORE" }); }
+  const cores = m.devices.filter((d) => d.tier === "core");
+  if (cores.length >= 2) {
+    const b = bbox(cores);
+    zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: "CORE" });
+  }
   for (const r of m.racks) {
     const ds = m.devices.filter((d) => d.rack === r.id);
     if (!ds.length) continue;
     const b = bbox(ds);
-    // Zone label is whatever the author wrote (the rack "role" string) — so a
-    // container can read "WLAN · Haven" or "Wired", not a forced "RACK X".
-    zones.push({ x: b.x - pad.l, y: b.y - pad.t, w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b, label: r.role.toUpperCase() });
+    zones.push({
+      x: b.x - pad.l, y: b.y - pad.t,
+      w: b.w + pad.l + pad.r, h: b.h + pad.t + pad.b,
+      label: r.role.toUpperCase(),
+    });
+  }
+  return zones;
+}
+
+function uniqueMembers(m          , seg         )           {
+  const seen = new Set        ();
+  const out           = [];
+  for (const mem of seg.members) {
+    if (seen.has(mem.device)) continue;
+    const d = m.devices.find((x) => x.id === mem.device);
+    if (!d) continue;
+    seen.add(mem.device);
+    out.push(d);
+  }
+  return out;
+}
+
+/**
+ * Segment bus bands:
+ *   seg0 hosts → [tube0] → [tube1] → seg1 hosts → …
+ * First segment: hosts above tube. Later segments: tube above hosts.
+ */
+function layoutBusBands(m          , segs           )         {
+  sizeDevices(m);
+  let yCursor = 100;
+  let maxW = 560;
+  const rowSpan = SIZE.host[1] + HOST_STAGGER;
+
+  segs.forEach((seg, si) => {
+    const hosts = uniqueMembers(m, seg);
+    if (!hosts.length) return;
+
+    if (si === 0) {
+      // Hosts first, tube reserve below
+      const w = placeHostsLR(hosts, LEFT, yCursor + SIZE.host[1] / 2);
+      maxW = Math.max(maxW, LEFT + w + RIGHT);
+      yCursor += rowSpan + TUBE_BAND_RESERVE + BETWEEN;
+    } else {
+      // Tube reserve first, then hosts below (lines run down from tube)
+      yCursor += TUBE_ABOVE_RESERVE;
+      const w = placeHostsLR(hosts, LEFT, yCursor + SIZE.host[1] / 2);
+      maxW = Math.max(maxW, LEFT + w + RIGHT);
+      yCursor += rowSpan + BETWEEN;
+    }
+  });
+
+  const maxY = Math.max(
+    yCursor,
+    ...m.devices.map((d) => (d.y ?? 0) + (d.h ?? 0) / 2),
+  );
+  return { W: maxW, H: maxY + 80, zones: makeZones(m) };
+}
+
+function hasFabric(m          )          {
+  return m.devices.some((d) => d.tier === "wan" || d.tier === "edge" || d.tier === "core");
+}function layoutModel(m          )         {
+  if (m.segments?.length && !hasFabric(m)) {
+    return layoutBusBands(m, m.segments);
   }
 
-  const maxY = Math.max(Y.host0, ...m.devices.map((d) => d.y  + d.h  / 2));   // seeded, so an empty model can't yield -Infinity
-  return { W, H: maxY + 110, zones };
+  sizeDevices(m);
+  const n = m.racks.length;
+  const rackless = m.devices.filter((d) => !d.rack && (d.tier === "tor" || d.tier === "host"));
+  const cores = m.devices.filter((d) => d.tier === "core");
+  const edges = m.devices.filter((d) => d.tier === "edge");
+  const wans = m.devices.filter((d) => d.tier === "wan");
+
+  let cursor = LEFT;
+  for (const r of m.racks) {
+    const hosts = m.devices.filter((d) => d.tier === "host" && d.rack === r.id);
+    const tor = m.devices.find((d) => d.tier === "tor" && d.rack === r.id);
+    const w = placeHostsLR(hosts, cursor, Y.host0);
+    if (tor) {
+      tor.x = cursor + w / 2;
+      tor.y = Y.tor;
+    }
+    cursor += w + GAP;
+  }
+
+  if (rackless.length) {
+    const hosts = rackless.filter((d) => d.tier === "host");
+    const tors = rackless.filter((d) => d.tier === "tor");
+    const left = n ? cursor : LEFT;
+    const looseW = placeHostsLR(hosts, left, Y.host0);
+    tors.forEach((d, i) => {
+      d.x = left + looseW / 2 + (i - (tors.length - 1) / 2) * 160;
+      d.y = Y.tor;
+    });
+  }
+
+  const W = contentWidth(m);
+  const cx0 = W / 2;
+  wans.forEach((d) => { d.x = cx0; d.y = Y.wan; });
+  edges.forEach((d) => { d.x = cx0; d.y = Y.edge; });
+  const cgap = 240;
+  cores.forEach((d, i) => {
+    d.x = cx0 - ((cores.length - 1) * cgap) / 2 + i * cgap;
+    d.y = Y.core;
+  });
+
+  const maxY = Math.max(
+    Y.host0 + HOST_STAGGER + 48,
+    ...m.devices.map((d) => (d.y ?? 0) + (d.h ?? 0) / 2),
+  );
+  return { W, H: maxY + 110, zones: makeZones(m) };
 }
 
 
@@ -605,6 +853,1319 @@ function jumpsOnH(h     , foreignV       , r        )           {
 }
 
 
+// ---- tube.ts ----
+/**
+ * NetScript Ethernet tubes — Visio-style L2 buses.
+ *
+ * Multi-segment geometry (with layoutBusBands):
+ *
+ *     [Default hosts]     spur root on host bottom, drop down
+ *            |
+ *     ══ Default 192.168.86.0/24 ══
+ *
+ *     ══ iot 192.168.86.0/24 ══
+ *            |
+ *     [iot hosts]         spur root on host top, drop down from tube
+ *
+ * Callout = last octet only (class C is on the tube). Flag bar "|".
+ */
+                                               
+                                         
+
+const TUBE_H = 20;
+const BAND_GAP = 52;
+const SIDE_PAD = 56;
+const ARM_DX = 64;
+const ARM_DY = 28;
+const FLAG_HALF = 11;
+
+                           
+                 
+                
+                     
+                
+             
+               
+                     
+                                                                           
+                      
+ 
+
+                             
+             
+               
+                  
+                
+            
+             
+             
+                    
+ 
+
+                              
+                      
+                 
+               
+               
+ 
+
+/** Class C on tube → callout last octet only. */function hostOctet(addr         )                     {
+  if (!addr) return undefined;
+  const s = addr.trim();
+  if (!s) return undefined;
+  if (s.startsWith(".")) return s;
+  const m = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (m) return `.${m[4]}`;
+  if (/^\d{1,3}$/.test(s)) return `.${s}`;
+  return s;
+}
+
+function shouldDrop(m          , deviceId        , segmentHasHost         )          {
+  const d = m.devices.find((x) => x.id === deviceId);
+  if (!d) return false;
+  if (d.tier === "host") return true;
+  if (d.tier === "edge" || d.kind === "firewall" || d.kind === "router") return true;
+  if (!segmentHasHost) return true;
+  return false;
+}function layoutTubes(m          , colorAt                       )              {
+  const segs = resolveSegments(m);
+  const byId = new Map(m.devices.map((d) => [d.id, d]));
+  const tubes               = [];
+  let padL = 48, padR = 100;
+  let globalMinX = Infinity, globalMaxX = -Infinity;
+
+  for (const d of m.devices) {
+    if (d.x == null || d.w == null) continue;
+    globalMinX = Math.min(globalMinX, d.x - d.w / 2);
+    globalMaxX = Math.max(globalMaxX, d.x + d.w / 2);
+  }
+  if (!Number.isFinite(globalMinX)) { globalMinX = 0; globalMaxX = 400; }
+
+  // Track the bottom of the previous tube so later tubes stack cleanly
+  // when host bands leave a shared gap.
+  let prevTubeBottom = -Infinity;
+
+  segs.forEach((seg, si) => {
+               
+                                                                       
+                                                
+      
+    const raw       = [];
+    for (const mem of seg.members) {
+      const d = byId.get(mem.device);
+      if (d?.x == null || d.y == null || d.w == null || d.h == null) continue;
+      const portObj = portOf(m, mem.device, mem.port);
+      raw.push({
+        device: mem.device,
+        port: mem.port,
+        portLabel: portObj?.name ?? mem.port,
+        addr: hostOctet(mem.addr),
+        dx: d.x,
+        yTop: d.y - d.h / 2,
+        yBottom: d.y + d.h / 2,
+      });
+    }
+    const hasHost = raw.some((p) => byId.get(p.device)?.tier === "host");
+    const placed = raw.filter((p) => shouldDrop(m, p.device, hasHost));
+    if (!placed.length) return;
+
+    placed.sort((a, b) => a.dx - b.dx || a.yBottom - b.yBottom || (a.port ?? "").localeCompare(b.port ?? ""));
+
+    const maxBottom = Math.max(...placed.map((p) => p.yBottom));
+    const minTop = Math.min(...placed.map((p) => p.yTop));
+
+    // First segment (or hosts above mid): tube under hosts.
+    // Later segments with hosts below previous content: tube above those hosts.
+    const hostsAbove = si === 0 || maxBottom < prevTubeBottom + 200;
+    // More reliable: if host centres sit above where we'd place a stacked tube
+    // after prevTubeBottom, treat as hosts-above; else hosts-below.
+    const midY = placed.reduce((s, p) => s + (p.yTop + p.yBottom) / 2, 0) / placed.length;
+    const hostsAreAbove = si === 0 || midY < (prevTubeBottom > 0 ? prevTubeBottom + 80 : Infinity);
+
+    let tubeTop        ;
+    let tubeBottom        ;
+    if (hostsAreAbove) {
+      tubeTop = Math.max(maxBottom + BAND_GAP, prevTubeBottom + BAND_GAP);
+      tubeBottom = tubeTop + TUBE_H;
+    } else {
+      // Tube sits above this segment's hosts; drops run down to clients.
+      tubeBottom = minTop - BAND_GAP;
+      tubeTop = tubeBottom - TUBE_H;
+      // Keep stacked under previous tube
+      if (tubeTop < prevTubeBottom + 24) {
+        const shift = prevTubeBottom + 24 - tubeTop;
+        tubeTop += shift;
+        tubeBottom += shift;
+      }
+    }
+    const y = (tubeTop + tubeBottom) / 2;
+    prevTubeBottom = tubeBottom;
+
+    const totals = new Map                ();
+    for (const p of placed) totals.set(p.device, (totals.get(p.device) ?? 0) + 1);
+    const seen = new Map                ();
+
+    const drops             = [];
+    placed.forEach((p, i) => {
+      const nth = seen.get(p.device) ?? 0;
+      seen.set(p.device, nth + 1);
+      const total = totals.get(p.device) ?? 1;
+      const fan = total > 1 ? (nth - (total - 1) / 2) * 12 : 0;
+      const x = p.dx + fan;
+
+      // Spur root always on the device where the drop attaches.
+      const iface     = hostsAreAbove
+        ? { x, y: p.yBottom }
+        : { x, y: p.yTop };
+      const tubeAttach     = hostsAreAbove
+        ? { x, y: tubeTop }
+        : { x, y: tubeBottom };
+      // Path: device → tube (renderer doesn't care about direction for stroke)
+      const path       = [iface, tubeAttach];
+
+      drops.push({
+        device: p.device,
+        port: p.port,
+        portLabel: p.portLabel,
+        addr: p.addr,
+        path,
+        spurRoot: iface,
+        spurRight: i % 2 === 0,
+        hostsAbove: hostsAreAbove,
+      });
+    });
+
+    tubes.push({
+      id: seg.id,
+      name: seg.name,
+      subnet: seg.subnet,
+      color: colorAt(si),
+      y,
+      x1: globalMinX - SIDE_PAD,
+      x2: globalMaxX + SIDE_PAD,
+      drops,
+    });
+  });
+
+  tubes.sort((a, b) => a.y - b.y);
+
+  if (tubes.length) {
+    for (const t of tubes) {
+      for (const d of t.drops) {
+        const armEnd = d.spurRoot.x + (d.spurRight ? ARM_DX : -ARM_DX);
+        padL = Math.max(padL, globalMinX - Math.min(d.spurRoot.x, armEnd) + 80);
+        padR = Math.max(padR, Math.max(d.spurRoot.x, armEnd) - globalMaxX + 80);
+      }
+    }
+  }
+
+  const bottom = tubes.length
+    ? Math.max(...tubes.map((t) => t.y + TUBE_H / 2 + 40), ...m.devices.map((d) => (d.y ?? 0) + (d.h ?? 0) / 2 + 40))
+    : 0;
+  return { tubes, bottom, padL, padR };
+}const hasTubes = (m          )          => resolveSegments(m).length > 0;function segmentAnnotatedPorts(m          )              {
+  const out = new Set        ();
+  for (const s of resolveSegments(m)) {
+    for (const mem of s.members) {
+      if (mem.port) out.add(`${mem.device}.${mem.port}`);
+    }
+  }
+  return out;
+}
+
+function drawTubeBody(t            , col        , S       )           {
+  const out           = [];
+  const half = TUBE_H / 2;
+  const y = t.y;
+  out.push(
+    `<rect x="${t.x1.toFixed(1)}" y="${(y - half).toFixed(1)}" width="${(t.x2 - t.x1).toFixed(1)}" ` +
+    `height="${TUBE_H}" rx="${half}" fill="${S.bg}" stroke="${col}" stroke-width="1.9"/>`,
+  );
+  out.push(
+    `<ellipse cx="${t.x1.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(half * 0.5).toFixed(1)}" ry="${half.toFixed(1)}" ` +
+    `fill="${S.bg}" stroke="${col}" stroke-width="1.6"/>`,
+  );
+  out.push(
+    `<ellipse cx="${t.x2.toFixed(1)}" cy="${y.toFixed(1)}" rx="${(half * 0.5).toFixed(1)}" ry="${half.toFixed(1)}" ` +
+    `fill="none" stroke="${col}" stroke-width="1.6"/>`,
+  );
+  const classLbl = t.subnet ?? t.name;
+  out.push(
+    `<text x="${((t.x1 + t.x2) / 2).toFixed(1)}" y="${(y + 4).toFixed(1)}" font-size="11.5" text-anchor="middle" ` +
+    `fill="${col}" font-weight="700" font-family="${S.mono}" ` +
+    `paint-order="stroke" stroke="${S.bg}" stroke-width="3.5" stroke-linejoin="round">${esc(classLbl)}</text>`,
+  );
+  if (t.subnet && t.name) {
+    out.push(
+      `<text x="${((t.x1 + t.x2) / 2).toFixed(1)}" y="${(y + half + 14).toFixed(1)}" font-size="9.5" text-anchor="middle" ` +
+      `fill="${S.sub}" font-family="${S.mono}">${esc(t.name)}</text>`,
+    );
+  }
+  return out;
+}function drawTubesSvg(tubes              , S       )           {
+  const out           = [];
+  for (const t of tubes) {
+    const col = t.color;
+    out.push(...drawTubeBody(t, col, S));
+
+    for (const d of t.drops) {
+      const a = d.path[0] , b = d.path[d.path.length - 1] ;
+      out.push(
+        `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" ` +
+        `stroke="${col}" stroke-width="1.7" stroke-linecap="round"/>`,
+      );
+      out.push(`<circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="2.5" fill="${col}"/>`);
+      out.push(
+        `<circle cx="${a.x.toFixed(1)}" cy="${a.y.toFixed(1)}" r="2.8" fill="${S.bg}" stroke="${col}" stroke-width="1.6"/>`,
+      );
+
+      const lines = [d.portLabel, d.addr].filter(Boolean)            ;
+      if (!lines.length) continue;
+
+      const root = d.spurRoot;
+      const dir = d.spurRight ? 1 : -1;
+      const barX = root.x + dir * ARM_DX;
+      // Flag opens into free air: below host when hosts above tube, above host when below.
+      const barMidY = root.y + (d.hostsAbove ? ARM_DY : -ARM_DY);
+      out.push(
+        `<line x1="${root.x.toFixed(1)}" y1="${root.y.toFixed(1)}" ` +
+        `x2="${barX.toFixed(1)}" y2="${barMidY.toFixed(1)}" ` +
+        `stroke="${col}" stroke-width="1.35" stroke-linecap="round"/>`,
+      );
+      out.push(
+        `<line x1="${barX.toFixed(1)}" y1="${(barMidY - FLAG_HALF).toFixed(1)}" ` +
+        `x2="${barX.toFixed(1)}" y2="${(barMidY + FLAG_HALF).toFixed(1)}" ` +
+        `stroke="${col}" stroke-width="1.5" stroke-linecap="square"/>`,
+      );
+      const tx = barX + dir * 7;
+      const anchor = d.spurRight ? "start" : "end";
+      const halo = `paint-order="stroke" stroke="${S.bg}" stroke-width="3.2" stroke-linejoin="round"`;
+      const lineH = 12;
+      const textTop = barMidY - ((lines.length - 1) * lineH) / 2;
+      lines.forEach((line, li) => {
+        const ty = textTop + li * lineH + 3.5;
+        out.push(
+          `<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" font-size="10.5" text-anchor="${anchor}" ` +
+          `fill="${col}" font-weight="${li === 0 ? 700 : 600}" font-family="${S.mono}" ${halo}>${esc(line)}</text>`,
+        );
+      });
+    }
+  }
+  return out;
+}function expandHeightForTubes(baseH        , tubes             )         {
+  if (!tubes.tubes.length) return baseH;
+  return Math.max(baseH, tubes.bottom + 56);
+}
+
+
+// ---- traffic.ts ----
+/**
+ * NetScript traffic view — the FLOW layer (L4).
+ *
+ * Where the physical view answers "what is cabled to what" and the logical
+ * view answers "what segment is this on", this one answers **"what talks to
+ * what, on which service, and in which direction"** — the question a firewall
+ * rule set or a security review is actually made of.
+ *
+ * Three ideas carry the whole drawing:
+ *
+ *  1. **Colour encodes the service** (`tcp/1433`, `tcp/443`, …), not the
+ *     speed and not the segment. Every line of one colour is the same service
+ *     wherever it appears on the page.
+ *  2. **Direction encodes intent.** An arrow runs initiator → listener. So a
+ *     server exposing tcp/1433 shows every client converging on it — the
+ *     picture of "inbound" — while the same server's own outbound calls leave
+ *     from its opposite edge. Inbound vs outbound is read off the geometry
+ *     rather than stored on the data, because it is a point of view, not a
+ *     property of the flow.
+ *  3. **A service lives ON a host.** A host that declares services renders as
+ *     a CONTAINER with one row per service, and flows land on the row. A
+ *     vendor port table routinely puts a dozen services on one machine; giving
+ *     each its own node would claim a dozen machines where there is one, which
+ *     for a firewall reader is an actively harmful lie. Hosts without declared
+ *     services keep the simpler socket chip on their bottom edge.
+ *
+ * Placement is derived from the flow graph itself, not from `tier`: a device
+ * that initiates but never listens sinks to the bottom, a device that only
+ * listens rises to the top, and anything doing both lands in between. Cycles
+ * are broken first (DFS back-edge removal) so a stray reverse ping can't
+ * invert the whole picture.
+ *
+ * "Infinite paper": the canvas is sized to the content with generous gaps
+ * rather than squeezed to fit a page — flows get room for their labels.
+ *
+ * Structured as `layoutTraffic` (pure geometry) plus a flat renderer over it,
+ * mirroring the model → layout → router → render split the rest of the
+ * pipeline uses. The isometric traffic view in `iso.ts` consumes the same
+ * layout, so both projections stay honest about being views of one scene.
+ *
+ * NOT crossing-minimising between levels: devices keep author order within a
+ * level. Approach lanes into a container ARE ordered to avoid self-crossing.
+ */
+                                                                           
+                                         
+
+// Infinite-paper geometry: generous, not page-constrained.
+const BASE_W = 196, BASE_H = 64;
+const HEADER_H = 36;        // host name band on a container card
+const ROW_H = 21;           // one service row
+const LEVEL_GAP = 132;      // clearance between the deepest card of a level and the next
+const COL_GAP = 76;
+const MARGIN = 92;
+const LANE_GAP = 17;
+
+// Socket geometry (hosts with no declared services), down from the card edge.
+const STUB = 7, CHIP_H = 16;
+const SOCKET_DROP = STUB + CHIP_H;
+// Terminal heads need weight on multi-service / tall cards (a 9px head reads as
+// decoration on something like a federated app host). Mid-line chevrons stay smaller.
+const ARROW = 12;
+const ARROW_MID = 6;
+// Corner radius on the drawn polyline (see path()). The final orthogonal run into
+// a card must stay longer than radius+head, or the stroke is still mid-curve when
+// the arrowhead fires — reads as a diagonal stab instead of a right-angle entry.
+const PATH_CORNER_R = 8;
+const ENTRY_STUB = ARROW + PATH_CORNER_R * 2 + 10; // ~38px clear ortho before tip
+
+// Approach corridor beside a container card, for flows landing on rows.
+// Innermost lane must leave room for ENTRY_STUB of horizontal into the edge.
+const APPROACH_BASE = ENTRY_STUB, APPROACH_STEP = 12;
+
+/**
+ * Break cycles, then layer by longest path over inbound edges.
+ *
+ * Cycle removal matters more than it looks: a single documented reverse ping
+ * (server -> client ICMP heartbeat) forms a 2-cycle with the client's own
+ * traffic, and a naive guard would resolve it by putting the *client* on top —
+ * inverting the entire diagram over one incidental edge.
+ */
+function layerFlows(m          )                                                    {
+  const flows = m.flows ?? [];
+  const outOf = new Map                (m.devices.map((d) => [d.id, []]));
+  for (const f of flows) outOf.get(f.from)?.push(f);
+
+  // DFS: an edge into a node currently on the stack is a back-edge.
+  const state = new Map                   ();
+  const isBack = new Set      ();
+  const dfs = (id        )       => {
+    state.set(id, 1);
+    for (const f of outOf.get(id) ?? []) {
+      const s = state.get(f.to) ?? 0;
+      if (s === 1) isBack.add(f);
+      else if (s === 0) dfs(f.to);
+    }
+    state.set(id, 2);
+  };
+  for (const d of m.devices) if ((state.get(d.id) ?? 0) === 0) dfs(d.id);
+
+  const sources = new Map                  (m.devices.map((d) => [d.id, []]));
+  for (const f of flows) if (!isBack.has(f)) sources.get(f.to)?.push(f.from);
+
+  const memo = new Map                ();
+  const busy = new Set        ();
+  const lvl = (id        )         => {
+    const hit = memo.get(id);
+    if (hit !== undefined) return hit;
+    if (busy.has(id)) return 0;
+    busy.add(id);
+    const src = sources.get(id) ?? [];
+    const v = src.length ? 1 + Math.max(...src.map(lvl)) : 0;
+    busy.delete(id);
+    memo.set(id, v);
+    return v;
+  };
+  return { level: new Map(m.devices.map((d) => [d.id, lvl(d.id)])), isBack };
+}
+
+/**
+ * Service → palette-index map, in order of FIRST DECLARATION.
+ *
+ * Deliberately not sorted by port: the author writes the flow they care about
+ * first, and that flow should get the strongest colour in the palette. Sorting
+ * by port number would instead hand the lead colour to whichever service
+ * happens to sit lowest numerically — emphasis by accident. Declaration order
+ * is just as deterministic and puts the emphasis where the author put it.
+ * (Contrast `vlanColorIndex`, which sorts: a VLAN id IS a meaningful ordinal
+ * to browse a legend by; a port number is not.)
+ */
+function serviceIndex(m          , res                         )                      {
+  const keys = [...new Set((m.flows ?? []).map((f) => serviceKey(res.get(f) )))];
+  return new Map(keys.map((k, i) => [k, i]));
+}
+
+const textW = (s        , px        ) => px * 0.58 * s.length;
+
+/** A socket = one service a host exposes, on a host that declares no services. */
+                                                                               
+
+/** A service row inside a container card. Flows land on its edge. */
+                             
+                                                                            
+                                                                               
+                
+ 
+
+                                
+                       
+                
+                                    
+                 
+                    
+                     
+                             
+                                                                                      
+                            
+                                                                         
+ 
+
+/**
+ * Once there are more services than palette entries, colour alone stops being
+ * an identity — it silently aliases, and a legend listing 19 services against
+ * 8 swatches looks authoritative while being unable to distinguish them. Past
+ * the wrap we add a dash pattern as a second channel, so colour × dash stays
+ * unique for twice the palette, and the legend shows the pattern too.
+ */
+const DASHES = ["", "7 4", "2 3", "10 3 2 3"];
+const dashFor = (i        , palLen        ) => DASHES[Math.floor(i / palLen) % DASHES.length];function layoutTraffic(m          , S       )                {
+  const flows = m.flows ?? [];
+  const pal = S.servicePalette ?? S.vlanPalette ?? ["#2563eb"];
+  const resolved = new Map                    (flows.map((f) => [f, resolveFlow(m, f)]));
+  const svcIdx = serviceIndex(m, resolved);
+  const colorOf = (k        ) => pal[(svcIdx.get(k) ?? 0) % pal.length];
+  const dashOf = (k        ) => dashFor(svcIdx.get(k) ?? 0, pal.length);
+  const svcColor = (f      ) => colorOf(serviceKey(resolved.get(f) ));
+  const svcDash = (f      ) => dashOf(serviceKey(resolved.get(f) ));
+
+  // ---- card sizing: a host with services becomes a container ----
+  for (const d of m.devices) {
+    const svcs = d.services ?? [];
+    if (svcs.length) {
+      const widest = Math.max(...svcs.map((s) => textW(s.name, 10.5) + textW(`${s.proto}/${s.port}`, 9.5) + 44));
+      d.w = Math.max(BASE_W, Math.min(360, widest));
+      d.h = HEADER_H + svcs.length * ROW_H + 8;
+    } else {
+      d.w = BASE_W; d.h = BASE_H;
+    }
+  }
+
+  // ---- placement ----
+  // Ordering matters and is not obvious: horizontal placement depends only on
+  // level membership and card widths, while VERTICAL placement depends on how
+  // many horizontal lanes each level needs — and lane count can only be
+  // computed once x is known. So x is assigned first, lanes are allocated
+  // against it, and only then is each level's vertical gap sized to hold its
+  // own lane bank. Doing it in the obvious order instead leaves the lane band
+  // overflowing into the level below, which routes flows backwards through the
+  // very card they departed from.
+  const { level } = layerFlows(m);
+  const maxLevel = Math.max(0, ...level.values());
+  const byLevel             = Array.from({ length: maxLevel + 1 }, () => []);
+  for (const d of m.devices) byLevel[level.get(d.id) ].push(d);
+
+  // A container receiving flows on its rows needs a clear approach corridor
+  // beside it. Reserve it as part of the card's slot so nothing is placed in
+  // it — otherwise the corridor's vertical runs spear the neighbouring card.
+  // The corridor is always on the LEFT, which keeps it independent of the x
+  // positions it would otherwise have to be computed from.
+  const landing = new Map                ();
+  for (const f of flows) {
+    const r = resolved.get(f) ;
+    if (r.svcId) landing.set(f.to, (landing.get(f.to) ?? 0) + 1);
+  }
+  const corridorOf = (d        ) => {
+    const n = landing.get(d.id) ?? 0;
+    return n ? APPROACH_BASE + n * APPROACH_STEP : 0;
+  };
+
+  const slotW = (d        ) => corridorOf(d) + d.w ;
+  const rowW = (row          ) => row.reduce((s, d) => s + slotW(d), 0) + Math.max(0, row.length - 1) * COL_GAP;
+  const W = Math.max(...byLevel.map(rowW), 460) + MARGIN * 2;
+
+  for (const row of byLevel) {
+    let x = (W - rowW(row)) / 2;
+    for (const d of row) {
+      d.x = x + corridorOf(d) + d.w  / 2;
+      x += slotW(d) + COL_GAP;
+    }
+  }
+
+  const id = new Map(m.devices.map((d) => [d.id, d]));
+
+  // ---- sockets (hosts that declare no services): ordering is x-independent
+  const socketsOf = new Map                  ();
+  for (const f of flows) {
+    const r = resolved.get(f) ;
+    if (r.svcId) continue;                       // lands on a row instead
+    const arr = socketsOf.get(f.to) ?? [];
+    const k = serviceKey(r);
+    if (!arr.includes(k)) arr.push(k);
+    socketsOf.set(f.to, arr);
+  }
+  for (const arr of socketsOf.values()) arr.sort();
+  const socketX = (devId        , svc        )         => {
+    const d = id.get(devId) ;
+    const arr = socketsOf.get(devId) ?? [];
+    const i = Math.max(0, arr.indexOf(svc));
+    return d.x  - d.w  / 2 + (d.w  * (i + 1)) / (arr.length + 1);
+  };
+
+  // ---- approach lanes into a container (x only) ----
+  // Flows landing on HIGHER rows get lanes further from the card, so a flow's
+  // horizontal entry run always clears the vertical runs of the flows landing
+  // below it — no self-crossing. Row *order* is known without needing y.
+  const svcOrder = (f      ) => id.get(f.to) .services .findIndex((s) => s.id === resolved.get(f) .svcId);
+  const approachX = new Map              ();
+  const landingFlows = new Map                ();
+  for (const f of flows) {
+    if (!resolved.get(f) .svcId) continue;
+    landingFlows.set(f.to, [...(landingFlows.get(f.to) ?? []), f]);
+  }
+  for (const [devId, fs] of landingFlows) {
+    const d = id.get(devId) ;
+    const edge = d.x  - d.w  / 2;
+    [...fs].sort((p, q) => svcOrder(p) - svcOrder(q))
+      .forEach((f, i, arr) => approachX.set(f, edge - (APPROACH_BASE + (arr.length - 1 - i) * APPROACH_STEP)));
+  }
+
+  // ---- lane banks: allocate against x, THEN size each level's gap to hold them
+  const laneIdx = new Map              ();
+  const laneCount           = Array(maxLevel + 1).fill(0);
+  for (let L = 1; L <= maxLevel; L++) {
+    const arriving = flows.filter((f) => level.get(f.to) === L);
+    if (!arriving.length) continue;
+    const bank = allocLanes(
+      arriving.map((f, i) => {
+        const r = resolved.get(f) ;
+        return { key: String(i), x1: id.get(f.from) .x , x2: r.svcId ? approachX.get(f)  : socketX(f.to, serviceKey(r)) };
+      }),
+      0, 1, 14,   // unit spacing: the return value is the lane INDEX
+    );
+    arriving.forEach((f, i) => laneIdx.set(f, bank[String(i)]));
+    laneCount[L] = Math.max(...arriving.map((f) => laneIdx.get(f) )) + 1;
+  }
+
+  // ---- vertical placement, now that lane demand is known ----
+  const LANE_CLEAR = SOCKET_DROP + ARROW + 20;
+  const levelTop           = [];
+  let cursor = MARGIN;
+  for (let L = maxLevel; L >= 0; L--) {
+    levelTop[L] = cursor;
+    const tallest = Math.max(...byLevel[L].map((d) => d.h ?? BASE_H), BASE_H);
+    const laneBand = laneCount[L] ? LANE_CLEAR + laneCount[L] * LANE_GAP + 22 : 0;
+    cursor += tallest + Math.max(LEVEL_GAP, laneBand);
+  }
+  for (const row of byLevel) for (const d of row) d.y = levelTop[level.get(d.id) ] + d.h  / 2;
+  const cardsBottom = Math.max(...m.devices.map((d) => d.y  + d.h  / 2), MARGIN);
+
+  // ---- y-dependent anchors ----
+  const rows               = [];
+  const rowOf = new Map                    ();
+  for (const d of m.devices) {
+    (d.services ?? []).forEach((s, i) => {
+      const k = serviceKey(s);
+      const r             = {
+        device: d.id, svcId: s.id, name: s.name, svcKey: k, exe: s.exe,
+        x: d.x  - d.w  / 2 + 8,
+        y: d.y  - d.h  / 2 + HEADER_H + i * ROW_H + ROW_H / 2,
+        w: d.w  - 16,
+        color: colorOf(k),
+      };
+      rows.push(r);
+      rowOf.set(`${d.id}.${s.id}`, r);
+    });
+  }
+  const socketPt = (devId        , svc        )     =>
+    ({ x: socketX(devId, svc), y: id.get(devId) .y  + id.get(devId) .h  / 2 });
+  const sockets           = [];
+  for (const [devId, svcs] of socketsOf)
+    for (const svc of svcs) sockets.push({ device: devId, svc, at: socketPt(devId, svc), color: colorOf(svc) });
+
+  const flowLane = new Map              ();
+  for (let L = 1; L <= maxLevel; L++) {
+    if (!laneCount[L]) continue;
+    const deepest = Math.max(...byLevel[L].map((d) => d.y  + d.h  / 2));
+    for (const f of flows) if (level.get(f.to) === L) flowLane.set(f, deepest + LANE_CLEAR + laneIdx.get(f)  * LANE_GAP);
+  }
+
+  // ---- routing ----
+  const outTotal = new Map                ();
+  for (const f of flows) outTotal.set(f.from, (outTotal.get(f.from) ?? 0) + 1);
+  const outIdx = new Map                ();
+
+  // Lane banks sit BELOW the level they serve, so a flow is only safe to route
+  // straight up when its target is exactly one level above: anything else has
+  // to drive a long vertical run past whatever card sits between the endpoints.
+  // That covers level-skippers AND every downward flow (a back-edge such as
+  // etcd peer replication, whose riser would otherwise spear its own target).
+  // Those detour to a channel beyond every card, on whichever side is nearer;
+  // the detour's horizontal legs sit in inter-level gaps, so they stay clear.
+  const leftMost = Math.min(...m.devices.map((d) => d.x  - d.w  / 2));
+  const rightMost = Math.max(...m.devices.map((d) => d.x  + d.w  / 2));
+  const skipFlows = flows.filter((f) => level.get(f.to)  - level.get(f.from)  !== 1);
+  const channelX = new Map              ();
+  skipFlows.forEach((f, i) => {
+    const a = id.get(f.from) ;
+    const toLeft = a.x  - leftMost <= rightMost - a.x ;
+    channelX.set(f, toLeft ? leftMost - 40 - i * 16 : rightMost + 40 + i * 16);
+  });
+
+  /** Append a point; drop near-zero runs; force one orthogonal bend if both axes change. */
+  const pushPt = (pts      , x        , y        )       => {
+    const L = pts[pts.length - 1];
+    if (!L) { pts.push({ x, y }); return; }
+    if (Math.hypot(x - L.x, y - L.y) < 1) return;
+    if (Math.abs(x - L.x) >= 1 && Math.abs(y - L.y) >= 1) {
+      // Horizontal then vertical so every corner is a true right angle (never a diagonal).
+      pts.push({ x, y: L.y });
+      if (Math.abs(y - L.y) >= 1) pts.push({ x, y });
+      return;
+    }
+    pts.push({ x, y });
+  };
+
+  /** Drop collinear midpoints so path() doesn't invent corners on a straight run. */
+  const simplifyOrtho = (pts      )       => {
+    if (pts.length < 3) return pts;
+    const out       = [pts[0] ];
+    for (let i = 1; i < pts.length - 1; i++) {
+      const a = out[out.length - 1] , b = pts[i] , c = pts[i + 1] ;
+      const abH = Math.abs(a.y - b.y) < 0.5, abV = Math.abs(a.x - b.x) < 0.5;
+      const bcH = Math.abs(b.y - c.y) < 0.5, bcV = Math.abs(b.x - c.x) < 0.5;
+      if ((abH && bcH) || (abV && bcV)) continue; // collinear — skip b
+      out.push(b);
+    }
+    out.push(pts[pts.length - 1] );
+    return out;
+  };
+
+  const routeOf = (f      )       => {
+    const a = id.get(f.from) , b = id.get(f.to) ;
+    const r = resolved.get(f) ;
+    const n = outTotal.get(f.from) ?? 1;
+    const i = outIdx.get(f.from) ?? 0;
+    outIdx.set(f.from, i + 1);
+    const ax = a.x  - a.w  / 2 + (a.w  * (i + 1)) / (n + 1);
+    // leave whichever edge of the initiator faces the listener
+    const upward = b.y  < a.y ;
+    const ay = upward ? a.y  - a.h  / 2 : a.y  + a.h  / 2;
+
+    // level-skipping flows detour via an outer channel before climbing
+    const chan = channelX.get(f);
+    const pts       = [{ x: ax, y: ay }];
+    if (chan !== undefined) {
+      // Step AWAY from whichever edge we left. Hardcoding "up" here sent every
+      // downward flow back through its own card before turning.
+      const off = upward ? -26 : 26;
+      pushPt(pts, ax, ay + off);
+      pushPt(pts, chan, ay + off);
+    }
+    const climbX = chan ?? ax;
+
+    if (r.svcId) {
+      const row = rowOf.get(`${f.to}.${r.svcId}`) ;
+      const edgeX = b.x  - b.w  / 2;
+      // Final horizontal into the left edge must clear corner radius + arrowhead.
+      let apx = approachX.get(f) ;
+      if (edgeX - apx < ENTRY_STUB) apx = edgeX - ENTRY_STUB;
+      const ly = flowLane.get(f) ?? (ay + row.y) / 2;
+      // Collapse short lane jogs (climbX ≈ apx): a 10–25px horizontal between two
+      // long verticals reads as a wiggle, not a deliberate bend.
+      if (Math.abs(climbX - apx) < ENTRY_STUB * 0.85) {
+        // Collapsing the jog leaves a stub a few px wide at the card edge, which
+        // parks the origin ring off-axis from the riser it supposedly starts.
+        // Snap the exit onto the riser instead so the two are concentric.
+        if (chan === undefined) pts[0] = { x: apx, y: ay };
+        pushPt(pts, apx, ly);
+      } else {
+        pushPt(pts, climbX, ly);
+        pushPt(pts, apx, ly);
+      }
+      // Vertical approach to the service row, then guaranteed ortho entry stub.
+      pushPt(pts, apx, row.y);
+      pushPt(pts, edgeX, row.y);
+      return simplifyOrtho(pts);
+    }
+    const sock = socketPt(f.to, serviceKey(r));
+    const tipY = sock.y + SOCKET_DROP;
+    let ly = flowLane.get(f) ?? (ay + tipY) / 2;
+    // Guaranteed vertical stub into the socket (same idea as ENTRY_STUB on rows).
+    if (Math.abs(tipY - ly) < ENTRY_STUB) {
+      ly = tipY + (tipY >= ay ? ENTRY_STUB : -ENTRY_STUB);
+    }
+    if (Math.abs(climbX - sock.x) < ENTRY_STUB * 0.85) {
+      if (chan === undefined) pts[0] = { x: sock.x, y: ay };
+      pushPt(pts, sock.x, ly);
+    } else {
+      pushPt(pts, climbX, ly);
+      pushPt(pts, sock.x, ly);
+    }
+    pushPt(pts, sock.x, tipY);
+    return simplifyOrtho(pts);
+  };
+  const routes = flows.map(routeOf);
+
+  const H = cardsBottom + 132;
+  const legend = [...svcIdx].sort((a, b) => a[1] - b[1]).map(([svc, i]) => ({
+    svc,
+    label: flows.map((f) => resolved.get(f) ).find((x) => serviceKey(x) === svc && x.name)?.name,
+    color: pal[i % pal.length],
+    dash: dashFor(i, pal.length),
+  }));
+
+  return { W, H, flows, resolved, routes, sockets, rows, color: svcColor, dash: svcDash, legend };
+}
+
+/** The longest segment of a polyline — kept for callers that want pure max length. */function longestSegment(pts      )           {
+  let best = 0, bestLen = -1;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const len = Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y);
+    if (len > bestLen) { bestLen = len; best = i; }
+  }
+  return [pts[best], pts[best + 1]];
+}
+
+/**
+ * Segment best suited to carry a flow label.
+ *
+ * Pure "longest segment" orphans labels onto long horizontal buses far from the
+ * path's centre of mass. Prefer the segment that contains ~55% of the path
+ * length (slightly toward the listener), and only fall back to a longer nearby
+ * run if that segment is too short to hold text.
+ */function labelSegment(pts      , minLen = 28)           {
+  if (pts.length < 2) return [pts[0] ?? { x: 0, y: 0 }, pts[0] ?? { x: 0, y: 0 }];
+                                                                    
+  const segs        = [];
+  let total = 0;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const len = Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y);
+    segs.push({ i, len, cum0: total, cum1: total + len });
+    total += len;
+  }
+  if (total <= 0) return [pts[0], pts[1]];
+  const target = total * 0.55;
+  let pick = segs[0] ;
+  for (const s of segs) {
+    if (target >= s.cum0 && target <= s.cum1) { pick = s; break; }
+    if (s.cum1 <= target) pick = s;
+  }
+  if (pick.len < minLen) {
+    let best = pick;
+    for (const s of segs) {
+      const mid = (s.cum0 + s.cum1) / 2;
+      const dist = Math.abs(mid - target);
+      const bestMid = (best.cum0 + best.cum1) / 2;
+      const bestDist = Math.abs(bestMid - target);
+      // Prefer a longer run still near the path mid; ignore distant trunks.
+      if (dist > total * 0.4) continue;
+      if (s.len > best.len + 4 || (s.len >= minLen && dist < bestDist - 2)) best = s;
+    }
+    pick = best;
+  }
+  return [pts[pick.i], pts[pick.i + 1]];
+}
+
+/**
+ * Text laid ALONG a segment, rotated to match it and offset just clear of the
+ * line. Always rendered upright — past ±90° the angle is flipped rather than
+ * letting the label read upside-down, which is the whole reason to rotate to
+ * the segment's axis rather than its direction of travel.
+ *
+ * The background-coloured stroke under the fill (`paint-order`) punches a halo
+ * so the label stays readable where it crosses other flows. Keep `off` small
+ * (~4): a large standoff makes the caption look free-floating.
+ */function labelAlong(p    , q    , text        , col        , S       , size = 8.5, off = 4)         {
+  let ang = (Math.atan2(q.y - p.y, q.x - p.x) * 180) / Math.PI;
+  if (ang > 90) ang -= 180;
+  else if (ang < -90) ang += 180;
+  const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2;
+  return `<text transform="rotate(${ang.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})" x="${mx.toFixed(1)}" y="${(my - off).toFixed(1)}"`
+    + ` font-size="${size}" text-anchor="middle" fill="${col}" font-weight="600" font-family="${S.mono}"`
+    + ` paint-order="stroke" stroke="${S.bg}" stroke-width="2.2" stroke-linejoin="round">${esc(text)}</text>`;
+}
+
+/**
+ * Point at least `back` along the polyline behind the tip — used so arrowheads
+ * orient on the final orthogonal stub even when the previous vertex is a bend.
+ */function approachRef(pts      , back = ARROW + PATH_CORNER_R)     {
+  if (pts.length < 2) return pts[0] ?? { x: 0, y: 0 };
+  let remain = back;
+  for (let i = pts.length - 1; i > 0; i--) {
+    const a = pts[i], b = pts[i - 1];
+    const len = Math.hypot(a.x - b.x, a.y - b.y);
+    if (len < 1e-6) continue;
+    if (len >= remain) {
+      const t = remain / len;
+      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    }
+    remain -= len;
+  }
+  return pts[0] ;
+}
+
+/** Triangle at `tip`, oriented along the direction of travel from `from`. */function arrowHead(tip    , from    , col        , size = ARROW)         {
+  const dx = tip.x - from.x, dy = tip.y - from.y, len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len, uy = dy / len, px = -uy, py = ux;
+  const bx = tip.x - ux * size, by = tip.y - uy * size, hw = size * 0.58;
+  return `<path d="M ${tip.x.toFixed(1)},${tip.y.toFixed(1)} L ${(bx + px * hw).toFixed(1)},${(by + py * hw).toFixed(1)} L ${(bx - px * hw).toFixed(1)},${(by - py * hw).toFixed(1)} Z" fill="${col}"/>`;
+}
+
+
+/** A vertical run of some other flow — what a horizontal run has to hop over. */
+                                                            
+
+/** Vertical runs of each route, indexed alongside `routes`. */function verticalRuns(routes        )           {
+  return routes.map((pts) => {
+    const out         = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p = pts[i], q = pts[i + 1];
+      if (Math.abs(p.x - q.x) < 0.5 && Math.abs(p.y - q.y) > 0.5)
+        out.push({ x: p.x, y1: Math.min(p.y, q.y), y2: Math.max(p.y, q.y) });
+    }
+    return out;
+  });
+}
+
+const JUMP_R = 5;
+
+/**
+ * Rounded orthogonal polyline. Cap radius so the final stub stays mostly
+ * straight, and hop foreign verticals with a small arc.
+ *
+ * The jumps are not decoration. Colour identifies the SERVICE, so two flows of
+ * one service are the same colour by design — at a plain crossing there is then
+ * nothing to say which line continues where, and the diagram stops being
+ * traceable exactly where a reader is trying to follow a rule. Keep them sparse
+ * (horizontals hop verticals, never the reverse) — jump noise was the failure
+ * mode of the original router.
+ */
+function path(pts      , r = PATH_CORNER_R, foreignV         = [])         {
+  let cur = pts[0];
+  let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  const lineTo = (to    )       => {
+    if (Math.abs(to.y - cur.y) < 0.5 && Math.abs(to.x - cur.x) > 1 && foreignV.length) {
+      const y = cur.y, l2r = to.x > cur.x;
+      const lo = Math.min(cur.x, to.x), hi = Math.max(cur.x, to.x);
+      const xs = [...new Set(
+        foreignV.filter((v) => v.x > lo + JUMP_R && v.x < hi - JUMP_R && v.y1 + 1 < y && y < v.y2 - 1)
+                .map((v) => v.x),
+      )].sort((a, b) => (l2r ? a - b : b - a));
+      for (const x of xs) {
+        const back = l2r ? -JUMP_R : JUMP_R;
+        d += ` L ${(x + back).toFixed(1)},${y.toFixed(1)}`;
+        d += ` A ${JUMP_R},${JUMP_R} 0 0 ${l2r ? 1 : 0} ${(x - back).toFixed(1)},${y.toFixed(1)}`;
+      }
+    }
+    d += ` L ${to.x.toFixed(1)},${to.y.toFixed(1)}`;
+    cur = to;
+  };
+  for (let i = 1; i < pts.length - 1; i++) {
+    const p = pts[i], prev = pts[i - 1], next = pts[i + 1];
+    const inD = { x: Math.sign(p.x - prev.x), y: Math.sign(p.y - prev.y) };
+    const outD = { x: Math.sign(next.x - p.x), y: Math.sign(next.y - p.y) };
+    // On the last corner, leave at least ARROW of straight run after the curve.
+    const outLen = Math.hypot(next.x - p.x, next.y - p.y);
+    const inLen = Math.hypot(p.x - prev.x, p.y - prev.y);
+    const isLastCorner = i === pts.length - 2;
+    const maxOutR = isLastCorner ? Math.max(0, (outLen - ARROW) / 2) : outLen / 2;
+    const rr = Math.min(r, inLen / 2, maxOutR);
+    lineTo({ x: p.x - inD.x * rr, y: p.y - inD.y * rr });
+    d += ` Q ${p.x.toFixed(1)},${p.y.toFixed(1)} ${(p.x + outD.x * rr).toFixed(1)},${(p.y + outD.y * rr).toFixed(1)}`;
+    cur = { x: p.x + outD.x * rr, y: p.y + outD.y * rr };
+  }
+  lineTo(pts[pts.length - 1]);
+  return d;
+}function renderModelTraffic(m          , themeName                 = "clean")         {
+  const S = typeof themeName === "string" ? resolveTheme(themeName) : themeName;
+  const T = layoutTraffic(m, S);
+  const { W, H, flows, routes, sockets, rows, color: svcColor, legend } = T;
+
+  const out           = [`<svg viewBox="0 0 ${W.toFixed(0)} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
+  if (S.shadow)
+    out.push('<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#0f172a" flood-opacity="0.16"/></filter></defs>');
+  out.push(`<rect width="${W.toFixed(0)}" height="${H.toFixed(0)}" fill="${S.bg}"/>`);
+  if (S.grid)
+    out.push(`<defs><pattern id="grd" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="${S.grid}" stroke-width="1"/></pattern></defs><rect width="${W.toFixed(0)}" height="${H.toFixed(0)}" fill="url(#grd)"/>`);
+
+  // Each flow hops the OTHER flows' verticals, so a crossing always shows which
+  // line is continuous — the only cue available when both are the same service.
+  const allV = verticalRuns(routes);
+  const foreignV = routes.map((_, i) => allV.flatMap((v, j) => (j === i ? [] : v)));
+
+  // flows, under the cards
+  flows.forEach((f, i) => {
+    const col = svcColor(f), pts = routes[i], dash = T.dash(f);
+    out.push(`<path d="${path(pts, PATH_CORNER_R, foreignV[i])}" fill="none" stroke="${col}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    // OPEN ring = the end that opens the connection (see iso.ts for the rationale)
+    out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4.5" fill="${S.bg}" stroke="${col}" stroke-width="2.25"/>`);
+  });
+
+  // socket chips (hosts with no declared services)
+  for (const { svc, at: p, color: col } of sockets) {
+    const tw = 6.4 * svc.length + 14;
+    out.push(`<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${p.x.toFixed(1)}" y2="${(p.y + STUB).toFixed(1)}" stroke="${col}" stroke-width="2"/>`);
+    out.push(`<rect x="${(p.x - tw / 2).toFixed(1)}" y="${(p.y + STUB).toFixed(1)}" width="${tw.toFixed(1)}" height="${CHIP_H}" rx="${CHIP_H / 2}" fill="${S.bg}" stroke="${col}" stroke-width="1.5"/>`);
+    out.push(`<text x="${p.x.toFixed(1)}" y="${(p.y + STUB + 11.5).toFixed(1)}" font-size="9.5" text-anchor="middle" fill="${col}" font-weight="700" font-family="${S.mono}">${esc(svc)}</text>`);
+  }
+
+  // host cards
+  for (const d of m.devices) {
+    const cx = d.x , cy = d.y , w = d.w , h = d.h , kc = KIND_COLOR[d.kind];
+    const filt = S.shadow ? ' filter="url(#sh)"' : "";
+    const x0 = cx - w / 2, y0 = cy - h / 2;
+    const isContainer = !!d.services?.length;
+    out.push(`<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w}" height="${h}" rx="${S.radius}" fill="${S.cardFill}" stroke="${S.cardStroke}" stroke-width="${S.cardStrokeW}"${filt}/>`);
+    const gy = isContainer ? y0 + HEADER_H / 2 : cy;
+    out.push(GLYPH[d.kind](x0 + 22, gy - (S.showMgmt && d.mgmt && !isContainer ? 7 : 0), 16, S.chipStroke ?? kc, "none", 1.4));
+    out.push(`<text x="${(x0 + 42).toFixed(1)}" y="${gy.toFixed(1)}" font-size="12" fill="${S.text}" font-weight="700" dominant-baseline="middle">${esc(d.label)}</text>`);
+    if (isContainer) {
+      out.push(`<line x1="${x0.toFixed(1)}" y1="${(y0 + HEADER_H).toFixed(1)}" x2="${(x0 + w).toFixed(1)}" y2="${(y0 + HEADER_H).toFixed(1)}" stroke="${S.cardStroke}" stroke-width="1"/>`);
+      out.push(`<text x="${(x0 + w - 10).toFixed(1)}" y="${gy.toFixed(1)}" font-size="8.5" text-anchor="end" fill="${S.sub}" font-family="${S.mono}" dominant-baseline="middle">${d.services .length} SERVICES</text>`);
+    } else if (S.showMgmt && d.mgmt) {
+      out.push(`<text x="${(x0 + 42).toFixed(1)}" y="${(cy + 11).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(d.mgmt)}</text>`);
+    }
+  }
+
+  // service rows, inside their container
+  for (const r of rows) {
+    out.push(`<rect x="${r.x.toFixed(1)}" y="${(r.y - ROW_H / 2 + 1).toFixed(1)}" width="${r.w.toFixed(1)}" height="${(ROW_H - 2).toFixed(1)}" rx="3" fill="${r.color}" fill-opacity="0.09"/>`);
+    out.push(`<rect x="${r.x.toFixed(1)}" y="${(r.y - ROW_H / 2 + 1).toFixed(1)}" width="3" height="${(ROW_H - 2).toFixed(1)}" rx="1.5" fill="${r.color}"/>`);
+    out.push(`<text x="${(r.x + 10).toFixed(1)}" y="${r.y.toFixed(1)}" font-size="10.5" fill="${S.text}" dominant-baseline="middle">${esc(r.name)}</text>`);
+    out.push(`<text x="${(r.x + r.w - 6).toFixed(1)}" y="${r.y.toFixed(1)}" font-size="9.5" text-anchor="end" fill="${r.color}" font-weight="700" font-family="${S.mono}" dominant-baseline="middle">${esc(r.svcKey)}</text>`);
+  }
+
+  // arrowheads last, so they sit above the cards they point into.
+  // Orient from a point walked back along the final stub (not just the previous
+  // vertex), so a short post-bend segment still reads as a square approach.
+  flows.forEach((f, i) => {
+    const pts = routes[i];
+    const tip = pts[pts.length - 1] ;
+    out.push(arrowHead(tip, approachRef(pts), svcColor(f)));
+  });
+
+  // ---- legend ----
+  const ly = H - 62;
+  out.push(`<text x="${MARGIN}" y="${ly}" font-size="11" fill="${S.sub}" font-weight="700" font-family="${S.mono}" letter-spacing="1">SERVICES</text>`);
+  let lx = MARGIN + 88, lrow = 0;
+  for (const { svc, label, color: col, dash } of legend) {
+    const t = label ? `${svc} · ${label}` : svc;
+    const wNeeded = 40 + textW(t, 10.5);
+    if (lx + wNeeded > W - MARGIN) { lx = MARGIN + 88; lrow++; }
+    const y = ly + lrow * 15;
+    out.push(`<line x1="${lx.toFixed(1)}" y1="${(y - 3.5).toFixed(1)}" x2="${(lx + 20).toFixed(1)}" y2="${(y - 3.5).toFixed(1)}" stroke="${col}" stroke-width="3.2" stroke-linecap="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    out.push(`<text x="${(lx + 26).toFixed(1)}" y="${y.toFixed(1)}" font-size="10" fill="${S.sub}" font-family="${S.mono}">${esc(t)}</text>`);
+    lx += wNeeded;
+  }
+  out.push(`<text x="${MARGIN}" y="${(ly + lrow * 15 + 24).toFixed(1)}" font-size="10" fill="${S.sub}" font-family="${S.mono}">○ OPENS THE CONNECTION · ARROWHEAD LANDS ON THE LISTENING ROW/PORT · SO INBOUND AND OUTBOUND ARE BOTH READABLE FROM ONE LINE</text>`);
+
+  out.push(`<text x="${MARGIN}" y="${(MARGIN - 46).toFixed(1)}" font-size="14" fill="${S.text}" font-weight="700" letter-spacing="0.4">${esc(m.title)}</text>`);
+  out.push(`<text x="${MARGIN}" y="${(MARGIN - 28).toFixed(1)}" font-size="10" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">TRAFFIC · L4 FLOWS · ${m.devices.length} HOSTS · ${flows.length} FLOWS · ${legend.length} SERVICES</text>`);
+
+  out.push("</svg>");
+  return out.join("\n");
+}
+
+
+// ---- iso.ts ----
+/**
+ * NetScript isometric renderer — a PROJECTION, not a layer.
+ *
+ * Isometric is orthogonal to what you're drawing: any scene that has been
+ * reduced to "positioned devices + polylines in flat space" can be projected.
+ * So this module renders two scenes today —
+ *
+ *   renderModelIso        the physical topology (layout.ts + router.ts)
+ *   renderTrafficIso      the L4 flow view      (traffic.ts layoutTraffic)
+ *
+ * — through one shared set of primitives, and neither layout pass knows or
+ * cares that an isometric view exists. Orthogonal runs in flat space become
+ * the classic two-diagonal isometric cable look for free.
+ *
+ * Devices are drawn as small extruded blocks (top + two visible side faces);
+ * the kind glyph is billboarded flat/un-skewed on the top face (the same trick
+ * isometric game/dashboard art uses to keep icons legible). Racks become
+ * shallow platforms under their member devices.
+ */
+                                                       
+                                         
+
+const COS30 = Math.cos(Math.PI / 6);
+const SIN30 = 0.5;
+const BLOCK_H = 26;   // device extrusion height
+const ZONE_H = 12;    // rack platform extrusion height
+const PAD = 40;
+
+const proj = (x        , y        , z = 0)     => ({ x: (x - y) * COS30, y: (x + y) * SIN30 - z });
+const poly = (pts      )         => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+
+function clamp255(n        )         { return Math.max(0, Math.min(255, Math.round(n))); }
+function mix(hexA        , hexB        , t        )         {
+  const a = parseInt(hexA.slice(1), 16), b = parseInt(hexB.slice(1), 16);
+  const ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255;
+  const br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255;
+  const r = clamp255(ar + (br - ar) * t), g = clamp255(ag + (bg - ag) * t), bl = clamp255(ab + (bb - ab) * t);
+  return `#${((1 << 24) + (r << 16) + (g << 8) + bl).toString(16).slice(1)}`;
+}
+
+                                                                                            
+function isoBox(cx        , cy        , w        , h        , H        )         {
+  const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - h / 2, y1 = cy + h / 2;
+  return {
+    P00: proj(x0, y0), P10: proj(x1, y0), P11: proj(x1, y1), P01: proj(x0, y1),
+    Q00: proj(x0, y0, H), Q10: proj(x1, y0, H), Q11: proj(x1, y1, H), Q01: proj(x0, y1, H),
+  };
+}
+const corners = (b        )       => [b.P00, b.P10, b.P11, b.P01, b.Q00, b.Q10, b.Q11, b.Q01];
+const centroid = (pts      )     => ({
+  x: pts.reduce((s, p) => s + p.x, 0) / pts.length,
+  y: pts.reduce((s, p) => s + p.y, 0) / pts.length,
+});
+
+/** Extruded box as three faces (top, right, left), painter-order back→front. */
+function boxFaces(b        , top        , right        , left        , stroke        )         {
+  const face = (d        , fill        ) => `<polygon points="${d}" fill="${fill}" stroke="${stroke}" stroke-width="1"/>`;
+  return face(poly([b.P01, b.P11, b.Q11, b.Q01]), left)
+       + face(poly([b.P10, b.P11, b.Q11, b.Q10]), right)
+       + face(poly([b.Q00, b.Q10, b.Q11, b.Q01]), top);
+}
+
+/**
+ * Fit the projected scene to a canvas: everything is projected around an
+ * arbitrary origin, so translate it into positive space and size the viewBox
+ * to the content ("infinite paper" — the drawing is never squeezed to a page).
+ */
+                                                                                                 
+function fit(allPts      , footer        )         {
+  const minX = Math.min(...allPts.map((p) => p.x)), maxX = Math.max(...allPts.map((p) => p.x));
+  const minY = Math.min(...allPts.map((p) => p.y)), maxY = Math.max(...allPts.map((p) => p.y));
+  const ox = -minX + PAD, oy = -minY + PAD;
+  const shift = (p    )     => ({ x: p.x + ox, y: p.y + oy });
+  return {
+    W: maxX - minX + PAD * 2,
+    H: maxY - minY + PAD * 2 + footer,
+    shift,
+    shiftBox: (b) => ({
+      P00: shift(b.P00), P10: shift(b.P10), P11: shift(b.P11), P01: shift(b.P01),
+      Q00: shift(b.Q00), Q10: shift(b.Q10), Q11: shift(b.Q11), Q01: shift(b.Q01),
+    }),
+  };
+}
+
+/** Device blocks, painted back→front so nearer blocks occlude correctly. */
+function drawBlocks(devices          , boxes                     , C        , S       )           {
+  const out           = [];
+  const depth = (d        ) => d.x  + d.y ;
+  for (const d of [...devices].sort((a, b) => depth(a) - depth(b))) {
+    const b = C.shiftBox(boxes.get(d.id) );
+    const kc = KIND_COLOR[d.kind];
+    out.push(boxFaces(b, mix(kc, "#ffffff", 0.78), mix(kc, "#000000", 0.18), mix(kc, "#000000", 0.34), S.cardStroke));
+    const top = centroid([b.Q00, b.Q10, b.Q11, b.Q01]);
+    out.push(GLYPH[d.kind](top.x, top.y, 13, S.chipStroke ?? kc, "none", 1.3));
+    const lblY = b.P11.y + 15;
+    out.push(`<text x="${b.P11.x.toFixed(1)}" y="${lblY.toFixed(1)}" font-size="10" text-anchor="middle" fill="${S.text}" font-weight="600">${esc(d.label)}</text>`);
+    if (S.showMgmt && d.mgmt) out.push(`<text x="${b.P11.x.toFixed(1)}" y="${(lblY + 11).toFixed(1)}" font-size="8.5" text-anchor="middle" fill="${S.sub}" font-family="${S.mono}">${esc(d.mgmt)}</text>`);
+  }
+  return out;
+}
+
+/**
+ * The VISIBLE outline of an extruded block, in screen space.
+ *
+ * In isometric the four floor corners land as: P00 topmost, P10 rightmost,
+ * P11 bottommost, P01 leftmost. Only the two front faces and the top are
+ * drawn, so the silhouette is the hexagon Q00 → Q10 → P10 → P11 → P01 → Q01.
+ * The floor's two BACK edges (P00–P01, P00–P10) sit inside it, hidden.
+ *
+ * This matters because a flow's terminal point is computed in flat space on
+ * the card's edge — which projects onto exactly those hidden back edges. Left
+ * uncorrected, an arrow either buries itself behind the block or floats short
+ * of it, depending on which edge it came from.
+ */
+const silhouette = (b        )       => [b.Q00, b.Q10, b.P10, b.P11, b.P01, b.Q01];
+
+/**
+ * Where the ray A→B (extended past B if need be) first meets a polygon's
+ * boundary. Returns null if it never does. Extending past B is the point: a
+ * terminal that fell short gets pushed out to touch, one that fell inside gets
+ * pulled back to the visible edge — one operation fixes both.
+ */
+function rayHitPolygon(A    , B    , poly      )            {
+  const dx = B.x - A.x, dy = B.y - A.y;
+  let best = Infinity, hit            = null;
+  for (let i = 0; i < poly.length; i++) {
+    const P = poly[i], Q = poly[(i + 1) % poly.length];
+    const ex = Q.x - P.x, ey = Q.y - P.y;
+    const den = dx * ey - dy * ex;
+    if (Math.abs(den) < 1e-9) continue;                       // parallel
+    const t = ((P.x - A.x) * ey - (P.y - A.y) * ex) / den;    // along A→B
+    const u = ((P.x - A.x) * dy - (P.y - A.y) * dx) / den;    // along P→Q
+    if (t >= 0 && u >= -1e-9 && u <= 1 + 1e-9 && t < best) {
+      best = t;
+      hit = { x: A.x + dx * t, y: A.y + dy * t };
+    }
+  }
+  return hit;
+}
+
+function header(S       , title        , tag        )           {
+  return [
+    `<text x="18" y="24" font-size="12.5" fill="${S.text}" font-weight="700" letter-spacing="0.4">${esc(title)}</text>`,
+    `<text x="18" y="39" font-size="9.5" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">${esc(tag)}</text>`,
+  ];
+}
+
+// ─── physical topology, isometric ────────────────────────────────────────────function renderModelIso(m          , themeName                 = "clean")         {
+  const S = typeof themeName === "string" ? resolveTheme(themeName) : themeName;
+  const { zones } = layoutModel(m);
+  const routes = buildRoutes(m);
+
+  const allPts       = [];
+  const devBox = new Map                ();
+  for (const d of m.devices) {
+    const b = isoBox(d.x , d.y , d.w , d.h , BLOCK_H);
+    devBox.set(d.id, b);
+    allPts.push(...corners(b));
+  }
+  const zoneBox = new Map              ();
+  for (const z of zones) {
+    const b = isoBox(z.x + z.w / 2, z.y + z.h / 2, z.w, z.h, ZONE_H);
+    zoneBox.set(z, b);
+    allPts.push(...corners(b));
+  }
+  const projRoutes = routes.map((pts) => pts.map((p) => proj(p.x, p.y)));
+  for (const pts of projRoutes) allPts.push(...pts);
+
+  const C = fit(allPts, 0);   // stats live in the header; no footer band needed
+  const out           = [`<svg viewBox="0 0 ${C.W.toFixed(0)} ${C.H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
+  out.push(`<rect width="${C.W.toFixed(0)}" height="${C.H.toFixed(0)}" fill="${S.bg}"/>`);
+
+  // zone platforms (back→front)
+  const zoneDepth = (z      ) => z.x + z.w / 2 + z.y + z.h / 2;
+  for (const z of [...zones].sort((a, b) => zoneDepth(a) - zoneDepth(b))) {
+    const b = C.shiftBox(zoneBox.get(z) );
+    out.push(boxFaces(b, S.zoneFill, mix(S.zoneFill, "#000000", 0.12), mix(S.zoneFill, "#000000", 0.24), S.zoneStroke));
+    const lbl = C.shift(zoneBox.get(z) .Q01);
+    out.push(`<text x="${(lbl.x - 4).toFixed(1)}" y="${(lbl.y - 6).toFixed(1)}" font-size="10.5" fill="${S.zoneText}" font-weight="700" letter-spacing="1.4" font-family="${S.mono}">${esc(z.label)}</text>`);
+  }
+
+  // cabling at floor level, under the blocks
+  const SPEED_W                         = { WAN: 1.4, "1G": 1.4, "10G": 1.6, "25G": 1.8, "40G": 2, "100G": 2.4, LAG: 1.6 };
+  m.links.forEach((l, i) => {
+    const pts = projRoutes[i].map(C.shift);
+    const col = S.speedColor[l.speed] ?? S.link;
+    const lw = SPEED_W[l.speed] ?? S.linkW;
+    if (l.bond) {
+      for (const off of [{ x: 1.6, y: -1.6 }, { x: -1.6, y: 1.6 }])
+        out.push(`<polyline points="${poly(pts.map((p) => ({ x: p.x + off.x, y: p.y + off.y })))}" fill="none" stroke="${col}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"/>`);
+    } else {
+      out.push(`<polyline points="${poly(pts)}" fill="none" stroke="${col}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"/>`);
+    }
+  });
+
+  out.push(...drawBlocks(m.devices, devBox, C, S));
+  out.push(...header(S, m.title, `${m.devices.length} NODES · ${m.links.length} LINKS · ISOMETRIC`));
+  out.push("</svg>");
+  return out.join("\n");
+}
+
+// ─── traffic (L4 flows), isometric ───────────────────────────────────────────function renderTrafficIso(m          , themeName                 = "clean")         {
+  const S = typeof themeName === "string" ? resolveTheme(themeName) : themeName;
+  const T = layoutTraffic(m, S);
+
+  const allPts       = [];
+  const devBox = new Map                ();
+  for (const d of m.devices) {
+    const b = isoBox(d.x , d.y , d.w , d.h , BLOCK_H);
+    devBox.set(d.id, b);
+    allPts.push(...corners(b));
+  }
+  const projRoutes = T.routes.map((pts) => pts.map((p) => proj(p.x, p.y)));
+  for (const pts of projRoutes) allPts.push(...pts);
+  const projSockets = T.sockets.map((s) => ({ ...s, at: proj(s.at.x, s.at.y) }));
+  allPts.push(...projSockets.map((s) => s.at));
+
+  const C = fit(allPts, 108);   // footer room for the (wrapping) service legend
+  const out           = [`<svg viewBox="0 0 ${C.W.toFixed(0)} ${C.H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
+  out.push(`<rect width="${C.W.toFixed(0)}" height="${C.H.toFixed(0)}" fill="${S.bg}"/>`);
+
+  // Land every flow on the TARGET BLOCK'S VISIBLE OUTLINE, not on the flat
+  // card edge it was routed to. Those edges project onto the block's hidden
+  // back faces, so uncorrected an arrow either disappears behind the block or
+  // stops short of it. Done once here so the line, its arrowhead and its label
+  // all agree on where the flow actually ends.
+  const shiftedRoutes = T.flows.map((f, i) => {
+    const pts = projRoutes[i].map(C.shift);
+    const box = devBox.get(f.to);
+    if (!box || pts.length < 2) return pts;
+    const hit = rayHitPolygon(pts[pts.length - 2], pts[pts.length - 1], silhouette(C.shiftBox(box)));
+    if (hit) pts[pts.length - 1] = hit;
+    return pts;
+  });
+
+  // flow lines at floor level, under the blocks
+  T.flows.forEach((f, i) => {
+    const pts = shiftedRoutes[i];
+    const col = T.color(f), dash = T.dash(f);
+    out.push(`<polyline points="${poly(pts)}" fill="none" stroke="${col}" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    // OPEN ring = the end that opens the connection; the solid arrowhead at the
+    // far end is where it lands. Two different marks, so the reader never has to
+    // infer initiation from which way a line happens to lean.
+    out.push(`<circle cx="${pts[0].x.toFixed(1)}" cy="${pts[0].y.toFixed(1)}" r="4.5" fill="${S.bg}" stroke="${col}" stroke-width="2.25"/>`);
+  });
+
+  out.push(...drawBlocks(m.devices, devBox, C, S));
+
+  // Arrowheads ride ON TOP of the blocks: in a projected scene the terminal end
+  // can otherwise fall behind whatever block sits in front of it.
+  T.flows.forEach((f, i) => {
+    const pts = shiftedRoutes[i];
+    // Terminal head is the heavy mark (lands on the listening host). Orient from
+    // the final orthogonal stub so short post-bend runs still read square.
+    const tip = pts[pts.length - 1] ;
+    out.push(arrowHead(tip, approachRef(pts), T.color(f), ARROW));
+  });
+  // The USE CASE, laid along each line, with a small chevron ON the line
+  // showing direction. A projected block has no rows to read, so the line
+  // carries both facts itself: what the traffic is for, and which end
+  // initiates it. No port chip at the landing point — the label already
+  // states the port, and repeating it there is pure clutter.
+  T.flows.forEach((f, i) => {
+    const r = T.resolved.get(f) ;
+    const pts = shiftedRoutes[i];
+    const port = r.port === undefined ? r.proto : `${r.proto}/${r.port}`;
+    const text = r.name ? `${r.name} · ${port}` : port;
+    // Anchor near path mid (not pure longest run) so labels hug the flow
+    // rather than floating on a distant horizontal bus.
+    const [p, q] = labelSegment(pts);
+    const col = T.color(f);
+    const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy) || 1;
+    const mid = { x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 };
+    const tip = { x: mid.x + (dx / len) * ARROW_MID, y: mid.y + (dy / len) * ARROW_MID };
+    // Mid-line chevron stays lighter than the terminal head.
+    out.push(arrowHead(tip, mid, col, ARROW_MID));
+    out.push(labelAlong(p, q, text, col, S, 8.5, 4));
+  });
+
+  // service legend (wraps — a vendor port table can carry a lot of services)
+  const ly = C.H - 62;
+  out.push(`<text x="18" y="${ly.toFixed(1)}" font-size="11" fill="${S.sub}" font-weight="700" font-family="${S.mono}" letter-spacing="1">SERVICES</text>`);
+  let lx = 100, lrow = 0;
+  for (const { svc, label, color, dash } of T.legend) {
+    const t = label ? `${svc} · ${label}` : svc;
+    const need = 40 + 6.1 * t.length;
+    if (lx + need > C.W - 18) { lx = 100; lrow++; }
+    const y = ly + lrow * 15;
+    out.push(`<line x1="${lx.toFixed(1)}" y1="${(y - 3.5).toFixed(1)}" x2="${(lx + 20).toFixed(1)}" y2="${(y - 3.5).toFixed(1)}" stroke="${color}" stroke-width="3.2" stroke-linecap="round"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`);
+    out.push(`<text x="${(lx + 26).toFixed(1)}" y="${y.toFixed(1)}" font-size="10" fill="${S.sub}" font-family="${S.mono}">${esc(t)}</text>`);
+    lx += need;
+  }
+  out.push(`<text x="18" y="${(ly + lrow * 15 + 22).toFixed(1)}" font-size="10" fill="${S.sub}" font-family="${S.mono}">○ OPENS THE CONNECTION · ▶ DIRECTION OF TRAFFIC · ARROWHEAD LANDS ON THE LISTENING PORT</text>`);
+
+  out.push(...header(S, m.title, `TRAFFIC · L4 FLOWS · ${T.flows.length} FLOWS · ${T.legend.length} SERVICES · ISOMETRIC`));
+  out.push("</svg>");
+  return out.join("\n");
+}
+
+
 // ---- parser.ts ----
 /**
  * NetScript `.net` parser — text DSL → NetModel.
@@ -623,7 +2184,10 @@ function jumpsOnH(h     , foreignV       , r        )           {
  *   }
  *   rack <id> "role" { <device>... }                     # group (members default tier host)
  *   vlan <id> "name" [subnet <cidr>] {                    # VLAN (logical layer)
- *     member <device>.<port> [tagged]
+ *     member <device>[.<port>] [tagged] [addr <addr>]     # port optional
+ *   }
+ *   segment <id> "name" [subnet <cidr>] {                 # Ethernet tube (L2 bus)
+ *     member <device>[.<port>] [addr <addr>]              # port optional (scan-style)
  *   }
  *   bond <id> on <device> [mode <mode>] {                 # LAG/bond (logical layer)
  *     member <port>
@@ -640,7 +2204,7 @@ function jumpsOnH(h     , foreignV       , r        )           {
  * optional where it can be inferred from kind (cloud→wan, firewall/router→edge,
  * host kinds→host, a switch→core at top level / tor inside a rack).
  */
-                                                                                                           
+                                                                                                                    
 
 const KINDS = new Set        (["cloud", "router", "firewall", "switch", "server", "storage", "ap", "desktop", "camera"]);
 const TIERS = new Set        (["wan", "edge", "core", "tor", "host"]);
@@ -735,11 +2299,29 @@ function splitPort(tok        )                               {
       continue;
     }
     if (tf?.kind === "vlan") {
-      const m = header.match(/^member\s+(\S+)(\s+tagged)?$/);
-      if (!m) throw new Error(`line ${ln}: expected "member <device>.<port> [tagged]" inside vlan block → ${header}`);
+      const m = header.match(/^member\s+(\S+)((?:\s+tagged)?)(?:\s+addr\s+(\S+))?$/);
+      if (!m) throw new Error(`line ${ln}: expected "member <device>[.<port>] [tagged] [addr <addr>]" inside vlan block → ${header}`);
       const [dev, port] = splitPort(m[1]);
-      if (!port) throw new Error(`line ${ln}: vlan member must be "device.port" → ${header}`);
-      tf.vlan.members.push({ device: dev, port, ...(m[2] ? { tagged: true } : {}) });
+      if (m[2]?.includes("tagged") && !port) {
+        throw new Error(`line ${ln}: "tagged" requires a port (device.port) → ${header}`);
+      }
+      tf.vlan.members.push({
+        device: dev,
+        ...(port ? { port } : {}),
+        ...(m[2]?.includes("tagged") ? { tagged: true } : {}),
+        ...(m[3] ? { addr: m[3] } : {}),
+      });
+      continue;
+    }
+    if (tf?.kind === "segment") {
+      const m = header.match(/^member\s+(\S+)(?:\s+addr\s+(\S+))?$/);
+      if (!m) throw new Error(`line ${ln}: expected "member <device>[.<port>] [addr <addr>]" inside segment block → ${header}`);
+      const [dev, port] = splitPort(m[1]);
+      tf.segment.members.push({
+        device: dev,
+        ...(port ? { port } : {}),
+        ...(m[2] ? { addr: m[2] } : {}),
+      });
       continue;
     }
     if (tf?.kind === "bond") {
@@ -749,7 +2331,7 @@ function splitPort(tok        )                               {
       continue;
     }
     if (header.startsWith("port ")) throw new Error(`line ${ln}: "port" is only valid inside a device block`);
-    if (header.startsWith("member ")) throw new Error(`line ${ln}: "member" is only valid inside a vlan or bond block`);
+    if (header.startsWith("member ")) throw new Error(`line ${ln}: "member" is only valid inside a vlan, segment, or bond block`);
 
     // ---- top-level / rack-level lines ----
 
@@ -773,6 +2355,18 @@ function splitPort(tok        )                               {
       const vlan       = { id, name: m[2], members: [], ...(m[3] ? { subnet: m[3] } : {}) };
       model.vlans.push(vlan);
       stack.push({ kind: "vlan", vlan });
+      continue;
+    }
+
+    // segment <id> "name" [subnet <cidr>] {
+    m = header.match(/^segment\s+(\S+)\s+"([^"]*)"(?:\s+subnet\s+(\S+))?$/);
+    if (blockOpen && m && !stack.length) {
+      const id = m[1];
+      model.segments ??= [];
+      if (model.segments.some((s) => s.id === id)) throw new Error(`line ${ln}: duplicate segment "${id}"`);
+      const segment          = { id, name: m[2], members: [], ...(m[3] ? { subnet: m[3] } : {}) };
+      model.segments.push(segment);
+      stack.push({ kind: "segment", segment });
       continue;
     }
 
@@ -876,10 +2470,25 @@ function splitPort(tok        )                               {
     if (!hasPort(l.a, l.aPort)) throw new Error(`link references unknown port "${l.a}.${l.aPort}"`);
     if (!hasPort(l.b, l.bPort)) throw new Error(`link references unknown port "${l.b}.${l.bPort}"`);
   }
+  // Ports are optional on vlan/segment members. When a port id is given AND the
+  // device declares a ports list, it must resolve; freeform labels on port-less
+  // devices (scan import) are allowed so interfaces are never mandatory.
+  const portOk = (devId        , portId         ) => {
+    if (!portId) return true;
+    const ports = devById.get(devId)?.ports;
+    if (!ports?.length) return true; // freeform interface name, not declared
+    return ports.some((p) => p.id === portId);
+  };
   for (const v of model.vlans ?? []) {
     for (const mem of v.members) {
       if (!devById.has(mem.device)) throw new Error(`vlan ${v.id}: unknown device "${mem.device}"`);
-      if (!hasPort(mem.device, mem.port)) throw new Error(`vlan ${v.id}: unknown port "${mem.device}.${mem.port}"`);
+      if (!portOk(mem.device, mem.port)) throw new Error(`vlan ${v.id}: unknown port "${mem.device}.${mem.port}"`);
+    }
+  }
+  for (const s of model.segments ?? []) {
+    for (const mem of s.members) {
+      if (!devById.has(mem.device)) throw new Error(`segment "${s.id}": unknown device "${mem.device}"`);
+      if (!portOk(mem.device, mem.port)) throw new Error(`segment "${s.id}": unknown port "${mem.device}.${mem.port}"`);
     }
   }
   for (const b of model.bonds ?? []) {
@@ -897,12 +2506,138 @@ function splitPort(tok        )                               {
 }
 
 
+// ---- serialize.ts ----
+/**
+ * NetScript serializer — NetModel → `.net` text. The inverse of parser.ts;
+ * emits exactly the grammar parser.ts accepts, so `parseNet(serializeNet(m))`
+ * round-trips.
+ *
+ * Not on the SVG critical path: MCP's `compile_net` renders straight from the
+ * NetModel object, and only uses this to hand back human-editable source. A
+ * serializer edge case can therefore never corrupt the diagram.
+ */
+                                                         
+
+const q = (s        )         => `"${String(s).replace(/"/g, '\\"')}"`;
+
+function portLine(p      )         {
+  const bits = [`port ${p.id} ${q(p.name)}`];
+  if (p.speed) bits.push(`speed ${p.speed}`);
+  if (p.media) bits.push(`media ${p.media}`);
+  if (p.addr) bits.push(`addr ${p.addr}`);
+  return `  ${bits.join(" ")}`;
+}
+
+function serviceLine(s                                         )         {
+  return `  service ${s.id} ${q(s.name)} ${s.proto}/${s.port}${s.exe ? ` exe ${s.exe}` : ""}`;
+}
+
+function deviceLines(d        , indent        )           {
+  const bits = [`${indent}${d.id} ${d.kind} ${q(d.label)}`, `tier ${d.tier}`];
+  if (d.mgmt) bits.push(`mgmt ${d.mgmt}`);
+  const members = [
+    ...(d.ports ?? []).map((p) => indent + portLine(p)),
+    ...(d.services ?? []).map((s) => indent + serviceLine(s)),
+  ];
+  const head = bits.join(" ") + (members.length ? " {" : "");
+  if (!members.length) return [head];
+  return [head, ...members, `${indent}}`];
+}function serializeNet(m          )         {
+  const out           = [];
+
+  // frontmatter
+  if (m.title || m.theme) {
+    out.push("---");
+    if (m.title) out.push(`title: ${m.title}`);
+    if (m.theme) out.push(`theme: ${m.theme}`);
+    out.push("---", "");
+  }
+
+  const inRack = new Set(m.devices.filter((d) => d.rack).map((d) => d.id));
+  const topLevel = m.devices.filter((d) => !inRack.has(d.id));
+
+  for (const d of topLevel) out.push(...deviceLines(d, ""));
+  if (topLevel.length && m.racks.length) out.push("");
+
+  m.racks.forEach((r, i) => {
+    out.push(`rack ${r.id} ${q(r.role)} {`);
+    for (const d of m.devices.filter((dd) => dd.rack === r.id)) out.push(...deviceLines(d, "  "));
+    out.push("}");
+    if (i < m.racks.length - 1) out.push("");
+  });
+
+  if (m.links.length) {
+    out.push("");
+    for (const l of m.links) {
+      const a = l.aPort ? `${l.a}.${l.aPort}` : l.a;
+      const b = l.bPort ? `${l.b}.${l.bPort}` : l.b;
+      out.push(`${a} -> ${b} : ${l.speed}${l.bond ? " lag" : ""}`);
+    }
+  }
+
+  if (m.vlans?.length) {
+    out.push("");
+    m.vlans.forEach((v, i) => {
+      const head = `vlan ${v.id} ${q(v.name)}` + (v.subnet ? ` subnet ${v.subnet}` : "");
+      out.push(`${head} {`);
+      for (const mem of v.members) {
+        const ep = mem.port ? `${mem.device}.${mem.port}` : mem.device;
+        const bits = [`  member ${ep}`];
+        if (mem.tagged) bits.push("tagged");
+        if (mem.addr) bits.push(`addr ${mem.addr}`);
+        out.push(bits.join(" "));
+      }
+      out.push("}");
+      if (i < m.vlans .length - 1) out.push("");
+    });
+  }
+
+  if (m.segments?.length) {
+    out.push("");
+    m.segments.forEach((s, i) => {
+      const head = `segment ${s.id} ${q(s.name)}` + (s.subnet ? ` subnet ${s.subnet}` : "");
+      out.push(`${head} {`);
+      for (const mem of s.members) {
+        const ep = mem.port ? `${mem.device}.${mem.port}` : mem.device;
+        out.push(`  member ${ep}${mem.addr ? ` addr ${mem.addr}` : ""}`);
+      }
+      out.push("}");
+      if (i < m.segments .length - 1) out.push("");
+    });
+  }
+
+  if (m.bonds?.length) {
+    out.push("");
+    m.bonds.forEach((b, i) => {
+      const head = `bond ${b.id} on ${b.device}` + (b.mode ? ` mode ${b.mode}` : "");
+      out.push(`${head} {`);
+      for (const p of b.memberPorts) out.push(`  member ${p}`);
+      out.push("}");
+      if (i < m.bonds .length - 1) out.push("");
+    });
+  }
+
+  if (m.flows?.length) {
+    out.push("");
+    for (const f of m.flows) {
+      const lbl = f.label ? ` ${q(f.label)}` : "";
+      if (f.toService) {
+        out.push(`flow ${f.from} -> ${f.to}.${f.toService}${lbl}`);
+      } else {
+        const svc = f.port === undefined ? f.proto : `${f.proto}/${f.port}`;
+        out.push(`flow ${f.from} -> ${f.to} : ${svc}${lbl}`);
+      }
+    }
+  }
+
+  return out.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+}
+
+
 // ---- render.ts ----
 /** NetScript renderer — positioned model + theme → SVG string. */
                                                       
                                          
-  vlanColorIndex, vlansOnLink, bondKey, portOf, bondForPort,
-} from "./logical.ts";
 
 const SPEED_ORDER          = ["1G", "10G", "25G", "40G", "100G", "LAG"];
 
@@ -916,22 +2651,44 @@ function endDir(pts      , which           )     {
   const mode = S.mode ?? "physical";
   const logical = mode === "logical" || mode === "hybrid";
   const showCables = mode !== "logical"; // logical hides raw cabling; hybrid keeps it
-  const { W, H, zones } = layoutModel(m);
+  const laid = layoutModel(m);
+  let { W, H, zones } = laid;
   const id = new Map(m.devices.map((d) => [d.id, d]));
   const routes = buildRoutes(m);
   const allSegs = routes.map((p) => segments(p));
-  const out           = [`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
 
   // logical projection (only computed when needed)
   const vlanIdx = logical ? vlanColorIndex(m) : new Map                ();
   const vpal = S.vlanPalette ?? ["#2563eb"];
   const vlanColor = (vid        ) => vpal[(vlanIdx.get(vid) ?? 0) % vpal.length];
 
+  // Ethernet tubes: explicit segments, or derived from VLANs-with-subnet in
+  // logical/hybrid. Physical-only models still draw tubes if authored.
+  const drawTubeLayer = hasTubes(m) && (logical || !!m.segments?.length);
+  const tubeColor = (i        ) => vpal[i % vpal.length];
+  const tubePack = drawTubeLayer
+    ? layoutTubes(m, tubeColor)
+    : { tubes: []                                           , bottom: 0, padL: 0, padR: 0 };
+  const shiftX = tubePack.padL ?? 0;
+  if (tubePack.tubes.length) {
+    H = expandHeightForTubes(H, tubePack);
+    const minX = Math.min(...tubePack.tubes.map((t) => t.x1));
+    const maxX = Math.max(...tubePack.tubes.map((t) => t.x2));
+    // Infinite paper: grow for side risers, tube extent, and callout text.
+    W = Math.max(W, maxX + 24) - Math.min(0, minX - 24);
+    W += shiftX + (tubePack.padR ?? 0);
+  }
+
+  const out           = [`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="${S.font}">`];
+
   if (S.shadow)
     out.push('<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#0f172a" flood-opacity="0.16"/></filter></defs>');
   out.push(`<rect width="${W}" height="${H}" fill="${S.bg}"/>`);
   if (S.grid)
     out.push(`<defs><pattern id="grd" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="${S.grid}" stroke-width="1"/></pattern></defs><rect width="${W}" height="${H}" fill="url(#grd)"/>`);
+
+  // Shift content when left risers need margin (topology coords stay layout-native).
+  if (shiftX) out.push(`<g transform="translate(${shiftX},0)">`);
 
   // zones
   for (const z of zones) {
@@ -991,11 +2748,12 @@ function endDir(pts      , which           )     {
 
   // ---- port callouts (PHYSICAL documentation; on whenever portCallouts) ----
   // A small chip with the port name sits just outside the device where the
-  // cable lands. In logical/hybrid it also carries the interface address (if
-  // any) and a bond tag. Skipped in pure-logical (cabling is hidden there).
+  // cable lands. Skipped in pure-logical (cabling is hidden there).
+  // Visio rule: if this port already has a segment/tube callout (eth3 / .1 on
+  // the object→bus drop), do NOT also chip it on the L1 cable — one fact, one mark.
   if (S.portCallouts && mode !== "logical") {
+    const segPorts = tubePack.tubes.length ? segmentAnnotatedPorts(m) : new Set        ();
     const calloutChip = (anchor    , dir    , name        , accent        , sub         ) => {
-      // push the chip ~13px back from the device along the incoming cable
       const cx = anchor.x - dir.x * 14, cy = anchor.y - dir.y * 14;
       const tw = Math.max(18, 6.2 * name.length + 8);
       out.push(`<rect x="${(cx - tw / 2).toFixed(1)}" y="${(cy - 7).toFixed(1)}" width="${tw.toFixed(1)}" height="13" rx="3" fill="${S.bg}" stroke="${accent}" stroke-width="1"/>`);
@@ -1008,7 +2766,8 @@ function endDir(pts      , which           )     {
         const devId = which === "a" ? l.a : l.b;
         const portId = which === "a" ? l.aPort : l.bPort;
         const p = portOf(m, devId, portId);
-        if (!p) continue;                  // no named port → no callout (back-compat)
+        if (!p) continue;
+        if (portId && segPorts.has(`${devId}.${portId}`)) continue;
         const anchor = which === "a" ? pts[0] : pts[pts.length - 1];
         const dir = endDir(pts, which);
         const bond = logical ? bondForPort(m, devId, portId) : undefined;
@@ -1019,20 +2778,41 @@ function endDir(pts      , which           )     {
     });
   }
 
+  // ---- Ethernet tubes (under cards so drops tuck under device bottoms) ----
+  if (tubePack.tubes.length) out.push(...drawTubesSvg(tubePack.tubes, S));
+
   // ---- nodes ----
+  // Label must fit inside the card: size comes from layout; still ellipsize as a belt.
+  const fitInBox = (label        , maxW        , px = 11.5)         => {
+    const charW = px * 0.58;
+    const maxChars = Math.max(1, Math.floor(maxW / charW));
+    if (label.length <= maxChars) return label;
+    if (maxChars <= 1) return "…";
+    return label.slice(0, maxChars - 1) + "…";
+  };
   for (const d of m.devices) {
     const cx = d.x , cy = d.y , w = d.w , h = d.h , kc = KIND_COLOR[d.kind];
     const filt = S.shadow ? ' filter="url(#sh)"' : "";
-    out.push(`<rect x="${(cx - w / 2).toFixed(1)}" y="${(cy - h / 2).toFixed(1)}" width="${w}" height="${h}" rx="${S.radius}" fill="${S.cardFill}" stroke="${S.cardStroke}" stroke-width="${S.cardStrokeW}"${filt}/>`);
-    const gx = cx - w / 2 + 19;
+    const x0 = cx - w / 2, y0 = cy - h / 2;
+    const clipId = `c_${d.id.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+    out.push(`<clipPath id="${clipId}"><rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w}" height="${h}" rx="${S.radius}"/></clipPath>`);
+    out.push(`<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${w}" height="${h}" rx="${S.radius}" fill="${S.cardFill}" stroke="${S.cardStroke}" stroke-width="${S.cardStrokeW}"${filt}/>`);
+    const gx = x0 + 19;
     const hasMgmt = S.showMgmt && !!d.mgmt;   // only managed gear carries one
+    const textMax = w - 38; // chrome: glyph + right pad
+    const label = fitInBox(d.label, textMax);
+    out.push(`<g clip-path="url(#${clipId})">`);
     out.push(GLYPH[d.kind](gx, cy - (hasMgmt ? 6 : 0), 15, S.chipStroke ?? kc, "none", 1.4));
     const ty = hasMgmt ? cy - 4 : cy + 1;
-    out.push(`<text x="${(gx + 15).toFixed(1)}" y="${ty.toFixed(1)}" font-size="11.5" fill="${S.text}" font-weight="600" dominant-baseline="middle">${esc(d.label)}</text>`);
-    if (hasMgmt) out.push(`<text x="${(gx + 15).toFixed(1)}" y="${(cy + 10).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(d.mgmt )}</text>`);
+    out.push(`<text x="${(gx + 15).toFixed(1)}" y="${ty.toFixed(1)}" font-size="11.5" fill="${S.text}" font-weight="600" dominant-baseline="middle">${esc(label)}</text>`);
+    if (hasMgmt) {
+      const mgmt = fitInBox(d.mgmt , textMax, 9);
+      out.push(`<text x="${(gx + 15).toFixed(1)}" y="${(cy + 10).toFixed(1)}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${esc(mgmt)}</text>`);
+    }
+    out.push(`</g>`);
   }
 
-  // ---- logical overlay: bond brackets + subnet/CIDR badges ----
+  // ---- logical overlay: bond brackets (+ optional VLAN badges when no tubes) ----
   if (logical) {
     // Bond bracket + logical interface name at the owning device.
     for (const bnd of m.bonds ?? []) {
@@ -1046,22 +2826,25 @@ function endDir(pts      , which           )     {
       out.push(`<text x="${(bx - 10 - tw / 2).toFixed(1)}" y="${(by + 3.5).toFixed(1)}" font-size="9" text-anchor="middle" fill="${S.speedColor.LAG}" font-weight="700" font-family="${S.mono}">${esc(lbl)}</text>`);
     }
 
-    // Subnet/CIDR badge per VLAN, anchored at the centroid of its member ports.
-    for (const v of m.vlans ?? []) {
-      const col = vlanColor(v.id);
-      const pts       = [];
-      for (const mem of v.members) {
-        const dev = id.get(mem.device);
-        if (dev) pts.push({ x: dev.x , y: dev.y  });
+    // When tubes are drawn, the bus *is* the subnet badge — skip floating
+    // VLAN pills so we don't double-label the same segment.
+    if (!tubePack.tubes.length) {
+      for (const v of m.vlans ?? []) {
+        const col = vlanColor(v.id);
+        const pts       = [];
+        for (const mem of v.members) {
+          const dev = id.get(mem.device);
+          if (dev) pts.push({ x: dev.x , y: dev.y  });
+        }
+        if (!pts.length) continue;
+        const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+        const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+        const lbl = v.subnet ? `VLAN ${v.id} · ${v.subnet}` : `VLAN ${v.id} · ${v.name}`;
+        const tw = 6.4 * lbl.length + 16;
+        out.push(`<rect x="${(cx - tw / 2).toFixed(1)}" y="${(cy - 9).toFixed(1)}" width="${tw.toFixed(1)}" height="18" rx="9" fill="${S.bg}" stroke="${col}" stroke-width="1.3" fill-opacity="0.96"/>`);
+        out.push(`<circle cx="${(cx - tw / 2 + 11).toFixed(1)}" cy="${cy.toFixed(1)}" r="3.4" fill="${col}"/>`);
+        out.push(`<text x="${(cx + 6).toFixed(1)}" y="${(cy + 3.5).toFixed(1)}" font-size="9.5" text-anchor="middle" fill="${S.text}" font-weight="600" font-family="${S.mono}">${esc(lbl)}</text>`);
       }
-      if (!pts.length) continue;
-      const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
-      const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
-      const lbl = v.subnet ? `VLAN ${v.id} · ${v.subnet}` : `VLAN ${v.id} · ${v.name}`;
-      const tw = 6.4 * lbl.length + 16;
-      out.push(`<rect x="${(cx - tw / 2).toFixed(1)}" y="${(cy - 9).toFixed(1)}" width="${tw.toFixed(1)}" height="18" rx="9" fill="${S.bg}" stroke="${col}" stroke-width="1.3" fill-opacity="0.96"/>`);
-      out.push(`<circle cx="${(cx - tw / 2 + 11).toFixed(1)}" cy="${cy.toFixed(1)}" r="3.4" fill="${col}"/>`);
-      out.push(`<text x="${(cx + 6).toFixed(1)}" y="${(cy + 3.5).toFixed(1)}" font-size="9.5" text-anchor="middle" fill="${S.text}" font-weight="600" font-family="${S.mono}">${esc(lbl)}</text>`);
     }
   }
 
@@ -1094,18 +2877,67 @@ function endDir(pts      , which           )     {
 
   if (S.titleBlock) {
     const nodes = m.devices.length, links = m.links.length;
+    const tubesN = tubePack.tubes.length;
     const layerTag = mode === "logical" ? "LOGICAL L2/L3" : mode === "hybrid" ? "HYBRID L1+L2/L3" : "PHYSICAL L1";
-    out.push(`<rect x="${W - 252}" y="${H - 70}" width="236" height="54" fill="none" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
-    out.push(`<line x1="${W - 252}" y1="${H - 50}" x2="${W - 16}" y2="${H - 50}" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
-    out.push(`<text x="${W - 244}" y="${H - 55}" font-size="9.5" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">${esc(m.title.toUpperCase())} · ${layerTag}</text>`);
-    out.push(`<text x="${W - 244}" y="${H - 34}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${nodes} NODES · ${links} LINKS · REV A · NTS</text>`);
+    const tubeTag = tubesN ? ` · ${tubesN} TUBE${tubesN === 1 ? "" : "S"}` : "";
+    // Title block is in content space (inside the shift group when present).
+    const tbX = W - shiftX - 252;
+    out.push(`<rect x="${tbX}" y="${H - 70}" width="236" height="54" fill="none" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
+    out.push(`<line x1="${tbX}" y1="${H - 50}" x2="${W - shiftX - 16}" y2="${H - 50}" stroke="${S.cardStroke}" stroke-width="1.1"/>`);
+    out.push(`<text x="${tbX + 8}" y="${H - 55}" font-size="9.5" fill="${S.sub}" font-family="${S.mono}" letter-spacing="1">${esc(m.title.toUpperCase())} · ${layerTag}</text>`);
+    out.push(`<text x="${tbX + 8}" y="${H - 34}" font-size="9" fill="${S.sub}" font-family="${S.mono}">${nodes} NODES · ${links} LINKS${tubeTag} · REV A · NTS</text>`);
   }
 
+  if (shiftX) out.push("</g>");
   out.push("</svg>");
   return out.join("\n");
 }
 
 
+// ---- views.ts ----
+/**
+ * NetScript view selection — two INDEPENDENT axes.
+ *
+ *   view        WHAT is drawn   · topology (devices + cabling) | traffic (L4 flows)
+ *   projection  HOW it's drawn  · flat (2D) | iso (isometric)
+ *
+ * These are deliberately orthogonal: isometric is a projection of a scene, not
+ * a kind of scene, so every combination is valid and supported. Layer choice
+ * *within* the topology view (physical vs logical vs hybrid) is a third,
+ * separate thing carried by the theme's `mode` — see themes.ts.
+ *
+ *     topology + flat   the documentation default
+ *     topology + iso    the same layout, projected
+ *     traffic  + flat   service-coloured flows, initiator → listener
+ *     traffic  + iso    the same flows, projected
+ */const VIEWS         = ["topology", "traffic"];const PROJECTIONS               = ["flat", "iso"];
 
-globalThis.NetScript = { parseNet, renderModel, resolveTheme, THEMES, clean, blueprint };
+const TABLE                                                                               = {
+  topology: { flat: renderModel, iso: renderModelIso },
+  traffic: { flat: renderModelTraffic, iso: renderTrafficIso },
+};
+
+                                
+                         
+              
+                          
+ 
+
+/** Render a model through the chosen view × projection. Throws on bad input. */function renderView(m          , opts                = {})         {
+  const view = opts.view ?? "topology";
+  const projection = opts.projection ?? "flat";
+  if (!VIEWS.includes(view)) throw new Error(`unknown view "${view}" (have: ${VIEWS.join(", ")})`);
+  if (!PROJECTIONS.includes(projection)) throw new Error(`unknown projection "${projection}" (have: ${PROJECTIONS.join(", ")})`);
+  if (view === "traffic" && !m.flows?.length)
+    throw new Error('view "traffic" needs at least one flow; the model declares none');
+  return TABLE[view][projection](m, opts.theme ?? m.theme ?? "clean");
+}
+
+
+
+globalThis.NetScript = {
+  parseNet, serializeNet,
+  renderModel, renderModelIso, renderModelTraffic, renderTrafficIso, renderView,
+  resolveTheme, THEMES, clean, blueprint,
+};
 })();

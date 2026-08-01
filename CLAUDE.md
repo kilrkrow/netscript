@@ -15,6 +15,7 @@ npm run render:examples   # regenerate examples/*.svg
 npm run typecheck         # tsc --noEmit
 npm run build             # esbuild bundle -> dist/
 npm run build:mcp         # esbuild bundle src/mcp-server.ts -> dist/
+npm run build:editor      # editor/netscript.js + editor/netscript-editor.html
 
 node src/cli.ts mcp        # MCP server over stdio (compile_net, render_net)
 ```
@@ -49,6 +50,16 @@ src/mcp-server.ts     MCP server (compile_net, render_net) over stdio
 src/cli.ts                CLI entry (render, and `mcp` subcommand)
 src/index.ts              public API
 ```
+
+**The editor's default artifact is `editor/netscript-editor.html`** — the whole
+engine inlined into one double-clickable page that runs from `file://`. This is
+a privacy property, not a packaging convenience: a `.net` source is routinely a
+client's firewall port table, and the standalone file removes the last remote
+trust (code delivery) from a tool that already computes entirely in-browser.
+`build-editor.mjs` FAILS the build if that page ever gains a tag which fetches
+at runtime — don't weaken that check, and don't add webfonts/CDN/analytics to
+`editor/index.html`. Sharing embeds the source in the URL and is gated behind a
+confirm for the same reason.
 
 **Core principle:** the model is the source of truth; renderers are pure views.
 Importers and exporters (UniFi / Proxmox / SysML v2) attach at the edges as

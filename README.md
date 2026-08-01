@@ -52,22 +52,49 @@ const svg = renderModel(threeRack, "blueprint");
 
 ## Live editor
 
-A self-contained browser editor lives in [`editor/`](editor/) — type `.net` on the left, watch the diagram render live on the right. No backend, no build step required to run it.
+Type `.net` on the left, watch the diagram render live on the right.
+
+**The default way to run it is the standalone file** — `editor/netscript-editor.html`.
+Double-click it. That is the whole procedure: no server, no install, no build
+step, no network. The engine is inlined, so the page runs from `file://` on an
+airgapped machine.
+
+```bash
+npm run build:editor    # regenerates it (Node 24 only, no dependencies)
+```
 
 - **Caret-aware autocomplete** — device kinds, tiers, link speeds, and existing device IDs, from the typed grammar + a live symbol table.
 - **Inline diagnostics** — line-numbered parser errors in the status bar.
-- **Prebuilt samples** — *three-rack leaf-spine*, *small lab*, *starter* — in the picker.
-- **Theme switch** (clean / blueprint), **Export SVG**, and **Copy link** (the diagram is encoded in the URL `#fragment` — shareable with zero backend).
+- **Prebuilt samples** in the picker, **theme switch**, and **Export SVG**.
 
-Run it:
+### Handling sensitive topology
+
+A network diagram's source is often a client's firewall port table, so it is
+worth being precise about what this tool does with it.
+
+**It never transmits anything.** The editor makes no `fetch`, `XMLHttpRequest`,
+`WebSocket` or beacon call of any kind — parsing and rendering happen entirely
+in your browser. The CLI is likewise local: text in, SVG out. The build fails if
+the standalone page ever gains a tag that would fetch at runtime, so the offline
+guarantee is enforced rather than merely intended.
+
+Two things still deserve care:
+
+- **"Copy link ⚠" embeds the entire source in the URL** (base64 — encoding, not
+  encryption). Nothing is transmitted, but the link travels: chat history,
+  tickets, browser history, profile sync. It asks for confirmation before
+  copying. Don't use it for client or production topology.
+- **Hosting the editor means trusting the host to serve the code that reads your
+  data.** Your diagram still never leaves the browser, but a modified bundle
+  could change that without any visible sign. Serving it from GitHub Pages or
+  similar is fine for public samples and convenient for demos — for client work,
+  use the standalone file, where code delivery isn't a trust boundary at all.
+
+If you do want it hosted, the folder is a static site:
 
 ```bash
-npm run build:editor          # regenerate editor/netscript.js (Node 24 only — no deps)
-# then serve the folder (ES-module-free bundle, so file:// works too):
 python3 -m http.server -d editor 8080   # → http://localhost:8080
 ```
-
-Host it for free on **GitHub Pages** (Settings → Pages → deploy from `main`) — the editor is then at `…/netscript/editor/`. No Cloudflare Worker needed; a Worker only enters the picture later for the server-side LLM generation path.
 
 ## MCP server
 

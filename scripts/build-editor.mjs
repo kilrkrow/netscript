@@ -73,4 +73,41 @@ globalThis.NetScript = {
 
 mkdirSync("editor", { recursive: true });
 writeFileSync("editor/netscript.js", out);
-console.log(`editor/netscript.js — ${out.length} bytes`);
+console.log(`editor/netscript.js            — ${out.length} bytes`);
+
+/*
+ * Standalone single-file editor — the DEFAULT way to run this.
+ *
+ * A network diagram's source is routinely a client's firewall port table, so
+ * the tool that opens it should not require trusting a host to serve the
+ * JavaScript that reads it. Inlining the engine gives one double-clickable
+ * file that runs from file:// with no server, no install and no network — and,
+ * being a single readable file, it can actually be audited before use.
+ *
+ * The editor already computes everything in-browser and makes no network
+ * calls; this removes the last piece of remote trust, which is code delivery.
+ */
+const page = readFileSync("editor/index.html", "utf8");
+const marker = '<script src="netscript.js"></script>';
+if (!page.includes(marker)) {
+  throw new Error("build-editor: editor/index.html no longer loads netscript.js via the expected tag — update the inliner");
+}
+const standalone = page.replace(
+  marker,
+  `<script>\n/* engine inlined for offline use — see scripts/build-editor.mjs */\n${out}\n</script>`,
+);
+
+// Guard the promise this file makes: nothing may be fetched at runtime.
+// Match on the TAG, not the attribute — `<a href>` navigates when clicked and
+// is fine, but `<link href>` fetches a stylesheet and is not, and both would
+// look identical to a check that only inspected the attribute name.
+const FETCHING_TAG = /<(script|link|img|iframe|embed|object|audio|video|source|track)\b[^>]*\b(?:src|href|data)\s*=\s*["'](?:https?:)?\/\/[^"']*["'][^>]*>/gi;
+const external = [...standalone.matchAll(FETCHING_TAG)].map((mt) => mt[0]);
+if (external.length) {
+  throw new Error(
+    `build-editor: standalone page would fetch at runtime, breaking its offline guarantee:\n  ${external.join("\n  ")}`,
+  );
+}
+
+writeFileSync("editor/netscript-editor.html", standalone);
+console.log(`editor/netscript-editor.html   — ${standalone.length} bytes (offline, self-contained)`);

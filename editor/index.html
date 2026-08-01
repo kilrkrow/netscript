@@ -49,7 +49,7 @@
     <select id="theme"><option value="clean">clean</option><option value="blueprint">blueprint</option></select>
   </label>
   <button id="export">Export SVG</button>
-  <button id="share">Copy link</button>
+  <button id="share" title="Embeds the whole diagram source in the URL — not for client or production topology">Copy link ⚠</button>
   <a class="repo" href="https://github.com/kilrkrow/netscript" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
 </header>
 <main>
@@ -260,7 +260,19 @@
     a.download = (ta.value.match(/title\s*:\s*(.+)/) || [, "netscript"])[1].trim().replace(/\s+/g, "-").toLowerCase() + ".svg";
     a.click(); URL.revokeObjectURL(a.href);
   });
+  // Sharing embeds the ENTIRE source in the URL (base64 — encoding, not
+  // encryption). Nothing is transmitted, but the resulting link travels: chat
+  // history, tickets, browser history, profile sync across devices. This tool's
+  // input is routinely a firewall port table, so the copy is gated on saying so
+  // out loud. Reading an inbound #n= link stays unprompted — that data was
+  // already in a URL somebody handed you.
   document.getElementById("share").addEventListener("click", function () {
+    if (!window.confirm(
+      "Copy a link with your whole diagram embedded in it?\n\n" +
+      "The source is encoded into the URL itself — readable by anyone who gets the link, " +
+      "and URLs end up in chat history, tickets and browser sync.\n\n" +
+      "Don't use this for client or production topology."
+    )) return;
     location.hash = "n=" + btoa(unescape(encodeURIComponent(ta.value)));
     if (navigator.clipboard) navigator.clipboard.writeText(location.href);
     var s = document.getElementById("share"); var o = s.textContent; s.textContent = "Copied!"; setTimeout(function () { s.textContent = o; }, 1200);

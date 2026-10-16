@@ -1,0 +1,221 @@
+<svg viewBox="0 0 1808 718" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+<rect width="1808" height="718" fill="#0c356a"/>
+<defs><pattern id="grd" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#1c4a8a" stroke-width="1"/></pattern></defs><rect width="1808" height="718" fill="url(#grd)"/>
+<rect x="671.0" y="232.0" width="466.0" height="100.0" rx="13" fill="#0e3f7d" stroke="#2f63a8" stroke-width="1.2"/>
+<text x="677.0" y="225.0" font-size="11.5" fill="#bcd6ff" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">CORE</text>
+<rect x="54.0" y="355.0" width="564.0" height="257.0" rx="13" fill="#0e3f7d" stroke="#2f63a8" stroke-width="1.2"/>
+<text x="60.0" y="348.0" font-size="11.5" fill="#bcd6ff" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">COMPUTE</text>
+<rect x="622.0" y="355.0" width="564.0" height="257.0" rx="13" fill="#0e3f7d" stroke="#2f63a8" stroke-width="1.2"/>
+<text x="628.0" y="348.0" font-size="11.5" fill="#bcd6ff" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">MIXED</text>
+<rect x="1190.0" y="355.0" width="564.0" height="257.0" rx="13" fill="#0e3f7d" stroke="#2f63a8" stroke-width="1.2"/>
+<text x="1196.0" y="348.0" font-size="11.5" fill="#bcd6ff" font-weight="700" letter-spacing="1.8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">STORAGE</text>
+<path d="M 904.0,123.0 L 904.0,67.0" fill="none" stroke="#cfe0ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="904.0" cy="123.0" r="2.3" fill="#cfe0ff"/>
+<circle cx="904.0" cy="67.0" r="2.3" fill="#cfe0ff"/>
+<path d="M 904.0,177.0 L 904.0,200.0 L 784.0,200.0 L 784.0,252.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="904.0" cy="177.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="784.0" cy="252.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 904.0,177.0 L 904.0,213.0 L 1024.0,213.0 L 1024.0,252.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="904.0" cy="177.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="1024.0" cy="252.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 859.0,278.0 L 949.0,278.0" fill="none" stroke="#ff9ed6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="859.0" cy="278.0" r="2.3" fill="#ff9ed6"/>
+<circle cx="949.0" cy="278.0" r="2.3" fill="#ff9ed6"/>
+<path d="M 329.0,375.0 L 329.0,334.0 L 338.0,334.0 A 5,5 0 0 1 348.0,334.0 L 742.0,334.0 L 742.0,304.0" fill="none" stroke="#ffd27f" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="329.0" cy="375.0" r="2.3" fill="#ffd27f"/>
+<circle cx="742.0" cy="304.0" r="2.3" fill="#ffd27f"/>
+<path d="M 343.0,375.0 L 343.0,322.0 L 737.0,322.0 A 5,5 0 0 1 747.0,322.0 L 779.0,322.0 A 5,5 0 0 1 789.0,322.0 L 821.0,322.0 A 5,5 0 0 1 831.0,322.0 L 982.0,322.0 L 982.0,304.0" fill="none" stroke="#ffd27f" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="343.0" cy="375.0" r="2.3" fill="#ffd27f"/>
+<circle cx="982.0" cy="304.0" r="2.3" fill="#ffd27f"/>
+<path d="M 897.0,375.0 L 897.0,346.0 L 784.0,346.0 L 784.0,304.0" fill="none" stroke="#ffd27f" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="897.0" cy="375.0" r="2.3" fill="#ffd27f"/>
+<circle cx="784.0" cy="304.0" r="2.3" fill="#ffd27f"/>
+<path d="M 911.0,375.0 L 911.0,358.0 L 1024.0,358.0 L 1024.0,304.0" fill="none" stroke="#ffd27f" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="911.0" cy="375.0" r="2.3" fill="#ffd27f"/>
+<circle cx="1024.0" cy="304.0" r="2.3" fill="#ffd27f"/>
+<path d="M 1465.0,375.0 L 1465.0,334.0 L 1019.0,334.0 A 5,5 0 0 0 1029.0,334.0 L 826.0,334.0 L 826.0,304.0" fill="none" stroke="#ffd27f" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="1465.0" cy="375.0" r="2.3" fill="#ffd27f"/>
+<circle cx="826.0" cy="304.0" r="2.3" fill="#ffd27f"/>
+<path d="M 1479.0,375.0 L 1479.0,322.0 L 1066.0,322.0 L 1066.0,304.0" fill="none" stroke="#ffd27f" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="1479.0" cy="375.0" r="2.3" fill="#ffd27f"/>
+<circle cx="1066.0" cy="304.0" r="2.3" fill="#ffd27f"/>
+<path d="M 278.6,425.0 L 278.6,448.0 L 144.0,445.6 L 141.6,496.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 283.4,425.0 L 283.4,448.0 L 144.0,450.4 L 146.4,496.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="281.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="144.0" cy="496.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 304.0,425.0 L 304.0,470.0 L 272.0,470.0 L 272.0,536.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="304.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="272.0" cy="536.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 368.0,425.0 L 368.0,481.0 L 400.0,481.0 L 400.0,496.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="368.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="400.0" cy="496.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 391.0,425.0 L 391.0,459.0 L 528.0,459.0 L 528.0,536.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="391.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="528.0" cy="536.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 849.0,425.0 L 849.0,448.0 L 712.0,448.0 L 712.0,496.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="849.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="712.0" cy="496.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 872.0,425.0 L 872.0,470.0 L 840.0,470.0 L 840.0,536.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="872.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="840.0" cy="536.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 936.0,425.0 L 936.0,481.0 L 968.0,481.0 L 968.0,496.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="936.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="968.0" cy="496.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 956.6,425.0 L 956.6,459.0 L 1096.0,456.6 L 1093.6,536.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 961.4,425.0 L 961.4,459.0 L 1096.0,461.4 L 1098.4,536.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="959.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="1096.0" cy="536.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 1414.6,425.0 L 1414.6,448.0 L 1280.0,445.6 L 1277.6,496.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1419.4,425.0 L 1419.4,448.0 L 1280.0,450.4 L 1282.4,496.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="1417.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="1280.0" cy="496.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 1440.0,425.0 L 1440.0,470.0 L 1408.0,470.0 L 1408.0,536.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="1440.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="1408.0" cy="536.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 1504.0,425.0 L 1504.0,481.0 L 1536.0,481.0 L 1536.0,496.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="1504.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="1536.0" cy="496.0" r="2.3" fill="#7fd1ff"/>
+<path d="M 1527.0,425.0 L 1527.0,459.0 L 1664.0,459.0 L 1664.0,536.0" fill="none" stroke="#7fd1ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="1"/>
+<circle cx="1527.0" cy="425.0" r="2.3" fill="#7fd1ff"/>
+<circle cx="1664.0" cy="536.0" r="2.3" fill="#7fd1ff"/>
+<text x="904.0" y="97.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">WAN</text>
+<text x="784.0" y="228.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10G</text>
+<text x="1024.0" y="234.5" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10G</text>
+<text x="904.0" y="280.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">100G</text>
+<text x="144.0" y="488.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LAG</text>
+<text x="1096.0" y="513.5" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LAG</text>
+<text x="1280.0" y="488.0" font-size="10" text-anchor="middle" fill="#dbe9ff" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LAG</text>
+<clipPath id="c_wan"><rect x="844.0" y="21.0" width="120" height="46" rx="4"/></clipPath>
+<rect x="844.0" y="21.0" width="120" height="46" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_wan)">
+<g transform="translate(851.0,36.5) scale(0.375)"><path d="M54,40 H14 C6.3,40 0,33.7 0,26 0,18.8 5.4,12.9 12.4,12.1 14.7,5.1 21.3,0 29,0 c8,0 14.7,5.5 16.6,12.9 C53.4,13.6 64,18.3 64,26 64,33.7 60.6,40 54,40 Z" fill="none" stroke="#bcd6ff" stroke-width="3.73"/></g>
+<text x="878.0" y="45.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">Internet</text>
+</g>
+<clipPath id="c_edge"><rect x="829.0" y="123.0" width="150" height="54" rx="4"/></clipPath>
+<rect x="829.0" y="123.0" width="150" height="54" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_edge)">
+<rect x="839.0" y="137.3" width="18.0" height="13.5" rx="2" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="839.0" y1="144.0" x2="857.0" y2="144.0" stroke="#bcd6ff" stroke-width="1.4"/><line x1="848.0" y1="137.3" x2="848.0" y2="144.0" stroke="#bcd6ff" stroke-width="1.4"/><line x1="843.5" y1="144.0" x2="843.5" y2="150.8" stroke="#bcd6ff" stroke-width="1.4"/><line x1="852.5" y1="144.0" x2="852.5" y2="150.8" stroke="#bcd6ff" stroke-width="1.4"/>
+<text x="863.0" y="146.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">Edge / FW</text>
+<text x="863.0" y="160.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.10.0.1</text>
+</g>
+<clipPath id="c_core1"><rect x="709.0" y="252.0" width="150" height="52" rx="4"/></clipPath>
+<rect x="709.0" y="252.0" width="150" height="52" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_core1)">
+<rect x="718.6" y="267.4" width="18.8" height="9.3" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="722.0" y1="270.0" x2="734.0" y2="270.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 734.0,270.0 l -2.0,-1.3 M 734.0,270.0 l -2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/><line x1="722.0" y1="274.0" x2="734.0" y2="274.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 722.0,274.0 l 2.0,-1.3 M 722.0,274.0 l 2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/>
+<text x="743.0" y="274.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">core-1</text>
+<text x="743.0" y="288.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.10.0.2</text>
+</g>
+<clipPath id="c_core2"><rect x="949.0" y="252.0" width="150" height="52" rx="4"/></clipPath>
+<rect x="949.0" y="252.0" width="150" height="52" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_core2)">
+<rect x="958.6" y="267.4" width="18.8" height="9.3" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="962.0" y1="270.0" x2="974.0" y2="270.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 974.0,270.0 l -2.0,-1.3 M 974.0,270.0 l -2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/><line x1="962.0" y1="274.0" x2="974.0" y2="274.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 962.0,274.0 l 2.0,-1.3 M 962.0,274.0 l 2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/>
+<text x="983.0" y="274.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">core-2</text>
+<text x="983.0" y="288.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.10.0.3</text>
+</g>
+<clipPath id="c_a-tor"><rect x="261.0" y="375.0" width="150" height="50" rx="4"/></clipPath>
+<rect x="261.0" y="375.0" width="150" height="50" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_a-tor)">
+<rect x="270.6" y="389.4" width="18.8" height="9.3" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="274.0" y1="392.0" x2="286.0" y2="392.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 286.0,392.0 l -2.0,-1.3 M 286.0,392.0 l -2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/><line x1="274.0" y1="396.0" x2="286.0" y2="396.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 274.0,396.0 l 2.0,-1.3 M 274.0,396.0 l 2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/>
+<text x="295.0" y="396.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">tor-a</text>
+<text x="295.0" y="410.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.10.10.2</text>
+</g>
+<clipPath id="c_a-s1"><rect x="92.0" y="496.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="92.0" y="496.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_a-s1)">
+<rect x="105.2" y="512.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="107.3" y1="515.9" x2="113.1" y2="515.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="114.5" cy="515.9" r="1.4" fill="#bcd6ff"/><line x1="107.3" y1="520.0" x2="113.1" y2="520.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="114.5" cy="520.0" r="1.4" fill="#bcd6ff"/><line x1="107.3" y1="524.1" x2="113.1" y2="524.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="114.5" cy="524.1" r="1.4" fill="#bcd6ff"/>
+<text x="126.0" y="521.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">esxi-a1</text>
+</g>
+<clipPath id="c_a-s2"><rect x="220.0" y="536.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="220.0" y="536.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_a-s2)">
+<rect x="233.2" y="552.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="235.3" y1="555.9" x2="241.1" y2="555.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="242.5" cy="555.9" r="1.4" fill="#bcd6ff"/><line x1="235.3" y1="560.0" x2="241.1" y2="560.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="242.5" cy="560.0" r="1.4" fill="#bcd6ff"/><line x1="235.3" y1="564.1" x2="241.1" y2="564.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="242.5" cy="564.1" r="1.4" fill="#bcd6ff"/>
+<text x="254.0" y="561.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">esxi-a2</text>
+</g>
+<clipPath id="c_a-s3"><rect x="348.0" y="496.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="348.0" y="496.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_a-s3)">
+<rect x="361.1" y="512.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="363.3" y1="515.9" x2="369.1" y2="515.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="370.5" cy="515.9" r="1.4" fill="#bcd6ff"/><line x1="363.3" y1="520.0" x2="369.1" y2="520.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="370.5" cy="520.0" r="1.4" fill="#bcd6ff"/><line x1="363.3" y1="524.1" x2="369.1" y2="524.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="370.5" cy="524.1" r="1.4" fill="#bcd6ff"/>
+<text x="382.0" y="521.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">esxi-a3</text>
+</g>
+<clipPath id="c_a-s4"><rect x="476.0" y="536.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="476.0" y="536.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_a-s4)">
+<rect x="489.1" y="552.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="491.3" y1="555.9" x2="497.1" y2="555.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="498.5" cy="555.9" r="1.4" fill="#bcd6ff"/><line x1="491.3" y1="560.0" x2="497.1" y2="560.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="498.5" cy="560.0" r="1.4" fill="#bcd6ff"/><line x1="491.3" y1="564.1" x2="497.1" y2="564.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="498.5" cy="564.1" r="1.4" fill="#bcd6ff"/>
+<text x="510.0" y="561.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">esxi-a4</text>
+</g>
+<clipPath id="c_b-tor"><rect x="829.0" y="375.0" width="150" height="50" rx="4"/></clipPath>
+<rect x="829.0" y="375.0" width="150" height="50" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_b-tor)">
+<rect x="838.6" y="389.4" width="18.8" height="9.3" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="842.0" y1="392.0" x2="854.0" y2="392.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 854.0,392.0 l -2.0,-1.3 M 854.0,392.0 l -2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/><line x1="842.0" y1="396.0" x2="854.0" y2="396.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 842.0,396.0 l 2.0,-1.3 M 842.0,396.0 l 2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/>
+<text x="863.0" y="396.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">tor-b</text>
+<text x="863.0" y="410.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.10.20.2</text>
+</g>
+<clipPath id="c_b-s1"><rect x="660.0" y="496.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="660.0" y="496.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_b-s1)">
+<rect x="673.1" y="512.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="675.3" y1="515.9" x2="681.1" y2="515.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="682.5" cy="515.9" r="1.4" fill="#bcd6ff"/><line x1="675.3" y1="520.0" x2="681.1" y2="520.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="682.5" cy="520.0" r="1.4" fill="#bcd6ff"/><line x1="675.3" y1="524.1" x2="681.1" y2="524.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="682.5" cy="524.1" r="1.4" fill="#bcd6ff"/>
+<text x="694.0" y="521.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">k8s-b1</text>
+</g>
+<clipPath id="c_b-s2"><rect x="788.0" y="536.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="788.0" y="536.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_b-s2)">
+<rect x="801.1" y="552.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="803.3" y1="555.9" x2="809.1" y2="555.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="810.5" cy="555.9" r="1.4" fill="#bcd6ff"/><line x1="803.3" y1="560.0" x2="809.1" y2="560.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="810.5" cy="560.0" r="1.4" fill="#bcd6ff"/><line x1="803.3" y1="564.1" x2="809.1" y2="564.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="810.5" cy="564.1" r="1.4" fill="#bcd6ff"/>
+<text x="822.0" y="561.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">k8s-b2</text>
+</g>
+<clipPath id="c_b-s3"><rect x="916.0" y="496.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="916.0" y="496.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_b-s3)">
+<rect x="929.1" y="512.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="931.3" y1="515.9" x2="937.1" y2="515.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="938.5" cy="515.9" r="1.4" fill="#bcd6ff"/><line x1="931.3" y1="520.0" x2="937.1" y2="520.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="938.5" cy="520.0" r="1.4" fill="#bcd6ff"/><line x1="931.3" y1="524.1" x2="937.1" y2="524.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="938.5" cy="524.1" r="1.4" fill="#bcd6ff"/>
+<text x="950.0" y="521.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">k8s-b3</text>
+</g>
+<clipPath id="c_b-st"><rect x="1044.0" y="536.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="1044.0" y="536.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_b-st)">
+<rect x="1055.5" y="552.1" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1068.1" cy="554.1" r="1.4" fill="#bcd6ff"/><rect x="1055.5" y="558.0" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1068.1" cy="560.0" r="1.4" fill="#bcd6ff"/><rect x="1055.5" y="563.9" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1068.1" cy="565.9" r="1.4" fill="#bcd6ff"/>
+<text x="1078.0" y="561.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">ceph-b1</text>
+</g>
+<clipPath id="c_c-tor"><rect x="1397.0" y="375.0" width="150" height="50" rx="4"/></clipPath>
+<rect x="1397.0" y="375.0" width="150" height="50" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_c-tor)">
+<rect x="1406.6" y="389.4" width="18.8" height="9.3" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="1410.0" y1="392.0" x2="1422.0" y2="392.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 1422.0,392.0 l -2.0,-1.3 M 1422.0,392.0 l -2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/><line x1="1410.0" y1="396.0" x2="1422.0" y2="396.0" stroke="#bcd6ff" stroke-width="1.4"/><path d="M 1410.0,396.0 l 2.0,-1.3 M 1410.0,396.0 l 2.0,1.3" stroke="#bcd6ff" stroke-width="1.4" fill="none"/>
+<text x="1431.0" y="396.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">tor-c</text>
+<text x="1431.0" y="410.0" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10.10.30.2</text>
+</g>
+<clipPath id="c_c-st1"><rect x="1228.0" y="496.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="1228.0" y="496.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_c-st1)">
+<rect x="1239.5" y="512.1" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1252.1" cy="514.1" r="1.4" fill="#bcd6ff"/><rect x="1239.5" y="518.0" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1252.1" cy="520.0" r="1.4" fill="#bcd6ff"/><rect x="1239.5" y="523.9" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1252.1" cy="525.9" r="1.4" fill="#bcd6ff"/>
+<text x="1262.0" y="521.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">san-c1</text>
+</g>
+<clipPath id="c_c-st2"><rect x="1356.0" y="536.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="1356.0" y="536.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_c-st2)">
+<rect x="1367.5" y="552.1" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1380.1" cy="554.1" r="1.4" fill="#bcd6ff"/><rect x="1367.5" y="558.0" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1380.1" cy="560.0" r="1.4" fill="#bcd6ff"/><rect x="1367.5" y="563.9" width="15.0" height="3.9" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1380.1" cy="565.9" r="1.4" fill="#bcd6ff"/>
+<text x="1390.0" y="561.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">san-c2</text>
+</g>
+<clipPath id="c_c-s1"><rect x="1484.0" y="496.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="1484.0" y="496.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_c-s1)">
+<rect x="1497.2" y="512.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="1499.3" y1="515.9" x2="1505.1" y2="515.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1506.5" cy="515.9" r="1.4" fill="#bcd6ff"/><line x1="1499.3" y1="520.0" x2="1505.1" y2="520.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1506.5" cy="520.0" r="1.4" fill="#bcd6ff"/><line x1="1499.3" y1="524.1" x2="1505.1" y2="524.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1506.5" cy="524.1" r="1.4" fill="#bcd6ff"/>
+<text x="1518.0" y="521.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">bkp-c1</text>
+</g>
+<clipPath id="c_c-s2"><rect x="1612.0" y="536.0" width="104" height="48" rx="4"/></clipPath>
+<rect x="1612.0" y="536.0" width="104" height="48" rx="4" fill="none" stroke="#bcd6ff" stroke-width="1.2"/>
+<g clip-path="url(#c_c-s2)">
+<rect x="1625.2" y="552.1" width="11.7" height="15.8" rx="3" fill="none" stroke="#bcd6ff" stroke-width="1.4"/><line x1="1627.3" y1="555.9" x2="1633.1" y2="555.9" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1634.5" cy="555.9" r="1.4" fill="#bcd6ff"/><line x1="1627.3" y1="560.0" x2="1633.1" y2="560.0" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1634.5" cy="560.0" r="1.4" fill="#bcd6ff"/><line x1="1627.3" y1="564.1" x2="1633.1" y2="564.1" stroke="#bcd6ff" stroke-width="1.4"/><circle cx="1634.5" cy="564.1" r="1.4" fill="#bcd6ff"/>
+<text x="1646.0" y="561.0" font-size="11.5" fill="#eaf2ff" font-weight="600" dominant-baseline="middle">bkp-c2</text>
+</g>
+<text x="110" y="683" font-size="11" fill="#9dc0f0" font-weight="700" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LINK SPEED</text>
+<line x1="202" y1="680" x2="226" y2="680" stroke="#7fd1ff" stroke-width="3.2" stroke-linecap="round"/>
+<text x="232" y="683" font-size="10.5" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">10G</text>
+<line x1="294" y1="680" x2="318" y2="680" stroke="#ffd27f" stroke-width="3.2" stroke-linecap="round"/>
+<text x="324" y="683" font-size="10.5" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">25G</text>
+<line x1="386" y1="680" x2="410" y2="680" stroke="#ff9ed6" stroke-width="3.2" stroke-linecap="round"/>
+<text x="416" y="683" font-size="10.5" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">100G</text>
+<line x1="478" y1="680" x2="502" y2="680" stroke="#a7f3d0" stroke-width="3.2" stroke-linecap="round"/>
+<text x="508" y="683" font-size="10.5" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LAG</text>
+<rect x="1556" y="648" width="236" height="54" fill="none" stroke="#bcd6ff" stroke-width="1.1"/>
+<line x1="1556" y1="668" x2="1792" y2="668" stroke="#bcd6ff" stroke-width="1.1"/>
+<text x="1564" y="663" font-size="9.5" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" letter-spacing="1">3-RACK LEAF-SPINE · PHYSICAL L1</text>
+<text x="1564" y="684" font-size="9" fill="#9dc0f0" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">19 NODES · 22 LINKS · REV A · NTS</text>
+</svg>

@@ -3152,9 +3152,15 @@ globalThis.NetScript = {
       acItems = c.items; acStart = ta.selectionStart - c.word.length;
       if (!acItems.length) { hideAC(); return; }
       acSel = 0;
-      acEl.innerHTML = acItems.map(function (it, i) { return '<div class="' + (i === 0 ? "sel" : "") + '">' + it + "</div>"; }).join("");
-      Array.prototype.forEach.call(acEl.children, function (ch, i) {
-        ch.addEventListener("mousedown", function (e) { e.preventDefault(); acSel = i; accept(); });
+      // Build items with DOM APIs (createElement + textContent) so a
+      // user-supplied device id cannot run as HTML (SS-netscript-2).
+      acEl.textContent = "";
+      acItems.forEach(function (it, i) {
+        var div = document.createElement("div");
+        if (i === 0) div.className = "sel";
+        div.textContent = it;
+        div.addEventListener("mousedown", function (e) { e.preventDefault(); acSel = i; accept(); });
+        acEl.appendChild(div);
       });
       var p = caretXY();
       acEl.style.left = Math.min(p.x, window.innerWidth - 180) + "px";
